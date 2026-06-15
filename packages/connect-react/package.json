@@ -22,7 +22,8 @@
     "dev": "tsup --watch",
     "lint": "biome check src",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist .turbo"
+    "clean": "rm -rf dist .turbo",
+    "test": "vitest run"
   },
   "peerDependencies": {
     "react": ">=18",
