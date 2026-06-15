@@ -1,0 +1,24 @@
+{
+  "name": "@pacto-connect/gateway",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Connect Gateway (BFF): issues keys, signs handshakes, proxies to Pacto API, emits webhooks.",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsup",
+    "start": "node dist/index.js",
+    "lint": "biome check src",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "hono": "^4.6.14"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
