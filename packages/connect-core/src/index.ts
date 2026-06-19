@@ -38,9 +38,12 @@ export {
 export type {
   CreateEscrowParams,
   CreateQuoteParams,
+  DepositParams,
   Escrow,
   EscrowStatus,
   EscrowStatusResponse,
+  FiatPaymentMethod,
+  FiatReceiptParams,
   Listing,
   PactoApiClient,
   Quote,

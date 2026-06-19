@@ -51,6 +51,20 @@ export interface CreateEscrowParams {
   quoteId: string;
 }
 
+export interface DepositParams {
+  /** When true, simulates on-chain deposit in Gateway test mode. */
+  testMode?: boolean;
+}
+
+export type FiatPaymentMethod = 'SINPE' | 'SPEI';
+
+export interface FiatReceiptParams {
+  method: FiatPaymentMethod;
+  reference: string;
+  /** Base64-encoded receipt image or document. */
+  receipt?: string;
+}
+
 export interface ListingsResource {
   list(): Promise<{ listings: Listing[] }>;
   retrieve(id: string): Promise<{ listing: Listing }>;
@@ -65,6 +79,8 @@ export interface EscrowsResource {
   create(params: CreateEscrowParams): Promise<{ escrow: Escrow }>;
   retrieve(id: string): Promise<{ escrow: Escrow }>;
   getStatus(id: string): Promise<{ status: EscrowStatusResponse }>;
+  deposit(id: string, params?: DepositParams): Promise<{ escrow: Escrow }>;
+  reportFiatPayment(id: string, params: FiatReceiptParams): Promise<{ escrow: Escrow }>;
 }
 
 export interface PactoApiClient {
@@ -120,6 +136,22 @@ export function createApiClient(options: HttpClientOptions): PactoApiClient {
         request<{ status: EscrowStatusResponse }>(options, {
           method: 'GET',
           path: `/v1/escrows/${id}/status`,
+          resource: 'escrow',
+        }),
+      deposit: (id, params = {}) =>
+        request<{ escrow: Escrow }>(options, {
+          method: 'POST',
+          path: `/v1/escrows/${id}/deposit`,
+          body: params,
+          idempotent: true,
+          resource: 'escrow',
+        }),
+      reportFiatPayment: (id, params) =>
+        request<{ escrow: Escrow }>(options, {
+          method: 'POST',
+          path: `/v1/escrows/${id}/fiat-receipt`,
+          body: params,
+          idempotent: true,
           resource: 'escrow',
         }),
     },
