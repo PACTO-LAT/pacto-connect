@@ -147,9 +147,9 @@ describe('escrow event subscription', () => {
       occurredAt: '2024-01-01T00:10:00.000Z',
     });
 
-    const reconnectUrl = vi.mocked(fetch).mock.calls.find(
-      (call, index) => index > 0 && String(call[0]).includes('cursor=cursor-1'),
-    );
+    const reconnectUrl = vi
+      .mocked(fetch)
+      .mock.calls.find((call, index) => index > 0 && String(call[0]).includes('cursor=cursor-1'));
     expect(reconnectUrl).toBeDefined();
 
     subscriber.close();
