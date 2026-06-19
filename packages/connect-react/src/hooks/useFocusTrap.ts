@@ -23,8 +23,9 @@ export function useFocusTrap(
     const previouslyFocused = document.activeElement as HTMLElement | null;
 
     const focusable = getFocusableElements(container);
-    if (focusable.length > 0) {
-      focusable[0].focus();
+    const initialFocus = focusable.at(0);
+    if (initialFocus) {
+      initialFocus.focus();
     } else {
       container.focus();
     }
@@ -41,13 +42,13 @@ export function useFocusTrap(
       }
 
       const elements = getFocusableElements(container);
-      if (elements.length === 0) {
+      const first = elements.at(0);
+      const last = elements.at(-1);
+      if (!first || !last) {
         event.preventDefault();
         return;
       }
 
-      const first = elements[0];
-      const last = elements[elements.length - 1];
       const activeEl = document.activeElement as HTMLElement;
 
       if (event.shiftKey) {
