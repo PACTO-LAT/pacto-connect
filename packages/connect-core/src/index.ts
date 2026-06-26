@@ -79,10 +79,34 @@ export interface PactoSessionData {
   mode: CheckoutMode;
 }
 
+export type FxCurrency = 'CRC' | 'MXN' | 'USD';
+
+export interface GetQuoteParams {
+  from: FxCurrency;
+  to: FxCurrency;
+  amount: number;
+}
+
+export interface FxQuoteData {
+  quoteId: string;
+  from: FxCurrency;
+  to: FxCurrency;
+  amount: number;
+  baseRate: number;
+  spreadBps: number;
+  effectiveRate: number;
+  toAmount: number;
+  source: string;
+  asOf: string;
+  expiresAt: Date;
+  token: string;
+}
+
 export interface PactoClient {
   readonly publishableKey: string;
   readonly gatewayUrl: string;
   createCheckoutSession(params: CreateCheckoutSessionParams): Promise<PactoSession>;
+  getQuote(params: GetQuoteParams): Promise<PactoFxQuote>;
   api(session: PactoSession): PactoApiClient;
 }
 
@@ -91,6 +115,25 @@ interface GatewaySessionResponse {
   clientSecret: string;
   expiresAt: string;
   mode: CheckoutMode;
+}
+
+interface GatewayQuotePayload {
+  quoteId: string;
+  from: FxCurrency;
+  to: FxCurrency;
+  amount: number;
+  baseRate: number;
+  spreadBps: number;
+  effectiveRate: number;
+  toAmount: number;
+  source: string;
+  asOf: string;
+  expiresAt: string;
+  token: string;
+}
+
+interface GatewayQuoteResponse {
+  quote: GatewayQuotePayload;
 }
 
 interface SessionRuntimeConfig {
@@ -157,6 +200,41 @@ export class PactoSession {
   closeEvents(): void {
     this.subscriber?.close();
     this.subscriber = undefined;
+  }
+}
+
+export class PactoFxQuote {
+  readonly quoteId: string;
+  readonly from: FxCurrency;
+  readonly to: FxCurrency;
+  readonly amount: number;
+  readonly baseRate: number;
+  readonly spreadBps: number;
+  readonly effectiveRate: number;
+  readonly toAmount: number;
+  readonly source: string;
+  readonly asOf: string;
+  readonly expiresAt: Date;
+  /** Opaque signed token consumed by checkout to lock the quoted price; verified server-side. */
+  readonly token: string;
+
+  constructor(data: FxQuoteData) {
+    this.quoteId = data.quoteId;
+    this.from = data.from;
+    this.to = data.to;
+    this.amount = data.amount;
+    this.baseRate = data.baseRate;
+    this.spreadBps = data.spreadBps;
+    this.effectiveRate = data.effectiveRate;
+    this.toAmount = data.toAmount;
+    this.source = data.source;
+    this.asOf = data.asOf;
+    this.expiresAt = data.expiresAt;
+    this.token = data.token;
+  }
+
+  isExpired(): boolean {
+    return this.expiresAt.getTime() <= Date.now();
   }
 }
 
@@ -235,6 +313,59 @@ function createGatewayClient(options: PactoInitOptions): InternalPactoClient {
     async createCheckoutSession(params: CreateCheckoutSessionParams): Promise<PactoSession> {
       const data = await requestSession('/v1/session', params);
       return new PactoSession(this, data);
+    },
+    async getQuote(params: GetQuoteParams): Promise<PactoFxQuote> {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        [PUBLISHABLE_KEY_HEADER]: publishableKey,
+      };
+
+      if (origin) {
+        headers.Origin = origin;
+      }
+
+      const response = await fetch(`${gatewayUrl}/v1/quote`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          from: params.from,
+          to: params.to,
+          amount: params.amount,
+        }),
+      });
+
+      const responseBody = (await response.json()) as GatewayQuoteResponse & GatewayErrorBody;
+
+      if (!response.ok) {
+        throw errorFromResponse(response.status, responseBody, {
+          path: '/v1/quote',
+          resource: 'quote',
+        });
+      }
+
+      const q = responseBody.quote;
+      if (!q || typeof q.token !== 'string' || typeof q.expiresAt !== 'string') {
+        throw new PactoError(
+          'gateway_error',
+          'invalid_response',
+          'Gateway returned an invalid quote payload',
+        );
+      }
+
+      return new PactoFxQuote({
+        quoteId: q.quoteId,
+        from: q.from,
+        to: q.to,
+        amount: q.amount,
+        baseRate: q.baseRate,
+        spreadBps: q.spreadBps,
+        effectiveRate: q.effectiveRate,
+        toAmount: q.toAmount,
+        source: q.source,
+        asOf: q.asOf,
+        expiresAt: new Date(q.expiresAt),
+        token: q.token,
+      });
     },
     async refreshSession(clientSecret: string): Promise<PactoSessionData> {
       return requestSession('/v1/session/refresh', { clientSecret });
