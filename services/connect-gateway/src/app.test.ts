@@ -106,17 +106,86 @@ describe('origin validation middleware', () => {
     expect(res.headers.get('Access-Control-Allow-Credentials')).toBe('true');
   });
 
-  it('handles CORS preflight for allowed origins', async () => {
-    vi.mocked(keys.findActiveApiKeyByPublishableKey).mockResolvedValue(mockApiKey);
-
-    const app = createApp();
-    const res = await app.request('/v1/session', {
-      method: 'OPTIONS',
-      headers: {
-        Origin: 'https://allowed.example',
-        [PUBLISHABLE_KEY_HEADER]: mockApiKey.publishableKey,
-      },
-    });
+ diff --git a/services/connect-gateway/src/app.test.ts b/services/connect-gateway/src/app.test.ts
+index 73d7ec7..aac3092 100644
+--- a/services/connect-gateway/src/app.test.ts
++++ b/services/connect-gateway/src/app.test.ts
+@@ -106,20 +106,37 @@ describe('origin validation middleware', () => {
+     expect(res.headers.get('Access-Control-Allow-Credentials')).toBe('true');
+   });
+ 
+-  it('handles CORS preflight for allowed origins', async () => {
+-    vi.mocked(keys.findActiveApiKeyByPublishableKey).mockResolvedValue(mockApiKey);
+-
++  it('handles CORS preflight for allowed origins without a publishable key', async () => {
++    // Browsers never attach application headers (e.g. x-pacto-publishable-key)
++    // to the autonomous OPTIONS preflight they send before the real request.
++    // The gateway must return 204 + CORS headers without requiring the key.
+     const app = createApp();
+     const res = await app.request('/v1/session', {
+       method: 'OPTIONS',
+       headers: {
+         Origin: 'https://allowed.example',
+-        [PUBLISHABLE_KEY_HEADER]: mockApiKey.publishableKey,
++        'Access-Control-Request-Method': 'POST',
++        'Access-Control-Request-Headers': `content-type,${PUBLISHABLE_KEY_HEADER}`,
+       },
+     });
+ 
+     expect(res.status).toBe(204);
+     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('https://allowed.example');
++    expect(res.headers.get('Access-Control-Allow-Methods')).toMatch(/POST/);
++    expect(res.headers.get('Access-Control-Allow-Headers')).toMatch(
++      new RegExp(PUBLISHABLE_KEY_HEADER, 'i'),
++    );
++  });
++
++  it('returns 204 for OPTIONS even when no publishable key is present (regression)', async () => {
++    const app = createApp();
++    const res = await app.request('/v1/session', {
++      method: 'OPTIONS',
++      headers: { Origin: 'https://merchant.example' },
++    });
++
++    // Must not be 401 — that would block every browser preflight
++    expect(res.status).toBe(204);
+   });
+ 
+   it('does not require origin validation on /health', async () => {
+diff --git a/services/connect-gateway/src/middleware/origin.ts b/services/connect-gateway/src/middleware/origin.ts
+index b740ba8..04ce54a 100644
+--- a/services/connect-gateway/src/middleware/origin.ts
++++ b/services/connect-gateway/src/middleware/origin.ts
+@@ -29,6 +29,18 @@ function setCorsHeaders(c: Context, origin: string): void {
+ }
+ 
+ export async function originValidation(c: Context, next: Next): Promise<Response | void> {
++  // Browser CORS preflight requests are generated autonomously by the browser
++  // before the actual request and never carry application headers such as
++  // x-pacto-publishable-key. Respond immediately so the browser can proceed.
++  // Security is enforced on the subsequent real request that follows.
++  if (c.req.method === 'OPTIONS') {
++    const preflightOrigin = c.req.header('Origin');
++    if (preflightOrigin) {
++      setCorsHeaders(c, preflightOrigin);
++    }
++    return c.body(null, 204);
++  }
++
+   const publishableKey = extractPublishableKey(c);
+   if (!publishableKey) {
+     return c.json({ error: 'publishable key required' }, 401);
+@@ -50,10 +62,6 @@ export async function originValidation(c: Context, next: Next): Promise<Response
+ 
+   setCorsHeaders(c, origin);
+ 
+-  if (c.req.method === 'OPTIONS') {
+-    return c.body(null, 204);
+-  }
+-
+   c.set('apiKey', apiKey);
+   await next();
+ }
 
     expect(res.status).toBe(204);
     expect(res.headers.get('Access-Control-Allow-Origin')).toBe('https://allowed.example');
@@ -131,6 +200,15 @@ describe('origin validation middleware', () => {
   });
 });
 
+it('returns 204 for OPTIONS even when no publishable key is present (regression)', async () => {
+  const app = createApp();
+  const res = await app.request('/v1/session', {
+    method: 'OPTIONS',
+    headers: { Origin: 'https://merchant.example' },
+  });
+
+  expect(res.status).toBe(204);
+});
 describe('admin routes', () => {
   beforeEach(() => {
     process.env.GATEWAY_ADMIN_TOKEN = 'test-admin-token';

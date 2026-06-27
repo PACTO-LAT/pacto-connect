@@ -29,6 +29,17 @@ function setCorsHeaders(c: Context, origin: string): void {
 }
 
 export async function originValidation(c: Context, next: Next): Promise<Response | void> {
+    // Browser CORS preflight requests are generated autonomously by the browser
+  // before the actual request and never carry application headers such as
+  // x-pacto-publishable-key. Respond immediately so the browser can proceed.
+  // Security is enforced on the subsequent real request that follows.
+  if (c.req.method === 'OPTIONS') {
+    const preflightOrigin = c.req.header('Origin');
+    if (preflightOrigin) {
+      setCorsHeaders(c, preflightOrigin);
+    }
+    return c.body(null, 204);
+  }
   const publishableKey = extractPublishableKey(c);
   if (!publishableKey) {
     return c.json({ error: 'publishable key required' }, 401);
@@ -49,10 +60,6 @@ export async function originValidation(c: Context, next: Next): Promise<Response
   }
 
   setCorsHeaders(c, origin);
-
-  if (c.req.method === 'OPTIONS') {
-    return c.body(null, 204);
-  }
 
   c.set('apiKey', apiKey);
   await next();
