@@ -1,73 +1,16 @@
 /**
- * @pacto-connect/core
- *
- * Framework-agnostic SDK core for Pacto Connect.
+ * Pacto client bootstrap — extracted from index for use by checkout-flow without circular imports.
  */
 
-export {
-  type BridgeClient,
-  type BridgeClientOptions,
-  type BridgeHost,
-  type BridgeHostOptions,
-  createBridgeClient,
-  createBridgeHost,
-  isOriginAllowed,
-  isPactoBridgeEnvelope,
-  PACTO_BRIDGE_SOURCE,
-  PACTO_BRIDGE_VERSION,
-  type PactoBridgeEnvelope,
-  type PactoBridgeEventType,
-  type PactoBridgeMessage,
-  type PactoBridgePayloadMap,
-} from './bridge.js';
-export {
-  CheckoutFlowController,
-  type CheckoutFlowOptions,
-  type CheckoutFlowState,
-  type CheckoutStep,
-} from './checkout-flow.js';
-export {
-  type CheckoutMode,
-  type CreateCheckoutSessionParams,
-  DEFAULT_GATEWAY_URL,
-  init,
-  Pacto,
-  type PactoClient,
-  type PactoInitOptions,
-  PactoSession,
-  type PactoSessionData,
-} from './client.js';
-export {
-  PactoApiError,
-  PactoAuthError,
-  PactoError,
-  PactoEscrowError,
-  PactoRateLimitError,
-  PactoSessionError,
-} from './errors.js';
-export {
-  ESCROW_EVENT_NAMES,
-  type EscrowEvent,
+import { errorFromResponse, type GatewayErrorBody, PactoError } from './errors.js';
+import {
   type EscrowEventHandler,
   type EscrowEventName,
-  type EscrowMilestone,
+  EscrowEventSubscriber,
   type EscrowSubscribeOptions,
 } from './escrow-events.js';
-export type {
-  CreateEscrowParams,
-  CreateQuoteParams,
-  DepositParams,
-  Escrow,
-  EscrowStatus,
-  EscrowStatusResponse,
-  FiatPaymentMethod,
-  FiatReceiptParams,
-  Listing,
-  PactoApiClient,
-  Quote,
-} from './resources.js';
-
-export const VERSION = '0.0.0';
+import { PUBLISHABLE_KEY_HEADER } from './http.js';
+import { createApiClient, type PactoApiClient } from './resources.js';
 
 export type CheckoutMode = 'buy' | 'sell';
 
@@ -97,34 +40,11 @@ export interface PactoSessionData {
   mode: CheckoutMode;
 }
 
-export type FxCurrency = 'CRC' | 'MXN' | 'USD';
-
-export interface GetQuoteParams {
-  from: FxCurrency;
-  to: FxCurrency;
-  amount: number;
-}
-
-export interface FxQuoteData {
-  quoteId: string;
-  from: FxCurrency;
-  to: FxCurrency;
-  amount: number;
-  baseRate: number;
-  spreadBps: number;
-  effectiveRate: number;
-  toAmount: number;
-  source: string;
-  asOf: string;
-  expiresAt: Date;
-  token: string;
-}
-
 export interface PactoClient {
   readonly publishableKey: string;
   readonly gatewayUrl: string;
   createCheckoutSession(params: CreateCheckoutSessionParams): Promise<PactoSession>;
-  getQuote(params: GetQuoteParams): Promise<PactoFxQuote>;
+  resumeCheckoutSession(data: PactoSessionData): PactoSession;
   api(session: PactoSession): PactoApiClient;
 }
 
@@ -133,25 +53,6 @@ interface GatewaySessionResponse {
   clientSecret: string;
   expiresAt: string;
   mode: CheckoutMode;
-}
-
-interface GatewayQuotePayload {
-  quoteId: string;
-  from: FxCurrency;
-  to: FxCurrency;
-  amount: number;
-  baseRate: number;
-  spreadBps: number;
-  effectiveRate: number;
-  toAmount: number;
-  source: string;
-  asOf: string;
-  expiresAt: string;
-  token: string;
-}
-
-interface GatewayQuoteResponse {
-  quote: GatewayQuotePayload;
 }
 
 interface SessionRuntimeConfig {
@@ -163,7 +64,7 @@ interface SessionRuntimeConfig {
   maxReconnectAttempts?: number;
 }
 
-const DEFAULT_GATEWAY_URL = 'https://connect.pacto.example';
+export const DEFAULT_GATEWAY_URL = 'https://connect.pacto.example';
 
 function isCheckoutMode(value: string): value is CheckoutMode {
   return value === 'buy' || value === 'sell';
@@ -218,41 +119,6 @@ export class PactoSession {
   closeEvents(): void {
     this.subscriber?.close();
     this.subscriber = undefined;
-  }
-}
-
-export class PactoFxQuote {
-  readonly quoteId: string;
-  readonly from: FxCurrency;
-  readonly to: FxCurrency;
-  readonly amount: number;
-  readonly baseRate: number;
-  readonly spreadBps: number;
-  readonly effectiveRate: number;
-  readonly toAmount: number;
-  readonly source: string;
-  readonly asOf: string;
-  readonly expiresAt: Date;
-  /** Opaque signed token consumed by checkout to lock the quoted price; verified server-side. */
-  readonly token: string;
-
-  constructor(data: FxQuoteData) {
-    this.quoteId = data.quoteId;
-    this.from = data.from;
-    this.to = data.to;
-    this.amount = data.amount;
-    this.baseRate = data.baseRate;
-    this.spreadBps = data.spreadBps;
-    this.effectiveRate = data.effectiveRate;
-    this.toAmount = data.toAmount;
-    this.source = data.source;
-    this.asOf = data.asOf;
-    this.expiresAt = data.expiresAt;
-    this.token = data.token;
-  }
-
-  isExpired(): boolean {
-    return this.expiresAt.getTime() <= Date.now();
   }
 }
 
@@ -332,58 +198,8 @@ function createGatewayClient(options: PactoInitOptions): InternalPactoClient {
       const data = await requestSession('/v1/session', params);
       return new PactoSession(this, data);
     },
-    async getQuote(params: GetQuoteParams): Promise<PactoFxQuote> {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        [PUBLISHABLE_KEY_HEADER]: publishableKey,
-      };
-
-      if (origin) {
-        headers.Origin = origin;
-      }
-
-      const response = await fetch(`${gatewayUrl}/v1/quote`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          from: params.from,
-          to: params.to,
-          amount: params.amount,
-        }),
-      });
-
-      const responseBody = (await response.json()) as GatewayQuoteResponse & GatewayErrorBody;
-
-      if (!response.ok) {
-        throw errorFromResponse(response.status, responseBody, {
-          path: '/v1/quote',
-          resource: 'quote',
-        });
-      }
-
-      const q = responseBody.quote;
-      if (!q || typeof q.token !== 'string' || typeof q.expiresAt !== 'string') {
-        throw new PactoError(
-          'gateway_error',
-          'invalid_response',
-          'Gateway returned an invalid quote payload',
-        );
-      }
-
-      return new PactoFxQuote({
-        quoteId: q.quoteId,
-        from: q.from,
-        to: q.to,
-        amount: q.amount,
-        baseRate: q.baseRate,
-        spreadBps: q.spreadBps,
-        effectiveRate: q.effectiveRate,
-        toAmount: q.toAmount,
-        source: q.source,
-        asOf: q.asOf,
-        expiresAt: new Date(q.expiresAt),
-        token: q.token,
-      });
+    resumeCheckoutSession(data: PactoSessionData): PactoSession {
+      return new PactoSession(this, data);
     },
     async refreshSession(clientSecret: string): Promise<PactoSessionData> {
       return requestSession('/v1/session/refresh', { clientSecret });
@@ -410,4 +226,4 @@ export function init(options: PactoInitOptions): PactoClient {
   return createGatewayClient(options);
 }
 
-export const Pacto = { init, VERSION };
+export const Pacto = { init };
