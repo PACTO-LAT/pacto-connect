@@ -6,7 +6,10 @@
 export const VERSION = '0.0.0';
 
 export type {
+  CheckoutFlowOptions,
+  CheckoutFlowState,
   CheckoutMode,
+  CheckoutStep,
   CreateCheckoutSessionParams,
   CreateEscrowParams,
   CreateQuoteParams,
@@ -29,6 +32,7 @@ export type {
   Quote,
 } from '@pacto-connect/core';
 export {
+  CheckoutFlowController,
   ESCROW_EVENT_NAMES,
   Pacto,
   PactoApiError,
@@ -40,7 +44,6 @@ export {
   PactoSessionError,
 } from '@pacto-connect/core';
 export type {
-  CheckoutStep,
   UseCheckoutFlowOptions,
   UseCheckoutFlowResult,
 } from './hooks/useCheckoutFlow.js';
