@@ -1,0 +1,65 @@
+---
+title: Pacto Connect SDK
+---
+
+import { Cards, Card, Steps } from 'nextra/components'
+
+# Pacto Connect SDK
+
+Embed P2P stablecoin buy/sell flows into any web application in minutes. Pacto Connect provides a prebuilt checkout widget, React hooks, and a vanilla-JS / web-component integration path — all powered by the same gateway.
+
+## Choose your integration
+
+<Cards>
+  <Card title="React" href="/quickstart#react" arrow>
+    Drop in `<PactoCheckout />` and wire up a publishable key. Done.
+  </Card>
+  <Card title="Vanilla JS / Web Components" href="/quickstart#vanilla" arrow>
+    One script tag, one `pacto.mount()` call. Works in any framework.
+  </Card>
+  <Card title="Custom UI" href="/api-reference/core" arrow>
+    Use the core SDK to drive your own checkout UI with full control.
+  </Card>
+</Cards>
+
+## How it works
+
+<Steps>
+
+### Get a publishable key
+
+Sign in to the Pacto dashboard and create an API key. Test keys start with `pk_test_`; live keys start with `pk_live_`.
+
+### Install the package
+
+```bash
+npm install @pacto-connect/react
+# or for non-React sites:
+npm install @pacto-connect/elements
+```
+
+### Render the widget
+
+```tsx
+import { PactoCheckout } from '@pacto-connect/react'
+
+<PactoCheckout
+  publishableKey="pk_test_..."
+  mode="buy"
+  onComplete={(escrow) => console.log('Checkout complete', escrow)}
+/>
+```
+
+### Ship it
+
+The widget handles the full buy/sell flow: listing selection, escrow creation, deposit confirmation, fiat receipt upload, and status tracking.
+
+</Steps>
+
+## Packages
+
+| Package | Description |
+|---|---|
+| [`@pacto-connect/react`](/api-reference/react) | React widget `<PactoCheckout>` and `useCheckoutFlow` hook |
+| [`@pacto-connect/elements`](/api-reference/elements) | Web component `<pacto-checkout>` and `pacto.mount()` for non-React sites |
+| [`@pacto-connect/core`](/api-reference/core) | Framework-agnostic SDK core; use this to build a fully custom UI |

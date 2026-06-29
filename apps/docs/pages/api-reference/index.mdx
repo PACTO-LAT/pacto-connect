@@ -1,0 +1,27 @@
+---
+title: API Reference
+---
+
+import { Cards, Card, Callout } from 'nextra/components'
+
+# API Reference
+
+The API reference is generated automatically from the TypeScript source files. Run `npm run generate:api-docs` in `apps/docs` to regenerate it, or push a change to `packages/*/src` — CI will keep it in sync.
+
+<Callout type="info">
+  All types are exported from their respective package root. You never need to import from internal paths.
+</Callout>
+
+## Packages
+
+<Cards>
+  <Card title="@pacto-connect/core" href="/api-reference/core" arrow>
+    `Pacto.init()`, `PactoClient`, `PactoSession`, `CheckoutFlowController`, escrow event types, and all shared resource types.
+  </Card>
+  <Card title="@pacto-connect/react" href="/api-reference/react" arrow>
+    `<PactoCheckout>` component, `useCheckoutFlow` hook, and all React-specific prop types.
+  </Card>
+  <Card title="@pacto-connect/elements" href="/api-reference/elements" arrow>
+    `pacto.mount()`, `<pacto-checkout>` web component, `mountFrame()`, and associated option types.
+  </Card>
+</Cards>

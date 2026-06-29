@@ -1,0 +1,11 @@
+{
+  "index": "Introduction",
+  "quickstart": "Quickstart",
+  "api-reference": "API Reference",
+  "playground": {
+    "title": "Playground",
+    "theme": {
+      "layout": "full"
+    }
+  }
+}

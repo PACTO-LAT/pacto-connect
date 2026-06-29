@@ -1,0 +1,227 @@
+---
+title: Quickstart
+---
+
+import { Steps, Tabs, Callout } from 'nextra/components'
+
+# Quickstart
+
+This guide gets you from zero to a working checkout widget. Pick your integration style below.
+
+<Tabs items={['React', 'Vanilla JS', 'CDN / HTML']}>
+
+<Tabs.Tab>
+
+## React
+
+<Steps>
+
+### Install
+
+```bash
+npm install @pacto-connect/react
+```
+
+`@pacto-connect/react` requires React 18+. It has a peer dependency on `react` and `react-dom`.
+
+### Add `<PactoCheckout>`
+
+```tsx filename="src/App.tsx"
+import { PactoCheckout } from '@pacto-connect/react'
+
+export default function App() {
+  return (
+    <PactoCheckout
+      publishableKey="pk_test_..."
+      mode="buy"
+      onComplete={(escrow) => {
+        console.log('Escrow created', escrow.id)
+      }}
+      onError={(error) => {
+        console.error('Checkout error', error)
+      }}
+    />
+  )
+}
+```
+
+### Open the widget
+
+`<PactoCheckout>` renders as a modal that opens automatically when mounted. Use the `enabled` prop to control visibility:
+
+```tsx filename="src/App.tsx"
+import { useState } from 'react'
+import { PactoCheckout } from '@pacto-connect/react'
+
+export default function App() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)}>Buy stablecoins</button>
+
+      {open && (
+        <PactoCheckout
+          publishableKey="pk_test_..."
+          mode="buy"
+          onComplete={(escrow) => {
+            setOpen(false)
+            console.log('Done', escrow.id)
+          }}
+          onClose={() => setOpen(false)}
+        />
+      )}
+    </>
+  )
+}
+```
+
+### Run it
+
+Start your dev server. When you click the button you should see the Pacto checkout modal open in test mode.
+
+<Callout type="info">
+  Test mode uses `pk_test_*` keys and never settles real funds. Switch to a `pk_live_*` key for production.
+</Callout>
+
+</Steps>
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+## Vanilla JS / Web Components
+
+<Steps>
+
+### Install
+
+```bash
+npm install @pacto-connect/elements
+```
+
+### Mount the widget
+
+```js filename="checkout.js"
+import { pacto } from '@pacto-connect/elements'
+
+const handle = pacto.mount('#checkout-root', {
+  publishableKey: 'pk_test_...',
+  mode: 'buy',
+  onComplete: (escrow) => {
+    console.log('Escrow created', escrow.id)
+    handle.destroy()
+  },
+  onClose: () => handle.destroy(),
+})
+```
+
+Add a container element in your HTML:
+
+```html filename="index.html"
+<div id="checkout-root"></div>
+<button id="open-btn">Buy stablecoins</button>
+
+<script type="module" src="./checkout.js"></script>
+<script type="module">
+  import { pacto } from '@pacto-connect/elements'
+
+  let handle = null
+
+  document.getElementById('open-btn').addEventListener('click', () => {
+    handle = pacto.mount('#checkout-root', {
+      publishableKey: 'pk_test_...',
+      mode: 'buy',
+      onComplete: (escrow) => {
+        console.log('Done', escrow.id)
+        handle?.destroy()
+        handle = null
+      },
+      onClose: () => {
+        handle?.destroy()
+        handle = null
+      },
+    })
+  })
+</script>
+```
+
+### Use the web component directly
+
+```html
+<pacto-checkout
+  publishable-key="pk_test_..."
+  mode="buy"
+></pacto-checkout>
+
+<script type="module" src="node_modules/@pacto-connect/elements/dist/index.js"></script>
+```
+
+Call `element.open()` / `element.close()` programmatically:
+
+```js
+const el = document.querySelector('pacto-checkout')
+el.open()
+```
+
+</Steps>
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+## CDN / HTML (no build step)
+
+<Steps>
+
+### Add the script tag
+
+```html filename="index.html"
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My App</title>
+</head>
+<body>
+  <button id="checkout-btn">Buy stablecoins</button>
+  <div id="checkout-root"></div>
+
+  <script src="https://cdn.pacto.example/elements/latest/pacto.min.js"></script>
+  <script>
+    document.getElementById('checkout-btn').addEventListener('click', () => {
+      const handle = window.pacto.mount('#checkout-root', {
+        publishableKey: 'pk_test_...',
+        mode: 'buy',
+        onComplete: function (escrow) {
+          console.log('Done', escrow.id)
+          handle.destroy()
+        },
+        onClose: function () {
+          handle.destroy()
+        },
+      })
+    })
+  </script>
+</body>
+</html>
+```
+
+<Callout type="warning">
+  The CDN build (`pacto.min.js`) exposes `window.pacto`. It also registers the `<pacto-checkout>` custom element automatically.
+</Callout>
+
+### Paste it and go
+
+Open the file in your browser. Click the button. The checkout modal appears in test mode.
+
+</Steps>
+
+</Tabs.Tab>
+</Tabs>
+
+## Next steps
+
+- [API Reference](/api-reference) — full type documentation for all packages
+- [Playground](/playground) — configure the widget live and copy the generated snippet
+- Swap `pk_test_...` for a real `pk_live_...` key when you are ready to go live
