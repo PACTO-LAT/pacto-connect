@@ -24,6 +24,22 @@ export function sessionErrorStatus(code: SessionErrorCode): ContentfulStatusCode
   return code === 'session_expired' ? 410 : 401;
 }
 
+export type QuoteErrorCode = 'quote_invalid' | 'quote_expired';
+
+export class QuoteError extends Error {
+  constructor(
+    public readonly code: QuoteErrorCode,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'QuoteError';
+  }
+}
+
+export function quoteErrorStatus(code: QuoteErrorCode): ContentfulStatusCode {
+  return code === 'quote_expired' ? 410 : 400;
+}
+
 export function toGatewayErrorBody(type: string, code: string, message: string): GatewayErrorBody {
   return {
     error: {

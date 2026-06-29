@@ -12,6 +12,7 @@ const mockApiKey: ApiKey = {
   allowedOrigins: ['https://allowed.example'],
   status: 'active',
   label: null,
+  quoteSpreadBps: 0,
   createdAt: new Date('2024-01-01T00:00:00.000Z'),
   updatedAt: new Date('2024-01-01T00:00:00.000Z'),
 };
@@ -153,6 +154,7 @@ describe('admin routes', () => {
         allowedOrigins: ['https://allowed.example'],
         status: 'active',
         label: null,
+        quoteSpreadBps: 0,
         createdAt: new Date('2024-01-01T00:00:00.000Z'),
         updatedAt: new Date('2024-01-01T00:00:00.000Z'),
       },
@@ -201,6 +203,96 @@ describe('admin routes', () => {
     const body = await res.json();
     expect(body.key.secretKey).toMatch(/^sk_test_/);
     expect(body.key.publishableKey).toMatch(/^pk_test_/);
+  });
+});
+
+describe('quote route', () => {
+  beforeEach(() => {
+    process.env.GATEWAY_SIGNING_SECRET = 'test-signing-secret';
+    vi.mocked(keys.findActiveApiKeyByPublishableKey).mockReset();
+  });
+
+  it('returns 200 with a quote for a valid request body', async () => {
+    vi.mocked(keys.findActiveApiKeyByPublishableKey).mockResolvedValue(mockApiKey);
+
+    const app = createApp();
+    const res = await app.request('/v1/quote', {
+      method: 'POST',
+      headers: {
+        Origin: 'https://allowed.example',
+        [PUBLISHABLE_KEY_HEADER]: mockApiKey.publishableKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ from: 'USD', to: 'CRC', amount: 100 }),
+    });
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.quote.token).toEqual(expect.any(String));
+    expect(body.quote.token.length).toBeGreaterThan(0);
+    expect(body.quote.baseRate).toBe(510);
+    expect(body.quote.effectiveRate).toBe(510);
+    expect(body.quote.expiresAt).toBeDefined();
+  });
+
+  it('applies the merchant spread', async () => {
+    vi.mocked(keys.findActiveApiKeyByPublishableKey).mockResolvedValue({
+      ...mockApiKey,
+      quoteSpreadBps: 100,
+    });
+
+    const app = createApp();
+    const res = await app.request('/v1/quote', {
+      method: 'POST',
+      headers: {
+        Origin: 'https://allowed.example',
+        [PUBLISHABLE_KEY_HEADER]: mockApiKey.publishableKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ from: 'USD', to: 'CRC', amount: 100 }),
+    });
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.quote.effectiveRate).toBe(504.9);
+  });
+
+  it('returns 400 for an unsupported currency', async () => {
+    vi.mocked(keys.findActiveApiKeyByPublishableKey).mockResolvedValue(mockApiKey);
+
+    const app = createApp();
+    const res = await app.request('/v1/quote', {
+      method: 'POST',
+      headers: {
+        Origin: 'https://allowed.example',
+        [PUBLISHABLE_KEY_HEADER]: mockApiKey.publishableKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ from: 'EUR', to: 'CRC', amount: 100 }),
+    });
+
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error.code).toBe('unsupported_currency');
+  });
+
+  it('returns 400 for amount <= 0', async () => {
+    vi.mocked(keys.findActiveApiKeyByPublishableKey).mockResolvedValue(mockApiKey);
+
+    const app = createApp();
+    const res = await app.request('/v1/quote', {
+      method: 'POST',
+      headers: {
+        Origin: 'https://allowed.example',
+        [PUBLISHABLE_KEY_HEADER]: mockApiKey.publishableKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ from: 'USD', to: 'CRC', amount: 0 }),
+    });
+
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error.code).toBe('invalid_request');
   });
 });
 
