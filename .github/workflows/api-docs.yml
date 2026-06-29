@@ -1,0 +1,58 @@
+name: Regenerate API docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/connect-core/src/**'
+      - 'packages/connect-react/src/**'
+      - 'packages/connect-elements/src/**'
+  pull_request:
+    paths:
+      - 'packages/connect-core/src/**'
+      - 'packages/connect-react/src/**'
+      - 'packages/connect-elements/src/**'
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build SDK packages
+        # generate:api-docs needs the compiled .d.ts files for tsconfig resolution
+        run: npx turbo run build --filter='@pacto-connect/core' --filter='@pacto-connect/react' --filter='@pacto-connect/elements'
+
+      - name: Regenerate API docs
+        run: npm run generate:api-docs
+        working-directory: apps/docs
+
+      - name: Check for uncommitted changes
+        id: diff
+        run: |
+          git diff --exit-code apps/docs/pages/api-reference/ || echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Fail if API docs are out of date
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          echo "::error::API reference docs are out of date. Run 'npm run generate:api-docs' in apps/docs and commit the result."
+          git diff --stat apps/docs/pages/api-reference/
+          exit 1
+
+      # On pushes to main, auto-commit the refreshed docs if they changed
+      - name: Commit updated API docs
+        if: github.event_name == 'push' && steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apps/docs/pages/api-reference/
+          git commit -m "chore(docs): regenerate API reference [skip ci]"
+          git push
