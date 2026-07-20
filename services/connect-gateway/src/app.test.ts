@@ -15,12 +15,23 @@ const mockApiKey: ApiKey = {
   quoteSpreadBps: 0,
   createdAt: new Date('2024-01-01T00:00:00.000Z'),
   updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+  rotatedFromId: null,
+  graceExpiresAt: null,
 };
 
 vi.mock('./keys.js', () => ({
   findActiveApiKeyByPublishableKey: vi.fn(),
   isOriginAllowed: (origin: string, allowed: string[]) => allowed.includes(origin),
+  normalizeOrigin: (raw: string) => {
+    try {
+      const u = new URL(raw);
+      return u.origin.toLowerCase();
+    } catch {
+      return null;
+    }
+  },
   createApiKey: vi.fn(),
+  cutoverApiKey: vi.fn(),
   listApiKeys: vi.fn(),
   rotateApiKey: vi.fn(),
   revokeApiKey: vi.fn(),
@@ -61,7 +72,10 @@ describe('origin validation middleware', () => {
     });
 
     expect(res.status).toBe(403);
-    expect(await res.json()).toEqual({ error: 'origin not allowed for this key' });
+    expect(await res.json()).toEqual({
+      error: 'origin not allowed for this key',
+      code: 'origin_not_allowed',
+    });
   });
 
   it('rejects requests without an origin header', async () => {
@@ -73,7 +87,10 @@ describe('origin validation middleware', () => {
     });
 
     expect(res.status).toBe(403);
-    expect(await res.json()).toEqual({ error: 'origin header required' });
+    expect(await res.json()).toEqual({
+      error: 'origin or referer header required',
+      code: 'origin_required',
+    });
   });
 
   it('rejects revoked or unknown keys', async () => {
@@ -88,7 +105,10 @@ describe('origin validation middleware', () => {
     });
 
     expect(res.status).toBe(403);
-    expect(await res.json()).toEqual({ error: 'invalid or revoked publishable key' });
+    expect(await res.json()).toEqual({
+      error: 'invalid or revoked publishable key',
+      code: 'key_invalid',
+    });
   });
 
   it('allows valid origin and sets strict CORS headers', async () => {
@@ -155,6 +175,8 @@ describe('admin routes', () => {
         status: 'active',
         label: null,
         quoteSpreadBps: 0,
+        rotatedFromId: null,
+        graceExpiresAt: null,
         createdAt: new Date('2024-01-01T00:00:00.000Z'),
         updatedAt: new Date('2024-01-01T00:00:00.000Z'),
       },
@@ -183,6 +205,8 @@ describe('admin routes', () => {
       status: 'active',
       label: null,
       quoteSpreadBps: 0,
+      rotatedFromId: null,
+      graceExpiresAt: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -204,6 +228,95 @@ describe('admin routes', () => {
     const body = await res.json();
     expect(body.key.secretKey).toMatch(/^sk_test_/);
     expect(body.key.publishableKey).toMatch(/^pk_test_/);
+  });
+});
+
+describe('admin key cutover', () => {
+  beforeEach(() => {
+    vi.mocked(keys.cutoverApiKey).mockReset();
+    process.env.GATEWAY_ADMIN_TOKEN = 'test-admin-token';
+  });
+
+  it('cuts over (revokes) the predecessor key', async () => {
+    vi.mocked(keys.cutoverApiKey).mockResolvedValue({
+      id: 'key_old',
+      publishableKey: 'pk_test_old',
+      secretLast4: 'old4',
+      mode: 'test',
+      allowedOrigins: ['https://shop.example'],
+      status: 'revoked',
+      label: null,
+      quoteSpreadBps: 0,
+      rotatedFromId: null,
+      graceExpiresAt: null,
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    });
+
+    const app = createApp();
+    const res = await app.request('/admin/keys/key_new/cutover', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer test-admin-token' },
+    });
+
+    expect(res.status).toBe(200);
+    expect((await res.json()).key.status).toBe('revoked');
+  });
+
+  it('returns 404 when there is nothing to cut over', async () => {
+    vi.mocked(keys.cutoverApiKey).mockResolvedValue(null);
+
+    const app = createApp();
+    const res = await app.request('/admin/keys/key_new/cutover', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer test-admin-token' },
+    });
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('admin key creation origin validation', () => {
+  beforeEach(() => {
+    process.env.GATEWAY_ADMIN_TOKEN = 'test-admin-token';
+    vi.mocked(keys.createApiKey).mockResolvedValue({
+      id: 'k',
+      publishableKey: 'pk_test_x',
+      secretKey: 'sk_test_x',
+      secretLast4: 'x',
+      mode: 'test',
+      allowedOrigins: ['https://shop.example'],
+      status: 'active',
+      label: null,
+      quoteSpreadBps: 0,
+      rotatedFromId: null,
+      graceExpiresAt: null,
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    });
+  });
+
+  const post = (allowedOrigins: unknown) =>
+    createApp().request('/admin/keys', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer test-admin-token', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'test', allowedOrigins }),
+    });
+
+  it('rejects a bare wildcard origin', async () => {
+    const res = await post(['*']);
+    expect(res.status).toBe(400);
+    expect((await res.json()).code).toBe('invalid_request');
+  });
+
+  it('rejects a malformed origin', async () => {
+    const res = await post(['not-a-url']);
+    expect(res.status).toBe(400);
+  });
+
+  it('accepts an exact origin and a single-label wildcard', async () => {
+    const res = await post(['https://shop.example', 'https://*.example.com']);
+    expect(res.status).toBe(201);
   });
 });
 

@@ -1,7 +1,14 @@
 import type { KeyMode } from '@prisma/client';
 import { Hono } from 'hono';
 import { prisma } from '../db.js';
-import { createApiKey, listApiKeys, revokeApiKey, rotateApiKey } from '../keys.js';
+import {
+  createApiKey,
+  cutoverApiKey,
+  listApiKeys,
+  normalizeOrigin,
+  revokeApiKey,
+  rotateApiKey,
+} from '../keys.js';
 import { createMerchant, listMerchantsForApiKey, setMerchantStatus } from '../merchants.js';
 import { adminAuth } from '../middleware/admin.js';
 import { webhookRoutes } from './webhooks.js';
@@ -33,8 +40,13 @@ admin.post('/keys', async (c) => {
   }
 
   for (const origin of body.allowedOrigins) {
-    if (typeof origin !== 'string' || !origin.startsWith('http')) {
-      return c.json({ error: 'each allowedOrigin must be a valid http(s) origin' }, 400);
+    if (typeof origin !== 'string') {
+      return c.json({ error: 'each allowedOrigin must be a string', code: 'invalid_request' }, 400);
+    }
+    const isWildcard = /^https?:\/\/\*\.[a-z0-9.-]+(?::\d+)?$/i.test(origin);
+    const isExact = normalizeOrigin(origin) !== null;
+    if (!isWildcard && !isExact) {
+      return c.json({ error: `invalid allowedOrigin: ${origin}`, code: 'invalid_request' }, 400);
     }
   }
 
@@ -64,6 +76,17 @@ admin.post('/keys/:id/rotate', async (c) => {
 
   if (!key) {
     return c.json({ error: 'key not found or revoked' }, 404);
+  }
+
+  return c.json({ key });
+});
+
+admin.post('/keys/:id/cutover', async (c) => {
+  const id = c.req.param('id');
+  const key = await cutoverApiKey(id);
+
+  if (!key) {
+    return c.json({ error: 'nothing to cut over' }, 404);
   }
 
   return c.json({ key });

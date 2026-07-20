@@ -15,11 +15,21 @@ const mockApiKey: ApiKey = {
   quoteSpreadBps: 0,
   createdAt: new Date('2024-01-01T00:00:00.000Z'),
   updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+  rotatedFromId: null,
+  graceExpiresAt: null,
 };
 
 vi.mock('./keys.js', () => ({
   findActiveApiKeyByPublishableKey: vi.fn(),
   isOriginAllowed: (origin: string, allowed: string[]) => allowed.includes(origin),
+  normalizeOrigin: (raw: string) => {
+    try {
+      const u = new URL(raw);
+      return u.origin.toLowerCase();
+    } catch {
+      return null;
+    }
+  },
   createApiKey: vi.fn(),
   listApiKeys: vi.fn(),
   rotateApiKey: vi.fn(),
