@@ -20,7 +20,10 @@
     "check": "biome check .",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build && changeset publish"
+    "release": "turbo run build && changeset publish",
+    "test:e2e": "turbo run test:e2e --filter=@pacto-connect/e2e",
+    "test:e2e:ui": "cd apps/e2e && npx playwright test --ui",
+    "test:e2e:headed": "cd apps/e2e && npx playwright test --headed"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.1",

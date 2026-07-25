@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pacto Elements E2E</title>
+  </head>
+  <body>
+    <div id="checkout-target"></div>
+
+    <script type="module">
+      /**
+       * Reads gatewayUrl and publishableKey from query params:
+       *   http://localhost:5175/?gatewayUrl=...&publishableKey=pk_test_...
+       *
+       * Imports @pacto-connect/elements which:
+       *   1. Registers <pacto-checkout> custom element
+       *   2. Sets window.pacto = { mount, mountFrame, bootstrapCheckoutFrame }
+       *
+       * Then calls pacto.mount() to render the checkout directly in the DOM
+       * (no iframe — the web component renders inline).
+       *
+       * Exposes window.__mountHandle and window.__lastBridgeMessage for tests.
+       */
+      import { pacto } from '@pacto-connect/elements';
+
+      const params = new URLSearchParams(location.search);
+      const gatewayUrl = params.get('gatewayUrl') ?? undefined;
+      const publishableKey = params.get('publishableKey') ?? '';
+
+      window.__mountHandle = pacto.mount('#checkout-target', {
+        publishableKey,
+        gatewayUrl,
+        mode: 'buy',
+        testMode: true,
+        onComplete: (escrow) => {
+          window.__lastCompletedEscrow = escrow;
+        },
+        onDispute: (escrow) => {
+          window.__lastDisputedEscrow = escrow;
+        },
+      });
+
+      // Capture all outbound bridge postMessages (checkout:complete, etc.)
+      window.addEventListener('message', (e) => {
+        if (e.data && e.data.source === 'pacto-connect') {
+          window.__lastBridgeMessage = e.data.message;
+        }
+      });
+    </script>
+  </body>
+</html>
