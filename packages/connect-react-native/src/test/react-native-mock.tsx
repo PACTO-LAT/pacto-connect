@@ -36,6 +36,32 @@ export const Linking = {
   },
 };
 
+type AppStateStatus = 'active' | 'background' | 'inactive';
+type AppStateListener = (state: AppStateStatus) => void;
+
+const appStateListeners = new Set<AppStateListener>();
+
+export const AppState = {
+  currentState: 'active' as AppStateStatus,
+  addEventListener(event: 'change', handler: AppStateListener) {
+    if (event === 'change') {
+      appStateListeners.add(handler);
+    }
+    return { remove: () => appStateListeners.delete(handler) };
+  },
+  // Test helpers, not part of the real API.
+  __emit(state: AppStateStatus) {
+    this.currentState = state;
+    for (const listener of appStateListeners) {
+      listener(state);
+    }
+  },
+  __reset() {
+    appStateListeners.clear();
+    this.currentState = 'active';
+  },
+};
+
 export const Platform = { OS: 'ios' as const };
 
 export const StyleSheet = { create: <T,>(styles: T): T => styles };

@@ -14,6 +14,8 @@ export {
   usePactoDeepLink,
 } from './deep-link.js';
 export {
+  DEFAULT_SESSION_REFRESH_MARGIN_MS,
+  isSessionExpiringSoon,
   type PactoEscrowTransport,
   resolvePactoEscrowTransport,
   statusToSyntheticEvent,

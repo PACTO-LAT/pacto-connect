@@ -1,10 +1,16 @@
 import { act, renderHook } from '@testing-library/react';
+import { AppState } from 'react-native';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  isSessionExpiringSoon,
   resolvePactoEscrowTransport,
   statusToSyntheticEvent,
   usePactoEscrowEvents,
 } from './escrow-events.js';
+
+function emitAppState(state: 'active' | 'background' | 'inactive'): void {
+  (AppState as unknown as { __emit(state: string): void }).__emit(state);
+}
 
 describe('resolvePactoEscrowTransport', () => {
   it('respects a forced transport regardless of platform capability', () => {
@@ -24,6 +30,19 @@ describe('resolvePactoEscrowTransport', () => {
 
   it('auto-detects sse when ReadableStream is available', () => {
     expect(resolvePactoEscrowTransport()).toBe('sse');
+  });
+});
+
+describe('isSessionExpiringSoon', () => {
+  it('is true once expiresAt is within the margin', () => {
+    const now = Date.parse('2026-01-01T00:00:00Z');
+    expect(isSessionExpiringSoon(new Date(now + 10_000), 30_000, now)).toBe(true);
+    expect(isSessionExpiringSoon(new Date(now - 1), 30_000, now)).toBe(true);
+  });
+
+  it('is false while comfortably outside the margin', () => {
+    const now = Date.parse('2026-01-01T00:00:00Z');
+    expect(isSessionExpiringSoon(new Date(now + 60_000), 30_000, now)).toBe(false);
   });
 });
 
@@ -79,11 +98,13 @@ describe('usePactoEscrowEvents (polling transport)', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
+    (AppState as unknown as { __reset(): void }).__reset();
   });
 
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();
+    (AppState as unknown as { __reset(): void }).__reset();
   });
 
   it('polls status and records a synthetic milestone on transition', async () => {
@@ -159,6 +180,141 @@ describe('usePactoEscrowEvents (polling transport)', () => {
 
     expect(result.current.error).not.toBeNull();
     expect(result.current.error?.message).toContain('offline');
+    unmount();
+  });
+
+  it('polls immediately when the app returns to the foreground, but not while backgrounded', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        jsonResponse({ status: { id: 'escrow_1', status: 'active', updatedAt: 't0' } }),
+      );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { unmount } = renderHook(() =>
+      usePactoEscrowEvents({ ...baseOptions, pollIntervalMs: 100_000 }),
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      emitAppState('background');
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      emitAppState('active');
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    // Foreground return polls right away instead of waiting out the
+    // (deliberately huge) 100s interval.
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    unmount();
+  });
+
+  it('removes the AppState subscription on unmount', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        jsonResponse({ status: { id: 'escrow_1', status: 'active', updatedAt: 't0' } }),
+      );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { unmount } = renderHook(() => usePactoEscrowEvents(baseOptions));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    const callsAtUnmount = fetchMock.mock.calls.length;
+
+    unmount();
+
+    act(() => {
+      emitAppState('active');
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(fetchMock.mock.calls.length).toBe(callsAtUnmount);
+  });
+
+  it('refreshes an expiring session before polling and reports the new session', async () => {
+    const refreshedExpiresAt = new Date(Date.now() + 3_600_000).toISOString();
+    const fetchMock = vi.fn(async (url: string | URL) => {
+      const path = new URL(url.toString()).pathname;
+      if (path === '/v1/session/refresh') {
+        return jsonResponse({
+          sessionId: 'sess_1',
+          clientSecret: 'secret_2',
+          expiresAt: refreshedExpiresAt,
+          mode: 'buy',
+        });
+      }
+      return jsonResponse({ status: { id: 'escrow_1', status: 'active', updatedAt: 't0' } });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const onSessionRefresh = vi.fn();
+    const { unmount } = renderHook(() =>
+      usePactoEscrowEvents({
+        ...baseOptions,
+        // Within the default 30s refresh margin.
+        expiresAt: new Date(Date.now() + 5_000).toISOString(),
+        onSessionRefresh,
+      }),
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(onSessionRefresh).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sessionId: 'sess_1',
+        clientSecret: 'secret_2',
+        mode: 'buy',
+      }),
+    );
+    const refreshCall = fetchMock.mock.calls.find(
+      ([url]) => new URL(url.toString()).pathname === '/v1/session/refresh',
+    );
+    expect(refreshCall).toBeTruthy();
+
+    unmount();
+  });
+
+  it('does not refresh a session that is not close to expiring', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        jsonResponse({ status: { id: 'escrow_1', status: 'active', updatedAt: 't0' } }),
+      );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const onSessionRefresh = vi.fn();
+    const { unmount } = renderHook(() =>
+      usePactoEscrowEvents({ ...baseOptions, onSessionRefresh }),
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(onSessionRefresh).not.toHaveBeenCalled();
+    const refreshCall = fetchMock.mock.calls.find(
+      ([url]) => new URL(url.toString()).pathname === '/v1/session/refresh',
+    );
+    expect(refreshCall).toBeFalsy();
+
     unmount();
   });
 
