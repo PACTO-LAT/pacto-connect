@@ -25,6 +25,14 @@ export {
 } from './escrow-events.js';
 export { PactoCheckoutSheet, type PactoCheckoutSheetProps } from './PactoCheckoutSheet.js';
 export {
+  type AndroidAssetLinks,
+  type AndroidAssetLinksOptions,
+  type AppleAppSiteAssociation,
+  buildAndroidAssetLinks,
+  buildAppleAppSiteAssociation,
+  type AppleAppSiteAssociationOptions,
+} from './universal-links.js';
+export {
   BRIDGE_SHIM_SCRIPT,
   type BuildCheckoutUrlOptions,
   buildCheckoutUrl,
