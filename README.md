@@ -9,13 +9,15 @@ Drop-in components let any dApp or merchant offer "Buy/Sell USDC with Pacto" ove
 ```
 pacto-connect/
 ├── packages/
-│   ├── connect-core/      # Framework-agnostic SDK (handshake, REST client, escrow events)
-│   ├── connect-react/     # <PactoCheckout/> + hooks
-│   └── connect-elements/  # <pacto-checkout> web-component for non-React sites
+│   ├── connect-core/         # Framework-agnostic SDK (handshake, REST client, escrow events)
+│   ├── connect-react/        # <PactoCheckout/> + hooks
+│   ├── connect-elements/     # <pacto-checkout> web-component for non-React sites
+│   └── connect-react-native/ # WebView checkout sheet, deep-link return, escrow event hook
 ├── services/
-│   └── connect-gateway/   # BFF: issues pk_/sk_ keys, signs handshakes, proxies Pacto API, webhooks
+│   └── connect-gateway/      # BFF: issues pk_/sk_ keys, signs handshakes, proxies Pacto API, webhooks
 └── apps/
-    └── docs/              # Docs site + interactive playground
+    ├── docs/                 # Docs site + interactive playground
+    └── example-rn/           # Expo example app for @pacto-connect/react-native
 ```
 
 The **Connect Gateway** is the only component that talks to the Pacto P2P API. The integrator's SDK only ever holds a `publishableKey`, so the main platform's credentials are never exposed and the main repo is never modified.
@@ -37,6 +39,7 @@ npm run type-check
 | `@pacto-connect/core` | Framework-agnostic SDK core |
 | `@pacto-connect/react` | React widget and hooks |
 | `@pacto-connect/elements` | Web-component / iframe embed |
+| `@pacto-connect/react-native` | React Native checkout sheet (WebView), deep-link return, escrow event hook |
 | `@pacto-connect/gateway` | Connect Gateway (BFF), not published |
 
 ## Roadmap
