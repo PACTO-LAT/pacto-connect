@@ -108,3 +108,37 @@ the origin validation that `mountFrame()` does via `postMessage` is done differe
   navigating the captive WebView.
 - No merchant secret key is ever passed to `PactoCheckoutSheet` — its props only
   accept a `publishableKey`, matching the web SDKs.
+- Mobile sessions can sit open (or backgrounded) far longer than a web checkout
+  tab. `usePactoEscrowEvents` watches `AppState` and forces a fresh poll/SSE
+  connection when the app returns to the foreground (a backgrounded fetch/SSE
+  stream just goes stale on iOS, it doesn't error out on its own), and
+  transparently calls `PactoSession.refresh()` before the session's
+  `expiresAt` — pass `onSessionRefresh` to persist the rotated
+  `clientSecret` if you resume tracking after the app restarts.
+
+### Universal links
+
+`returnUrl` accepts either a custom scheme (`pacto-example://checkout-return`,
+the default in `apps/example-rn` — no server-side setup) or an `https://`
+universal link, which degrades gracefully to a normal web page when the app
+isn't installed. Universal links need three things, all outside what this
+package can configure for you:
+
+1. **Native config** — `ios.associatedDomains` (`applinks:your-domain.com`)
+   and `android.intentFilters` (an `autoVerify` `VIEW` intent matching the
+   same host) in `app.json`. See `apps/example-rn/app.json` for a worked
+   example.
+2. **Two verification files hosted on your own domain** — `GET
+   https://your-domain.com/.well-known/apple-app-site-association` and `GET
+   https://your-domain.com/.well-known/assetlinks.json`, served as JSON (no
+   file extension on the first one). `@pacto-connect/react-native` exports
+   `buildAppleAppSiteAssociation({ appId, paths })` and
+   `buildAndroidAssetLinks({ packageName, sha256CertFingerprints })` to
+   generate their bodies correctly — wire whichever one your backend serves
+   at those exact paths.
+3. **A matching `returnUrl`** — point `PactoCheckoutSheet`'s `returnUrl` (and
+   `usePactoDeepLink`'s `scheme`) at the same `https://` URL once the above is
+   verified by the OS.
+
+Until all three are in place, keep using the custom scheme — it's not a
+lesser option, just a simpler one that needs no hosting.
