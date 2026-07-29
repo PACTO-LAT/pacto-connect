@@ -62,7 +62,11 @@ export default function App() {
       <Button title="Buy USDC" onPress={() => setCheckoutVisible(true)} />
 
       {lastStep && <Text style={styles.status}>Step: {lastStep}</Text>}
-      {lastEscrow && <Text style={styles.status}>Escrow: {lastEscrow.id} ({lastEscrow.status})</Text>}
+      {lastEscrow && (
+        <Text style={styles.status}>
+          Escrow: {lastEscrow.id} ({lastEscrow.status})
+        </Text>
+      )}
       {returnEvent && <Text style={styles.status}>Deep-link return: {returnEvent}</Text>}
       <Text style={styles.status}>Escrow hook transport: {escrowTracking.transport ?? 'idle'}</Text>
 

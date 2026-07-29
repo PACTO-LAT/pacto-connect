@@ -28,9 +28,9 @@ export {
   type AndroidAssetLinks,
   type AndroidAssetLinksOptions,
   type AppleAppSiteAssociation,
+  type AppleAppSiteAssociationOptions,
   buildAndroidAssetLinks,
   buildAppleAppSiteAssociation,
-  type AppleAppSiteAssociationOptions,
 } from './universal-links.js';
 export {
   BRIDGE_SHIM_SCRIPT,
