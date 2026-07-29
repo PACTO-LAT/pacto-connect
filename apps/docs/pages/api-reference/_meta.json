@@ -2,5 +2,6 @@
   "index": "Overview",
   "core": "@pacto-connect/core",
   "react": "@pacto-connect/react",
-  "elements": "@pacto-connect/elements"
+  "elements": "@pacto-connect/elements",
+  "react-native": "@pacto-connect/react-native"
 }

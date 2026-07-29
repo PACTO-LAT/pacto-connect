@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "jsx": "react-jsx",
+    // Resolves react-native-webview's `.ios.d.ts`/`.android.d.ts` (which type
+    // WebView as a ref-forwarding component) instead of its untyped-ref
+    // platform-agnostic fallback — the standard RN TypeScript setup.
+    "moduleSuffixes": [".ios", ".android", ".native", ""]
+  },
+  "include": ["src"]
+}
