@@ -3,8 +3,7 @@
 import { PactoCheckout } from '@pacto-connect/react';
 import { useState } from 'react';
 
-const publishableKey =
-  process.env.NEXT_PUBLIC_PACTO_PUBLISHABLE_KEY ?? 'pk_test_demo';
+const publishableKey = process.env.NEXT_PUBLIC_PACTO_PUBLISHABLE_KEY ?? 'pk_test_demo';
 const gatewayUrl = process.env.NEXT_PUBLIC_PACTO_GATEWAY_URL || undefined;
 const listingId = process.env.NEXT_PUBLIC_PACTO_LISTING_ID || undefined;
 

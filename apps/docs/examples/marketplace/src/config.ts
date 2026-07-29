@@ -23,6 +23,5 @@ export const products: Product[] = [
   },
 ];
 
-export const publishableKey =
-  import.meta.env.VITE_PACTO_PUBLISHABLE_KEY ?? 'pk_test_demo';
+export const publishableKey = import.meta.env.VITE_PACTO_PUBLISHABLE_KEY ?? 'pk_test_demo';
 export const gatewayUrl = import.meta.env.VITE_PACTO_GATEWAY_URL || undefined;

@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { PlaygroundExamples } from './PlaygroundExamples';
 import styles from './Playground.module.css';
+import { PlaygroundExamples } from './PlaygroundExamples';
 
 interface PlaygroundConfig {
   publishableKey: string;
@@ -199,151 +199,153 @@ export function Playground(): ReactElement {
         <PlaygroundExamples />
       ) : (
         <div className={styles.configurator}>
-      {/* ── Config panel ─────────────────────────────────────────── */}
-      <aside className={styles.panel}>
-        <h2 className={styles.panelTitle}>Configure</h2>
+          {/* ── Config panel ─────────────────────────────────────────── */}
+          <aside className={styles.panel}>
+            <h2 className={styles.panelTitle}>Configure</h2>
 
-        <label className={styles.field}>
-          <span className={styles.label}>Publishable key</span>
-          <input
-            className={styles.input}
-            type="text"
-            value={cfg.publishableKey}
-            placeholder="pk_test_..."
-            onChange={(e) => update('publishableKey', e.target.value)}
-            spellCheck={false}
-          />
-          {cfg.publishableKey && !cfg.publishableKey.startsWith('pk_') && (
-            <span className={styles.hint + ' ' + styles.warn}>
-              Keys should start with <code>pk_live_</code> or <code>pk_test_</code>
-            </span>
-          )}
-        </label>
+            <label className={styles.field}>
+              <span className={styles.label}>Publishable key</span>
+              <input
+                className={styles.input}
+                type="text"
+                value={cfg.publishableKey}
+                placeholder="pk_test_..."
+                onChange={(e) => update('publishableKey', e.target.value)}
+                spellCheck={false}
+              />
+              {cfg.publishableKey && !cfg.publishableKey.startsWith('pk_') && (
+                <span className={styles.hint + ' ' + styles.warn}>
+                  Keys should start with <code>pk_live_</code> or <code>pk_test_</code>
+                </span>
+              )}
+            </label>
 
-        <label className={styles.field}>
-          <span className={styles.label}>Mode</span>
-          <select
-            className={styles.select}
-            value={cfg.mode}
-            onChange={(e) => update('mode', e.target.value as 'buy' | 'sell')}
-          >
-            <option value="buy">buy</option>
-            <option value="sell">sell</option>
-          </select>
-        </label>
-
-        <label className={styles.field}>
-          <span className={styles.label}>
-            Listing ID <span className={styles.optional}>(optional)</span>
-          </span>
-          <input
-            className={styles.input}
-            type="text"
-            value={cfg.listingId}
-            placeholder="lst_..."
-            onChange={(e) => update('listingId', e.target.value)}
-            spellCheck={false}
-          />
-        </label>
-
-        <label className={styles.field}>
-          <span className={styles.label}>
-            Gateway URL <span className={styles.optional}>(optional)</span>
-          </span>
-          <input
-            className={styles.input}
-            type="text"
-            value={cfg.gatewayUrl}
-            placeholder="https://connect.pacto.example"
-            onChange={(e) => update('gatewayUrl', e.target.value)}
-            spellCheck={false}
-          />
-        </label>
-
-        <div className={styles.toggleRow}>
-          <span className={styles.label}>Test mode</span>
-          <button
-            role="switch"
-            aria-checked={cfg.testMode}
-            className={styles.toggle + (cfg.testMode ? ' ' + styles.toggleOn : '')}
-            onClick={() => update('testMode', !cfg.testMode)}
-          >
-            <span className={styles.toggleThumb} />
-          </button>
-        </div>
-
-        <div className={styles.toggleRow}>
-          <span className={styles.label}>Inject default styles</span>
-          <button
-            role="switch"
-            aria-checked={cfg.injectStyles}
-            className={styles.toggle + (cfg.injectStyles ? ' ' + styles.toggleOn : '')}
-            onClick={() => update('injectStyles', !cfg.injectStyles)}
-          >
-            <span className={styles.toggleThumb} />
-          </button>
-        </div>
-
-        <div className={styles.previewActions}>
-          {!widgetOpen ? (
-            <button
-              className={styles.btnPrimary}
-              onClick={() => void openWidget()}
-              disabled={!cfg.publishableKey}
-            >
-              Open widget
-            </button>
-          ) : (
-            <button className={styles.btnSecondary} onClick={closeWidget}>
-              Close widget
-            </button>
-          )}
-          {!isPkTest && cfg.publishableKey && (
-            <p className={styles.hint}>Using a live key — real funds may be involved.</p>
-          )}
-          {mountError && <p className={styles.error}>{mountError}</p>}
-        </div>
-      </aside>
-
-      {/* ── Right column ─────────────────────────────────────────── */}
-      <div className={styles.right}>
-        {/* Live preview mount point */}
-        <div className={styles.previewArea}>
-          <div ref={previewRef} className={styles.previewMount} />
-          {!widgetOpen && (
-            <div className={styles.previewPlaceholder}>
-              <div className={styles.previewIcon}>⬡</div>
-              <p>
-                Click <strong>Open widget</strong> to launch a live preview
-              </p>
-              <p className={styles.hint}>
-                The widget mounts directly into this frame using <code>pacto.mount()</code>.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Snippet panel */}
-        <div className={styles.snippet}>
-          <div className={styles.snippetTabs}>
-            {(['react', 'vanilla', 'cdn'] as SnippetLang[]).map((l) => (
-              <button
-                key={l}
-                className={styles.snippetTab + (lang === l ? ' ' + styles.snippetTabActive : '')}
-                onClick={() => setLang(l)}
+            <label className={styles.field}>
+              <span className={styles.label}>Mode</span>
+              <select
+                className={styles.select}
+                value={cfg.mode}
+                onChange={(e) => update('mode', e.target.value as 'buy' | 'sell')}
               >
-                {l === 'react' ? 'React' : l === 'vanilla' ? 'Vanilla JS' : 'CDN / HTML'}
+                <option value="buy">buy</option>
+                <option value="sell">sell</option>
+              </select>
+            </label>
+
+            <label className={styles.field}>
+              <span className={styles.label}>
+                Listing ID <span className={styles.optional}>(optional)</span>
+              </span>
+              <input
+                className={styles.input}
+                type="text"
+                value={cfg.listingId}
+                placeholder="lst_..."
+                onChange={(e) => update('listingId', e.target.value)}
+                spellCheck={false}
+              />
+            </label>
+
+            <label className={styles.field}>
+              <span className={styles.label}>
+                Gateway URL <span className={styles.optional}>(optional)</span>
+              </span>
+              <input
+                className={styles.input}
+                type="text"
+                value={cfg.gatewayUrl}
+                placeholder="https://connect.pacto.example"
+                onChange={(e) => update('gatewayUrl', e.target.value)}
+                spellCheck={false}
+              />
+            </label>
+
+            <div className={styles.toggleRow}>
+              <span className={styles.label}>Test mode</span>
+              <button
+                role="switch"
+                aria-checked={cfg.testMode}
+                className={styles.toggle + (cfg.testMode ? ' ' + styles.toggleOn : '')}
+                onClick={() => update('testMode', !cfg.testMode)}
+              >
+                <span className={styles.toggleThumb} />
               </button>
-            ))}
-            <button className={styles.copyBtn} onClick={copy}>
-              {copied ? '✓ Copied' : 'Copy'}
-            </button>
+            </div>
+
+            <div className={styles.toggleRow}>
+              <span className={styles.label}>Inject default styles</span>
+              <button
+                role="switch"
+                aria-checked={cfg.injectStyles}
+                className={styles.toggle + (cfg.injectStyles ? ' ' + styles.toggleOn : '')}
+                onClick={() => update('injectStyles', !cfg.injectStyles)}
+              >
+                <span className={styles.toggleThumb} />
+              </button>
+            </div>
+
+            <div className={styles.previewActions}>
+              {!widgetOpen ? (
+                <button
+                  className={styles.btnPrimary}
+                  onClick={() => void openWidget()}
+                  disabled={!cfg.publishableKey}
+                >
+                  Open widget
+                </button>
+              ) : (
+                <button className={styles.btnSecondary} onClick={closeWidget}>
+                  Close widget
+                </button>
+              )}
+              {!isPkTest && cfg.publishableKey && (
+                <p className={styles.hint}>Using a live key — real funds may be involved.</p>
+              )}
+              {mountError && <p className={styles.error}>{mountError}</p>}
+            </div>
+          </aside>
+
+          {/* ── Right column ─────────────────────────────────────────── */}
+          <div className={styles.right}>
+            {/* Live preview mount point */}
+            <div className={styles.previewArea}>
+              <div ref={previewRef} className={styles.previewMount} />
+              {!widgetOpen && (
+                <div className={styles.previewPlaceholder}>
+                  <div className={styles.previewIcon}>⬡</div>
+                  <p>
+                    Click <strong>Open widget</strong> to launch a live preview
+                  </p>
+                  <p className={styles.hint}>
+                    The widget mounts directly into this frame using <code>pacto.mount()</code>.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Snippet panel */}
+            <div className={styles.snippet}>
+              <div className={styles.snippetTabs}>
+                {(['react', 'vanilla', 'cdn'] as SnippetLang[]).map((l) => (
+                  <button
+                    key={l}
+                    className={
+                      styles.snippetTab + (lang === l ? ' ' + styles.snippetTabActive : '')
+                    }
+                    onClick={() => setLang(l)}
+                  >
+                    {l === 'react' ? 'React' : l === 'vanilla' ? 'Vanilla JS' : 'CDN / HTML'}
+                  </button>
+                ))}
+                <button className={styles.copyBtn} onClick={copy}>
+                  {copied ? '✓ Copied' : 'Copy'}
+                </button>
+              </div>
+              <pre className={styles.code}>
+                <code>{snippet}</code>
+              </pre>
+            </div>
           </div>
-          <pre className={styles.code}>
-            <code>{snippet}</code>
-          </pre>
-        </div>
-      </div>
         </div>
       )}
     </div>

@@ -93,8 +93,8 @@ export function PlaygroundExamples(): ReactElement {
         )}
         {!useDevServers && (
           <p className={styles.hint}>
-            Examples are built into this site. Rebuild with{' '}
-            <code>npm run build:examples</code> from <code>apps/docs</code> after editing source.
+            Examples are built into this site. Rebuild with <code>npm run build:examples</code> from{' '}
+            <code>apps/docs</code> after editing source.
           </p>
         )}
       </aside>
@@ -105,9 +105,7 @@ export function PlaygroundExamples(): ReactElement {
             <button
               key={ex.id}
               type="button"
-              className={
-                styles.subTab + (active === ex.id ? ' ' + styles.subTabActive : '')
-              }
+              className={styles.subTab + (active === ex.id ? ' ' + styles.subTabActive : '')}
               onClick={() => setActive(ex.id)}
             >
               {ex.label}
