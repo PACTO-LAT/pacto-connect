@@ -25,6 +25,9 @@
     "react-dom": "^18.3.1",
     "styled-jsx": "5.1.1"
   },
+  "optionalDependencies": {
+    "@napi-rs/simple-git-linux-x64-gnu": "0.1.22"
+  },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/react": "^18.3.0",
