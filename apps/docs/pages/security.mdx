@@ -90,3 +90,21 @@ allow-scripts allow-forms allow-same-origin allow-popups
 > If you self-host the checkout on your own origin, drop `allow-same-origin`.
 
 The iframe also carries `allow="payment"` so the Payment Request API works inside it.
+
+## `@pacto-connect/react-native`'s WebView bridge
+
+`PactoCheckoutSheet` renders the same hosted checkout page inside a React Native
+`WebView` instead of an iframe. A WebView has no `MessageEvent.origin` to check, so
+the origin validation that `mountFrame()` does via `postMessage` is done differently:
+
+- Every inbound message is checked against the WebView's **current page URL**
+  (`nativeEvent.url`) with the same allow-list logic (`isOriginAllowed`) the web
+  bridge uses — a message reported while the WebView is on any origin other than the
+  checkout page's own is dropped.
+- `onShouldStartLoadWithRequest` intercepts navigation: only the checkout origin is
+  allowed to load in the WebView itself. A configured `returnUrl` deep link is
+  handled by the OS (via `usePactoDeepLink`), not loaded in-frame. Anything else
+  (e.g. a bank/3-D Secure redirect) is handed off to the system browser instead of
+  navigating the captive WebView.
+- No merchant secret key is ever passed to `PactoCheckoutSheet` — its props only
+  accept a `publishableKey`, matching the web SDKs.
