@@ -13,7 +13,13 @@ import { Button, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 const PUBLISHABLE_KEY = 'pk_test_example';
 const CHECKOUT_URL = 'https://connect.pacto.example/checkout';
 // Matches `app.json`'s `expo.scheme`. Used both as the checkout's `returnUrl`
-// and as the scheme `usePactoDeepLink` listens for.
+// and as the scheme `usePactoDeepLink` listens for. A custom scheme needs no
+// server-side setup. `app.json` also declares `associatedDomains` /
+// `intentFilters` for `https://checkout.pacto.example/pacto-return` as a
+// universal-link alternative — swap this constant for that URL once
+// `apple-app-site-association` / `assetlinks.json` are hosted on that domain
+// (see `@pacto-connect/react-native`'s `buildAppleAppSiteAssociation` /
+// `buildAndroidAssetLinks`, and the Security guide's Universal links section).
 const RETURN_URL = 'pacto-example://checkout-return';
 
 export default function App() {

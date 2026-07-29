@@ -9,10 +9,25 @@
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.pactolat.connect.example",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "associatedDomains": ["applinks:checkout.pacto.example"]
     },
     "android": {
-      "package": "com.pactolat.connect.example"
+      "package": "com.pactolat.connect.example",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "checkout.pacto.example",
+              "pathPrefix": "/pacto-return"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     }
   }
 }
