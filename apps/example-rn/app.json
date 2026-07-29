@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Pacto Connect Example",
+    "slug": "pacto-connect-example-rn",
+    "scheme": "pacto-example",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.pactolat.connect.example",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.pactolat.connect.example"
+    }
+  }
+}
