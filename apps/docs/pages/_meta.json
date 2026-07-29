@@ -1,6 +1,7 @@
 {
   "index": "Introduction",
   "quickstart": "Quickstart",
+  "examples": "Examples",
   "theming": "Theming & i18n",
   "security": "Security",
   "api-reference": "API Reference",

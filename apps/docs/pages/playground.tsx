@@ -18,7 +18,7 @@ const PlaygroundPage: NextPage = () => {
         <title>Playground – Pacto Connect</title>
         <meta
           name="description"
-          content="Configure the Pacto Connect checkout widget live and copy the generated integration snippet."
+          content="Configure the Pacto Connect checkout widget live, copy integration snippets, and try runnable example storefronts."
         />
       </Head>
       <Playground />

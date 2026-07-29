@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { PlaygroundExamples } from './PlaygroundExamples';
 import styles from './Playground.module.css';
 
 interface PlaygroundConfig {
@@ -21,6 +22,7 @@ const DEFAULT_CONFIG: PlaygroundConfig = {
 };
 
 type SnippetLang = 'react' | 'vanilla' | 'cdn';
+type PlaygroundTab = 'configurator' | 'examples';
 
 function generateReactSnippet(cfg: PlaygroundConfig): string {
   const lines: string[] = [
@@ -100,6 +102,7 @@ type MountHandle = {
 };
 
 export function Playground(): ReactElement {
+  const [tab, setTab] = useState<PlaygroundTab>('configurator');
   const [cfg, setCfg] = useState<PlaygroundConfig>(DEFAULT_CONFIG);
   const [lang, setLang] = useState<SnippetLang>('react');
   const [copied, setCopied] = useState(false);
@@ -175,6 +178,27 @@ export function Playground(): ReactElement {
 
   return (
     <div className={styles.root}>
+      <div className={styles.topTabs}>
+        <button
+          type="button"
+          className={styles.topTab + (tab === 'configurator' ? ' ' + styles.topTabActive : '')}
+          onClick={() => setTab('configurator')}
+        >
+          Configurator
+        </button>
+        <button
+          type="button"
+          className={styles.topTab + (tab === 'examples' ? ' ' + styles.topTabActive : '')}
+          onClick={() => setTab('examples')}
+        >
+          Examples
+        </button>
+      </div>
+
+      {tab === 'examples' ? (
+        <PlaygroundExamples />
+      ) : (
+        <div className={styles.configurator}>
       {/* ── Config panel ─────────────────────────────────────────── */}
       <aside className={styles.panel}>
         <h2 className={styles.panelTitle}>Configure</h2>
@@ -320,6 +344,8 @@ export function Playground(): ReactElement {
           </pre>
         </div>
       </div>
+        </div>
+      )}
     </div>
   );
 }

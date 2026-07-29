@@ -7,11 +7,13 @@
   "workspaces": [
     "packages/*",
     "services/*",
-    "apps/*"
+    "apps/*",
+    "apps/docs/examples/*"
   ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:examples": "turbo run dev --filter=@pacto-connect/example-*",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
     "test": "turbo run test",
@@ -25,7 +27,9 @@
   "devDependencies": {
     "@biomejs/biome": "^2.1.1",
     "@changesets/cli": "^2.27.9",
-    "next": "^14.2.18",
+    "@next/env": "16.2.12",
+    "next": "14.2.35",
+    "styled-jsx": "5.1.7",
     "turbo": "^2.3.0",
     "typescript": "^5.6.3",
     "vitest": "3.2.6"

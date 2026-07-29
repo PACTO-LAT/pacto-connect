@@ -5,7 +5,8 @@
   "description": "Developer docs, quickstart, API reference, and interactive playground for Pacto Connect.",
   "scripts": {
     "dev": "next dev --port 3100",
-    "build": "npm run generate:api-docs && next build",
+    "build:examples": "turbo run build --filter=@pacto-connect/example-*",
+    "build": "npm run build:examples && npm run generate:api-docs && next build",
     "start": "next start --port 3100",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
