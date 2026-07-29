@@ -1,5 +1,13 @@
-import { type CheckoutMode, type EscrowEvent, type EscrowStatus, Pacto } from '@pacto-connect/core';
+import {
+  type CheckoutMode,
+  type EscrowEvent,
+  type EscrowStatus,
+  Pacto,
+  type PactoSession,
+  type PactoSessionData,
+} from '@pacto-connect/core';
 import { useEffect, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 
 export type PactoEscrowTransport = 'sse' | 'polling';
 
@@ -16,7 +24,18 @@ export interface UsePactoEscrowEventsOptions {
   transport?: PactoEscrowTransport;
   /** Polling interval used when the SSE transport isn't available. Default 4000ms. */
   pollIntervalMs?: number;
+  /**
+   * How close to `expiresAt` counts as "expiring soon" and triggers a
+   * `PactoSession.refresh()` before the next poll/reconnect. Default 30000ms.
+   */
+  sessionRefreshMarginMs?: number;
   onEvent?: (event: EscrowEvent) => void;
+  /**
+   * Called after the hook transparently rotates to a refreshed session
+   * (new `clientSecret`/`expiresAt`) — persist it if you resume tracking
+   * across app restarts.
+   */
+  onSessionRefresh?: (session: PactoSessionData) => void;
 }
 
 export interface UsePactoEscrowEventsResult {
@@ -28,6 +47,7 @@ export interface UsePactoEscrowEventsResult {
 }
 
 const DEFAULT_POLL_INTERVAL_MS = 4000;
+export const DEFAULT_SESSION_REFRESH_MARGIN_MS = 30_000;
 
 /**
  * React Native's JS engine (Hermes/JSC) doesn't reliably expose a streaming
@@ -45,6 +65,15 @@ export function resolvePactoEscrowTransport(forced?: PactoEscrowTransport): Pact
     return forced;
   }
   return typeof ReadableStream !== 'undefined' ? 'sse' : 'polling';
+}
+
+/** Pure check the refresh logic uses — exported for testing without a live clock. */
+export function isSessionExpiringSoon(
+  expiresAt: Date,
+  marginMs: number = DEFAULT_SESSION_REFRESH_MARGIN_MS,
+  now: number = Date.now(),
+): boolean {
+  return expiresAt.getTime() - now <= marginMs;
 }
 
 const STATUS_MILESTONE: Partial<
@@ -88,9 +117,11 @@ export function usePactoEscrowEvents(
   const [transport, setTransport] = useState<PactoEscrowTransport | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const onEventRef = useRef(options.onEvent);
+  const onSessionRefreshRef = useRef(options.onSessionRefresh);
 
   useEffect(() => {
     onEventRef.current = options.onEvent;
+    onSessionRefreshRef.current = options.onSessionRefresh;
   });
 
   useEffect(() => {
@@ -108,7 +139,8 @@ export function usePactoEscrowEvents(
       publishableKey: options.publishableKey,
       gatewayUrl: options.gatewayUrl,
     });
-    const session = client.resumeCheckoutSession({
+
+    let currentSession: PactoSession = client.resumeCheckoutSession({
       sessionId: options.sessionId,
       clientSecret: options.clientSecret,
       expiresAt:
@@ -116,29 +148,55 @@ export function usePactoEscrowEvents(
       mode: options.mode,
     });
 
+    let cancelled = false;
+    let previousStatus: EscrowStatus | null = null;
+    const intervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
+    const refreshMarginMs = options.sessionRefreshMarginMs ?? DEFAULT_SESSION_REFRESH_MARGIN_MS;
+
     function record(event: EscrowEvent): void {
       setMilestones((prev) => [...prev, event]);
       onEventRef.current?.(event);
     }
 
-    if (resolvedTransport === 'sse') {
-      const handler = (event: EscrowEvent) => record(event);
-      for (const name of ['escrow.funded', 'fiat.reported', 'released', 'disputed'] as const) {
-        session.on(name, handler, { escrowId: options.escrowId });
+    // Mobile sessions can sit open (or backgrounded) far longer than a web
+    // checkout tab — long enough to outlive the session's `expiresAt`. Roll
+    // to a fresh session transparently before that happens, rather than
+    // letting every subsequent request start failing with 401s.
+    async function ensureFreshSession(): Promise<PactoSession> {
+      if (!isSessionExpiringSoon(currentSession.expiresAt, refreshMarginMs)) {
+        return currentSession;
       }
 
-      return () => {
-        session.closeEvents();
-      };
+      try {
+        const refreshed = await currentSession.refresh();
+        currentSession = refreshed;
+        onSessionRefreshRef.current?.({
+          sessionId: refreshed.sessionId,
+          clientSecret: refreshed.clientSecret,
+          expiresAt: refreshed.expiresAt,
+          mode: refreshed.mode,
+        });
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err : new Error(String(err)));
+        }
+      }
+
+      return currentSession;
     }
 
-    let cancelled = false;
-    let previousStatus: EscrowStatus | null = null;
-    const api = client.api(session);
-    const intervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
+    async function pollOnce(): Promise<void> {
+      if (cancelled) {
+        return;
+      }
 
-    async function poll(): Promise<void> {
+      const session = await ensureFreshSession();
+      if (cancelled) {
+        return;
+      }
+
       try {
+        const api = client.api(session);
         const { status: statusResponse } = await api.escrows.getStatus(options.escrowId);
         if (cancelled) {
           return;
@@ -162,13 +220,59 @@ export function usePactoEscrowEvents(
       }
     }
 
-    void poll();
-    const interval = setInterval(() => void poll(), intervalMs);
+    function subscribeSse(): void {
+      const handler = (event: EscrowEvent) => record(event);
+      for (const name of ['escrow.funded', 'fiat.reported', 'released', 'disputed'] as const) {
+        currentSession.on(name, handler, { escrowId: options.escrowId });
+      }
+    }
+
+    // A backgrounded RN app has its JS runtime suspended on iOS (and often
+    // throttled on Android), so a live SSE connection or the poll interval
+    // both go stale while the app is away — neither reliably resumes or
+    // errors out on its own. Force a fresh connection whenever the app
+    // returns to the foreground instead of waiting to notice it's stuck.
+    async function reconnectOnForeground(): Promise<void> {
+      if (cancelled) {
+        return;
+      }
+
+      if (resolvedTransport === 'sse') {
+        currentSession.closeEvents();
+        const session = await ensureFreshSession();
+        if (cancelled) {
+          return;
+        }
+        void session;
+        subscribeSse();
+        return;
+      }
+
+      await pollOnce();
+    }
+
+    let pollTimer: ReturnType<typeof setInterval> | undefined;
+
+    if (resolvedTransport === 'sse') {
+      subscribeSse();
+    } else {
+      void pollOnce();
+      pollTimer = setInterval(() => void pollOnce(), intervalMs);
+    }
+
+    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        void reconnectOnForeground();
+      }
+    });
 
     return () => {
       cancelled = true;
-      clearInterval(interval);
-      session.closeEvents();
+      appStateSubscription.remove();
+      if (pollTimer) {
+        clearInterval(pollTimer);
+      }
+      currentSession.closeEvents();
     };
   }, [
     options.enabled,
@@ -181,6 +285,7 @@ export function usePactoEscrowEvents(
     options.escrowId,
     options.transport,
     options.pollIntervalMs,
+    options.sessionRefreshMarginMs,
   ]);
 
   return { milestones, status, transport, error };
