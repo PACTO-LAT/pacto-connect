@@ -3,7 +3,28 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**"]
+      "outputs": ["dist/**", ".next/**", "out/**"]
+    },
+    "@pacto-connect/docs#build": {
+      "dependsOn": [
+        "^build",
+        "@pacto-connect/example-react-storefront#build",
+        "@pacto-connect/example-static-storefront#build",
+        "@pacto-connect/example-marketplace#build"
+      ],
+      "outputs": [".next/**"]
+    },
+    "@pacto-connect/example-static-storefront#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["../../public/examples/static/**"]
+    },
+    "@pacto-connect/example-marketplace#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["../../public/examples/marketplace/**"]
+    },
+    "@pacto-connect/example-react-storefront#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["out/**", "../../public/examples/react/**"]
     },
     "dev": {
       "cache": false,
