@@ -1,0 +1,49 @@
+{
+  "name": "@pacto-connect/react-native",
+  "version": "0.0.0",
+  "description": "React Native SDK for Pacto Connect: WebView-hosted checkout, deep-link return handling, and an escrow event hook.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "biome check src",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-native": ">=0.73",
+    "react-native-webview": ">=13"
+  },
+  "dependencies": {
+    "@pacto-connect/core": "*"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "jsdom": "^25.0.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-native": "0.76.5",
+    "react-native-webview": "^13.12.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  }
+}

@@ -7,11 +7,13 @@ on:
       - 'packages/connect-core/src/**'
       - 'packages/connect-react/src/**'
       - 'packages/connect-elements/src/**'
+      - 'packages/connect-react-native/src/**'
   pull_request:
     paths:
       - 'packages/connect-core/src/**'
       - 'packages/connect-react/src/**'
       - 'packages/connect-elements/src/**'
+      - 'packages/connect-react-native/src/**'
 
 jobs:
   generate:
@@ -29,7 +31,7 @@ jobs:
 
       - name: Build SDK packages
         # generate:api-docs needs the compiled .d.ts files for tsconfig resolution
-        run: npx turbo run build --filter='@pacto-connect/core' --filter='@pacto-connect/react' --filter='@pacto-connect/elements'
+        run: npx turbo run build --filter='@pacto-connect/core' --filter='@pacto-connect/react' --filter='@pacto-connect/elements' --filter='@pacto-connect/react-native'
 
       - name: Regenerate API docs
         run: npm run generate:api-docs
