@@ -89,6 +89,13 @@ function runTypedoc(pkg: PackageDef): string {
     // so committed docs don't drift every time HEAD moves (the CI freshness
     // check regenerates at its own HEAD and would otherwise always see a diff).
     `--gitRevision main`,
+    // Without this, typedoc derives the source link's GitHub org/repo from
+    // `git remote get-url origin` — which points at whichever fork checked
+    // out the branch, not necessarily this repo. Regenerating from a fork
+    // (or a CI checkout whose `origin` resolves differently) would otherwise
+    // silently rewrite every "Defined in" link and fail the docs-freshness
+    // check on an unrelated diff. Pin it explicitly instead.
+    `--sourceLinkTemplate "https://github.com/PACTO-LAT/pacto-connect/blob/{gitRevision}/{path}#L{line}"`,
     `--hidePageHeader true`,
     `--hideBreadcrumbs true`,
     `--useCodeBlocks true`,
