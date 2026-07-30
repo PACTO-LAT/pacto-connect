@@ -1,15 +1,48 @@
 .root {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 4rem);
+}
+
+.topTabs {
+  display: flex;
+  gap: 0;
+  padding: 1rem 1.5rem 0;
+  border-bottom: 1px solid var(--nextra-border, #e5e7eb);
+}
+
+.topTab {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  color: var(--nextra-gray, #6b7280);
+}
+
+.topTab:hover {
+  color: inherit;
+}
+
+.topTabActive {
+  color: #6366f1;
+  border-bottom-color: #6366f1;
+}
+
+.configurator {
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 1.5rem;
-  min-height: calc(100vh - 4rem);
   padding: 1.5rem;
   box-sizing: border-box;
   align-items: start;
 }
 
 @media (max-width: 768px) {
-  .root {
+  .configurator {
     grid-template-columns: 1fr;
   }
 }

@@ -1,0 +1,218 @@
+---
+title: Examples
+---
+
+import { Callout, Cards, Card } from 'nextra/components'
+
+# Example integrations
+
+These runnable storefront examples show how Pacto Connect fits into real product pages — not just isolated widget snippets. If you are new to the SDK, start with the [Quickstart](/quickstart) guide first, then come back here to see full-app patterns.
+
+<Cards>
+  <Card title="Try live" href="/playground" arrow>
+    Open the playground **Examples** tab to interact with each storefront in an iframe.
+  </Card>
+  <Card title="Quickstart" href="/quickstart" arrow>
+    Install the SDK and render your first widget in minutes.
+  </Card>
+</Cards>
+
+## Prerequisites
+
+<Callout type="info">
+  From the **repo root** (once): `npm install && npm run build`. Each example runs with `npm run dev` from its own folder. For a full checkout flow against a local gateway, run `services/connect-gateway` — see each example README.
+</Callout>
+
+Without a running gateway, examples still load and open the widget UI in test mode; API errors are shown inline via `onError`.
+
+---
+
+## React storefront
+
+**Demonstrates:** A minimal Next.js product page with a controlled `<PactoCheckout>` modal.
+
+**SDK:** `@pacto-connect/react`
+
+**Location:** `apps/docs/examples/react-storefront/`
+
+### Key files
+
+**`app/page.tsx`** — product card + checkout state:
+
+```tsx filename="apps/docs/examples/react-storefront/app/page.tsx"
+'use client';
+
+import { PactoCheckout } from '@pacto-connect/react';
+import { useState } from 'react';
+
+const publishableKey =
+  process.env.NEXT_PUBLIC_PACTO_PUBLISHABLE_KEY ?? 'pk_test_demo';
+const gatewayUrl = process.env.NEXT_PUBLIC_PACTO_GATEWAY_URL || undefined;
+const listingId = process.env.NEXT_PUBLIC_PACTO_LISTING_ID || undefined;
+
+export default function StorefrontPage() {
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  return (
+    <main className="store">
+      {/* product card … */}
+      <button type="button" onClick={() => setOpen(true)}>Buy now</button>
+
+      <PactoCheckout
+        publishableKey={publishableKey}
+        gatewayUrl={gatewayUrl}
+        listingId={listingId}
+        mode="buy"
+        testMode
+        open={open}
+        onClose={() => setOpen(false)}
+        onComplete={() => setOpen(false)}
+        onError={(err) => setError(err.message)}
+      />
+    </main>
+  );
+}
+```
+
+### Run locally
+
+```bash
+cd apps/docs/examples/react-storefront
+cp .env.example .env.local
+npm run dev
+```
+
+Open [http://localhost:3201/examples/react](http://localhost:3201/examples/react).
+
+---
+
+## Static HTML storefront
+
+**Demonstrates:** A framework-free page using `pacto.mount()` from `@pacto-connect/elements`. Vite is used only for dev server and bundling.
+
+**SDK:** `@pacto-connect/elements`
+
+**Location:** `apps/docs/examples/static-storefront/`
+
+### Key files
+
+**`main.js`** — button click mounts the widget:
+
+```js filename="apps/docs/examples/static-storefront/main.js"
+import { pacto } from '@pacto-connect/elements';
+
+const publishableKey = import.meta.env.VITE_PACTO_PUBLISHABLE_KEY ?? 'pk_test_demo';
+const gatewayUrl = import.meta.env.VITE_PACTO_GATEWAY_URL || undefined;
+const listingId = import.meta.env.VITE_PACTO_LISTING_ID || undefined;
+
+let handle = null;
+
+document.getElementById('buy-btn')?.addEventListener('click', () => {
+  handle?.destroy();
+  handle = pacto.mount('#checkout-root', {
+    publishableKey,
+    gatewayUrl,
+    listingId,
+    mode: 'buy',
+    testMode: true,
+    onComplete: () => { handle?.destroy(); handle = null; },
+    onClose: () => { handle?.destroy(); handle = null; },
+    onError: (err) => showError(err.message),
+  });
+});
+```
+
+**`index.html`** — plain markup with a product card and `#checkout-root` mount point.
+
+### Run locally
+
+```bash
+cd apps/docs/examples/static-storefront
+cp .env.example .env
+npm run dev
+```
+
+Open [http://localhost:3202/examples/static/](http://localhost:3202/examples/static/).
+
+---
+
+## Marketplace storefront
+
+**Demonstrates:** Multiple products on one page, each with a distinct `listingId`, sharing a single `<PactoCheckout>` instance.
+
+**SDK:** `@pacto-connect/react`
+
+**Location:** `apps/docs/examples/marketplace/`
+
+### Key files
+
+**`src/config.ts`** — product catalog with per-product listing IDs:
+
+```ts filename="apps/docs/examples/marketplace/src/config.ts"
+export const products = [
+  {
+    id: 'usdc-100',
+    name: '100 USDC',
+    listingId: import.meta.env.VITE_PACTO_LISTING_USDC_100 ?? 'lst_demo_100',
+    // …
+  },
+  {
+    id: 'usdc-500',
+    name: '500 USDC',
+    listingId: import.meta.env.VITE_PACTO_LISTING_USDC_500 ?? 'lst_demo_500',
+    // …
+  },
+];
+```
+
+**`src/App.tsx`** — one checkout, many products:
+
+```tsx filename="apps/docs/examples/marketplace/src/App.tsx"
+const [checkoutListingId, setCheckoutListingId] = useState<string | null>(null);
+
+{products.map((product) => (
+  <button onClick={() => setCheckoutListingId(product.listingId)}>
+    Buy now
+  </button>
+))}
+
+{checkoutListingId && (
+  <PactoCheckout
+    listingId={checkoutListingId}
+    open
+    onClose={() => setCheckoutListingId(null)}
+    /* … */
+  />
+)}
+```
+
+### Run locally
+
+```bash
+cd apps/docs/examples/marketplace
+cp .env.example .env
+npm run dev
+```
+
+Open [http://localhost:3203/examples/marketplace/](http://localhost:3203/examples/marketplace/).
+
+---
+
+## Building for the docs playground
+
+Examples are built into `apps/docs/public/examples/` and embedded in the playground via same-origin iframes:
+
+```bash
+cd apps/docs
+npm run build:examples   # build all three
+npm run dev              # docs at http://localhost:3100/playground
+```
+
+Set `NEXT_PUBLIC_EXAMPLE_DEV_MODE=true` when running the docs dev server to iframe local example servers (`localhost:3201–3203`) instead of the static build.
+
+## Next steps
+
+- [Playground](/playground) — configurator + live example embeds
+- [Theming & i18n](/theming) — customize widget appearance
+- [API Reference](/api-reference) — full type documentation
