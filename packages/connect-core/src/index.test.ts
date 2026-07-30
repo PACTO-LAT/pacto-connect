@@ -80,7 +80,8 @@ describe('@pacto-connect/core sessions', () => {
     ).rejects.toEqual(
       expect.objectContaining({
         name: 'PactoSessionError',
-        code: 'session_invalid',
+        code: 'PACTO_SESSION',
+        detailCode: 'session_invalid',
       }),
     );
   });
@@ -114,7 +115,8 @@ describe('@pacto-connect/core sessions', () => {
     await expect(session.refresh()).rejects.toEqual(
       expect.objectContaining({
         name: 'PactoSessionError',
-        code: 'session_expired',
+        code: 'PACTO_SESSION',
+        detailCode: 'session_expired',
       }),
     );
   });

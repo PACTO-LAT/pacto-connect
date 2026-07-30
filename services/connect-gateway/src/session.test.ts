@@ -109,6 +109,8 @@ describe('session routes', () => {
         type: 'validation_error',
         code: 'invalid_request',
         message: 'listingId or quote is required',
+        pactoCode: 'PACTO_VALIDATION',
+        requestId: expect.any(String),
       },
     });
   });
@@ -131,6 +133,8 @@ describe('session routes', () => {
         type: 'session_error',
         code: 'session_invalid',
         message: 'Client secret signature mismatch',
+        pactoCode: 'PACTO_SESSION',
+        requestId: expect.any(String),
       },
     });
   });
@@ -153,6 +157,8 @@ describe('session routes', () => {
         type: 'session_error',
         code: 'session_expired',
         message: 'Session has expired',
+        pactoCode: 'PACTO_SESSION',
+        requestId: expect.any(String),
       },
     });
   });

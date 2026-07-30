@@ -73,8 +73,13 @@ describe('origin validation middleware', () => {
 
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({
-      error: 'origin not allowed for this key',
-      code: 'origin_not_allowed',
+      error: {
+        type: 'gateway_error',
+        code: 'origin_not_allowed',
+        message: 'origin not allowed for this key',
+        pactoCode: 'PACTO_AUTH',
+        requestId: expect.any(String),
+      },
     });
   });
 
@@ -88,8 +93,13 @@ describe('origin validation middleware', () => {
 
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({
-      error: 'origin or referer header required',
-      code: 'origin_required',
+      error: {
+        type: 'gateway_error',
+        code: 'origin_required',
+        message: 'origin or referer header required',
+        pactoCode: 'PACTO_AUTH',
+        requestId: expect.any(String),
+      },
     });
   });
 
@@ -106,8 +116,13 @@ describe('origin validation middleware', () => {
 
     expect(res.status).toBe(403);
     expect(await res.json()).toEqual({
-      error: 'invalid or revoked publishable key',
-      code: 'key_invalid',
+      error: {
+        type: 'gateway_error',
+        code: 'key_invalid',
+        message: 'invalid or revoked publishable key',
+        pactoCode: 'PACTO_AUTH',
+        requestId: expect.any(String),
+      },
     });
   });
 
@@ -306,7 +321,7 @@ describe('admin key creation origin validation', () => {
   it('rejects a bare wildcard origin', async () => {
     const res = await post(['*']);
     expect(res.status).toBe(400);
-    expect((await res.json()).code).toBe('invalid_request');
+    expect((await res.json()).error.code).toBe('invalid_request');
   });
 
   it('rejects a malformed origin', async () => {

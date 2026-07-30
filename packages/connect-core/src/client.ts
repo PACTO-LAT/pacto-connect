@@ -177,6 +177,7 @@ function createGatewayClient(options: PactoInitOptions): InternalPactoClient {
     ) {
       throw new PactoError(
         'gateway_error',
+        'PACTO_UNKNOWN',
         'invalid_response',
         'Gateway returned an invalid session payload',
       );

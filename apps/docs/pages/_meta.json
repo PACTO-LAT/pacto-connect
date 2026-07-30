@@ -3,6 +3,7 @@
   "quickstart": "Quickstart",
   "theming": "Theming & i18n",
   "security": "Security",
+  "observability": "Errors & Observability",
   "api-reference": "API Reference",
   "playground": {
     "title": "Playground",

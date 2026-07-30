@@ -1,0 +1,119 @@
+# Errors & Observability
+
+How the SDK classifies failures, how to branch on stable error codes, and how
+request IDs tie together client errors, gateway logs, and OpenTelemetry traces.
+
+## PACTO error taxonomy
+
+Every gateway error is mapped to a stable `PACTO_*` code on the thrown
+`PactoError.code` field. Use these codes for application logic — they stay
+consistent even when gateway `detailCode` values evolve.
+
+| Code | Meaning |
+| --- | --- |
+| `PACTO_AUTH` | Auth/key rejected |
+| `PACTO_RATE_LIMIT` | Rate limited — check `error.retryAfter` |
+| `PACTO_UPSTREAM` | Upstream Pacto API unavailable |
+| `PACTO_VALIDATION` | Request invalid |
+| `PACTO_SESSION` | Checkout session invalid or expired |
+| `PACTO_ESCROW` | Escrow operation failed |
+| `PACTO_NETWORK` | Network failure before reaching the gateway |
+| `PACTO_INTERNAL` | Gateway internal error |
+| `PACTO_UNKNOWN` | Unclassified |
+
+The full list is exported as `PACTO_ERROR_CODES` from `@pacto-connect/core`
+(and re-exported from `@pacto-connect/react`). Use `isPactoErrorCode()` to
+narrow unknown strings at runtime.
+
+## Branch on `error.code`, not `error.message`
+
+`error.code` is the stable taxonomy (`PACTO_*`). `error.detailCode` is the
+fine-grained gateway code (e.g. `session_expired`) — useful for logging or
+UI copy, but not for primary control flow. Never parse `error.message`; it is
+human-readable and may change.
+
+```ts
+import { PactoError, PactoRateLimitError, PactoSessionError } from '@pacto-connect/react';
+
+try {
+  await pacto.checkout.createSession({ listingId, returnUrl });
+} catch (err) {
+  if (!(err instanceof PactoError)) {
+    throw err;
+  }
+
+  switch (err.code) {
+    case 'PACTO_RATE_LIMIT': {
+      const retryAfter =
+        err instanceof PactoRateLimitError ? err.retryAfter : undefined;
+      await sleep(retryAfter ?? 5_000);
+      break;
+    }
+    case 'PACTO_SESSION': {
+      // detailCode may be 'session_expired' or 'session_invalid'
+      await pacto.session.refresh();
+      break;
+    }
+    case 'PACTO_AUTH':
+      redirectToReauth();
+      break;
+    default:
+      console.error('checkout failed', err.code, err.detailCode, err.requestId);
+  }
+}
+```
+
+## Request-ID correlation
+
+Every SDK request sends an `x-pacto-request-id` header (format `req_<uuid>`).
+The same ID is reused across retries for that logical request.
+
+The gateway:
+
+- echoes the ID as a response header,
+- includes it in every JSON error body as `error.requestId`,
+- exposes it on thrown `PactoError.requestId`, and
+- stamps it on every structured log line.
+
+When a checkout call fails in `connect-react`, copy `error.requestId` and grep
+your gateway logs — you will land on the exact request line.
+
+## Structured gateway logs
+
+The gateway emits one JSON line per request:
+
+```json
+{
+  "level": "info",
+  "time": "2026-07-29T22:00:00.000Z",
+  "service": "connect-gateway",
+  "msg": "request",
+  "method": "POST",
+  "path": "/v1/checkout/sessions",
+  "status": 429,
+  "durationMs": 12,
+  "requestId": "req_550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+Set verbosity with the `LOG_LEVEL` environment variable (e.g. `debug`, `info`,
+`warn`, `error`).
+
+## Tracing
+
+The gateway emits OpenTelemetry spans for the checkout lifecycle:
+
+| Span name | Lifecycle step |
+| --- | --- |
+| `session.handshake` | Initial session establishment |
+| `session.refresh` | Session token rotation |
+| `quote.create` | Quote creation |
+| `escrow.create` | Escrow creation |
+| `webhook.deliver` | Outbound webhook delivery |
+
+Spans are exported via OTLP/HTTP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set.
+The default service name is `connect-gateway`; override with
+`OTEL_SERVICE_NAME`.
+
+Each span carries a `pacto.request_id` attribute so traces, structured logs,
+and SDK errors all join on the same ID.

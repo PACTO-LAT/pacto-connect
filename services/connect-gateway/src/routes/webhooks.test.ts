@@ -78,7 +78,15 @@ describe('admin webhook routes', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: 'apiKeyId is required' });
+    expect(await res.json()).toEqual({
+      error: {
+        type: 'gateway_error',
+        code: 'unknown_error',
+        message: 'apiKeyId is required',
+        pactoCode: 'PACTO_VALIDATION',
+        requestId: expect.any(String),
+      },
+    });
   });
 
   it('creates a webhook endpoint and returns the secret once', async () => {
@@ -135,7 +143,13 @@ describe('admin webhook routes', () => {
 
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({
-      error: 'enabledEvents must be a non-empty array',
+      error: {
+        type: 'gateway_error',
+        code: 'unknown_error',
+        message: 'enabledEvents must be a non-empty array',
+        pactoCode: 'PACTO_VALIDATION',
+        requestId: expect.any(String),
+      },
     });
   });
 
@@ -155,7 +169,15 @@ describe('admin webhook routes', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: 'merchantId must be a non-empty string' });
+    expect(await res.json()).toEqual({
+      error: {
+        type: 'gateway_error',
+        code: 'unknown_error',
+        message: 'merchantId must be a non-empty string',
+        pactoCode: 'PACTO_VALIDATION',
+        requestId: expect.any(String),
+      },
+    });
     expect(findActiveMerchant).not.toHaveBeenCalled();
     expect(endpoints.registerEndpoint).not.toHaveBeenCalled();
   });
@@ -179,7 +201,13 @@ describe('admin webhook routes', () => {
 
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({
-      error: 'merchantId is unknown, disabled, or not owned by this key',
+      error: {
+        type: 'gateway_error',
+        code: 'unknown_error',
+        message: 'merchantId is unknown, disabled, or not owned by this key',
+        pactoCode: 'PACTO_VALIDATION',
+        requestId: expect.any(String),
+      },
     });
     expect(findActiveMerchant).toHaveBeenCalledWith('key_1', 'mrc_x');
     expect(endpoints.registerEndpoint).not.toHaveBeenCalled();
@@ -265,7 +293,15 @@ describe('admin webhook routes', () => {
     });
 
     expect(res.status).toBe(404);
-    expect(await res.json()).toEqual({ error: 'delivery not found' });
+    expect(await res.json()).toEqual({
+      error: {
+        type: 'gateway_error',
+        code: 'unknown_error',
+        message: 'delivery not found',
+        pactoCode: 'PACTO_UNKNOWN',
+        requestId: expect.any(String),
+      },
+    });
   });
 
   it('verifies a webhook endpoint', async () => {
