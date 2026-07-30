@@ -11,9 +11,11 @@ import {
   type SimulatorEscrow,
   type SimulatorEvent,
 } from '../testmode/simulator.js';
+import { setSpanAttr, withSpan } from '../tracing.js';
 
 type EscrowRouteVariables = {
   apiKey: ApiKey;
+  requestId?: string;
 };
 
 const escrows = new Hono<{ Variables: EscrowRouteVariables }>();
@@ -161,36 +163,49 @@ escrows.get('/events', async (c) => {
 });
 
 escrows.post('/', idempotency(), async (c) => {
-  const auth = await authenticateEscrowRequest(c);
-  if ('error' in auth) {
-    return auth.error;
-  }
+  return withSpan(
+    'escrow.create',
+    {
+      'pacto.request_id': c.get('requestId'),
+    },
+    async (span) => {
+      const auth = await authenticateEscrowRequest(c);
+      if ('error' in auth) {
+        return auth.error;
+      }
 
-  const { session, apiKey } = auth;
+      const { session, apiKey } = auth;
+      setSpanAttr(span, 'pacto.api_key_id', apiKey.id);
+      setSpanAttr(span, 'pacto.session_id', session.id);
 
-  if (apiKey.mode !== 'test') {
-    return liveNotImplemented(c);
-  }
+      if (apiKey.mode !== 'test') {
+        return liveNotImplemented(c);
+      }
 
-  const body = await c.req.json<{ quoteId?: string; amount?: string; asset?: string }>();
+      const body = await c.req.json<{ quoteId?: string; amount?: string; asset?: string }>();
 
-  if (!body.quoteId || typeof body.quoteId !== 'string') {
-    return c.json(
-      toGatewayErrorBody('validation_error', 'invalid_request', 'quoteId is required'),
-      400,
-    );
-  }
+      if (!body.quoteId || typeof body.quoteId !== 'string') {
+        return c.json(
+          toGatewayErrorBody('validation_error', 'invalid_request', 'quoteId is required'),
+          400,
+        );
+      }
 
-  const escrow = getSimulator().createEscrow({
-    apiKeyId: apiKey.id,
-    sessionId: session.id,
-    quoteId: body.quoteId,
-    amount: typeof body.amount === 'string' ? body.amount : '100',
-    asset: typeof body.asset === 'string' ? body.asset : 'USDC',
-    merchantId: session.merchantId ?? undefined,
-  });
+      const escrow = getSimulator().createEscrow({
+        apiKeyId: apiKey.id,
+        sessionId: session.id,
+        quoteId: body.quoteId,
+        amount: typeof body.amount === 'string' ? body.amount : '100',
+        asset: typeof body.asset === 'string' ? body.asset : 'USDC',
+        merchantId: session.merchantId ?? undefined,
+      });
 
-  return c.json({ escrow: serializeEscrow(escrow) });
+      setSpanAttr(span, 'pacto.escrow_id', escrow.id);
+      setSpanAttr(span, 'pacto.quote_id', escrow.quoteId);
+
+      return c.json({ escrow: serializeEscrow(escrow) });
+    },
+  );
 });
 
 escrows.get('/:id', async (c) => {

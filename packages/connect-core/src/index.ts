@@ -41,6 +41,7 @@ export {
   PactoApiError,
   PactoAuthError,
   PactoError,
+  type PactoErrorOptions,
   PactoEscrowError,
   PactoRateLimitError,
   PactoSessionError,
@@ -75,6 +76,14 @@ export type {
   PactoApiClient,
   Quote,
 } from './resources.js';
+export {
+  classifyGatewayError,
+  generateRequestId,
+  isPactoErrorCode,
+  PACTO_ERROR_CODES,
+  type PactoErrorCode,
+  REQUEST_ID_HEADER,
+} from './taxonomy.js';
 export {
   buildCheckoutStylesheet,
   DEFAULT_THEME,

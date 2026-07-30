@@ -4,9 +4,11 @@ import { SessionError, sessionErrorStatus, toGatewayErrorBody } from '../errors.
 import { findActiveMerchant } from '../merchants.js';
 import { idempotency } from '../middleware/idempotency.js';
 import { createCheckoutSession, refreshCheckoutSession } from '../sessions.js';
+import { setSpanAttr, withSpan } from '../tracing.js';
 
 type SessionRouteVariables = {
   apiKey: ApiKey;
+  requestId?: string;
 };
 
 const session = new Hono<{ Variables: SessionRouteVariables }>();
@@ -17,126 +19,153 @@ function isCheckoutMode(value: string): value is CheckoutMode {
 
 session.post('/', idempotency(), async (c) => {
   const apiKey = c.get('apiKey');
-  const body = await c.req.json<{
-    listingId?: string;
-    quote?: Record<string, unknown>;
-    mode?: string;
-    merchantId?: string;
-  }>();
+  return withSpan(
+    'session.handshake',
+    {
+      'pacto.request_id': c.get('requestId'),
+      'pacto.api_key_id': apiKey.id,
+    },
+    async (span) => {
+      const body = await c.req.json<{
+        listingId?: string;
+        quote?: Record<string, unknown>;
+        mode?: string;
+        merchantId?: string;
+      }>();
 
-  const hasListingId = typeof body.listingId === 'string' && body.listingId.length > 0;
-  const hasQuote =
-    body.quote !== undefined && body.quote !== null && typeof body.quote === 'object';
+      const hasListingId = typeof body.listingId === 'string' && body.listingId.length > 0;
+      const hasQuote =
+        body.quote !== undefined && body.quote !== null && typeof body.quote === 'object';
 
-  if (!hasListingId && !hasQuote) {
-    return c.json(
-      toGatewayErrorBody('validation_error', 'invalid_request', 'listingId or quote is required'),
-      400,
-    );
-  }
+      if (!hasListingId && !hasQuote) {
+        return c.json(
+          toGatewayErrorBody(
+            'validation_error',
+            'invalid_request',
+            'listingId or quote is required',
+          ),
+          400,
+        );
+      }
 
-  if (hasListingId && hasQuote) {
-    return c.json(
-      toGatewayErrorBody(
-        'validation_error',
-        'invalid_request',
-        'provide listingId or quote, not both',
-      ),
-      400,
-    );
-  }
+      if (hasListingId && hasQuote) {
+        return c.json(
+          toGatewayErrorBody(
+            'validation_error',
+            'invalid_request',
+            'provide listingId or quote, not both',
+          ),
+          400,
+        );
+      }
 
-  if (!body.mode || !isCheckoutMode(body.mode)) {
-    return c.json(
-      toGatewayErrorBody('validation_error', 'invalid_request', 'mode must be "buy" or "sell"'),
-      400,
-    );
-  }
+      if (!body.mode || !isCheckoutMode(body.mode)) {
+        return c.json(
+          toGatewayErrorBody('validation_error', 'invalid_request', 'mode must be "buy" or "sell"'),
+          400,
+        );
+      }
 
-  let merchantId: string | undefined;
-  if (body.merchantId !== undefined) {
-    if (typeof body.merchantId !== 'string' || body.merchantId.length === 0) {
-      return c.json(
-        toGatewayErrorBody(
-          'validation_error',
-          'invalid_request',
-          'merchantId must be a non-empty string',
-        ),
-        400,
-      );
-    }
-    const merchant = await findActiveMerchant(apiKey.id, body.merchantId);
-    if (!merchant) {
-      return c.json(
-        toGatewayErrorBody(
-          'validation_error',
-          'invalid_request',
-          'merchantId is unknown, disabled, or not owned by this key',
-        ),
-        400,
-      );
-    }
-    merchantId = merchant.id;
-  }
+      setSpanAttr(span, 'pacto.mode', body.mode);
 
-  try {
-    const result = await createCheckoutSession({
-      apiKeyId: apiKey.id,
-      mode: body.mode,
-      listingId: hasListingId ? body.listingId : undefined,
-      quote: hasQuote ? (body.quote as Prisma.InputJsonValue) : undefined,
-      merchantId,
-    });
+      let merchantId: string | undefined;
+      if (body.merchantId !== undefined) {
+        if (typeof body.merchantId !== 'string' || body.merchantId.length === 0) {
+          return c.json(
+            toGatewayErrorBody(
+              'validation_error',
+              'invalid_request',
+              'merchantId must be a non-empty string',
+            ),
+            400,
+          );
+        }
+        const merchant = await findActiveMerchant(apiKey.id, body.merchantId);
+        if (!merchant) {
+          return c.json(
+            toGatewayErrorBody(
+              'validation_error',
+              'invalid_request',
+              'merchantId is unknown, disabled, or not owned by this key',
+            ),
+            400,
+          );
+        }
+        merchantId = merchant.id;
+      }
 
-    return c.json({
-      sessionId: result.sessionId,
-      clientSecret: result.clientSecret,
-      expiresAt: result.expiresAt.toISOString(),
-      mode: result.mode,
-      merchantId: result.merchantId,
-    });
-  } catch (error) {
-    if (error instanceof SessionError) {
-      return c.json(
-        toGatewayErrorBody('session_error', error.code, error.message),
-        sessionErrorStatus(error.code),
-      );
-    }
+      try {
+        const result = await createCheckoutSession({
+          apiKeyId: apiKey.id,
+          mode: body.mode,
+          listingId: hasListingId ? body.listingId : undefined,
+          quote: hasQuote ? (body.quote as Prisma.InputJsonValue) : undefined,
+          merchantId,
+        });
 
-    throw error;
-  }
+        span.setAttribute('pacto.session_id', result.sessionId);
+
+        return c.json({
+          sessionId: result.sessionId,
+          clientSecret: result.clientSecret,
+          expiresAt: result.expiresAt.toISOString(),
+          mode: result.mode,
+          merchantId: result.merchantId,
+        });
+      } catch (error) {
+        if (error instanceof SessionError) {
+          return c.json(
+            toGatewayErrorBody('session_error', error.code, error.message),
+            sessionErrorStatus(error.code),
+          );
+        }
+
+        throw error;
+      }
+    },
+  );
 });
 
 session.post('/refresh', async (c) => {
-  const body = await c.req.json<{ clientSecret?: string }>();
+  return withSpan(
+    'session.refresh',
+    {
+      'pacto.request_id': c.get('requestId'),
+    },
+    async (span) => {
+      const body = await c.req.json<{ clientSecret?: string }>();
 
-  if (!body.clientSecret || typeof body.clientSecret !== 'string') {
-    return c.json(
-      toGatewayErrorBody('validation_error', 'invalid_request', 'clientSecret is required'),
-      400,
-    );
-  }
+      if (!body.clientSecret || typeof body.clientSecret !== 'string') {
+        return c.json(
+          toGatewayErrorBody('validation_error', 'invalid_request', 'clientSecret is required'),
+          400,
+        );
+      }
 
-  try {
-    const result = await refreshCheckoutSession(body.clientSecret);
+      try {
+        const result = await refreshCheckoutSession(body.clientSecret);
 
-    return c.json({
-      sessionId: result.sessionId,
-      clientSecret: result.clientSecret,
-      expiresAt: result.expiresAt.toISOString(),
-      mode: result.mode,
-      merchantId: result.merchantId,
-    });
-  } catch (error) {
-    if (error instanceof SessionError) {
-      return c.json(
-        toGatewayErrorBody('session_error', error.code, error.message),
-        sessionErrorStatus(error.code),
-      );
-    }
+        span.setAttribute('pacto.session_id', result.sessionId);
 
-    throw error;
-  }
+        return c.json({
+          sessionId: result.sessionId,
+          clientSecret: result.clientSecret,
+          expiresAt: result.expiresAt.toISOString(),
+          mode: result.mode,
+          merchantId: result.merchantId,
+        });
+      } catch (error) {
+        if (error instanceof SessionError) {
+          return c.json(
+            toGatewayErrorBody('session_error', error.code, error.message),
+            sessionErrorStatus(error.code),
+          );
+        }
+
+        throw error;
+      }
+    },
+  );
 });
 
 export { session as sessionRoutes };

@@ -153,6 +153,8 @@ describe('escrow routes', () => {
         type: 'gateway_error',
         code: 'not_implemented',
         message: 'live escrow proxy not available',
+        pactoCode: 'PACTO_UPSTREAM',
+        requestId: expect.any(String),
       },
     });
   });
@@ -175,6 +177,8 @@ describe('escrow routes', () => {
         type: 'validation_error',
         code: 'invalid_request',
         message: 'Authorization Bearer client secret is required',
+        pactoCode: 'PACTO_VALIDATION',
+        requestId: expect.any(String),
       },
     });
   });
@@ -195,6 +199,8 @@ describe('escrow routes', () => {
         type: 'session_error',
         code: 'session_invalid',
         message: 'Session not found',
+        pactoCode: 'PACTO_SESSION',
+        requestId: expect.any(String),
       },
     });
   });

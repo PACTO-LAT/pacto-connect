@@ -7,6 +7,8 @@ export interface GatewayErrorBody {
     type: string;
     code: string;
     message: string;
+    pactoCode?: string;
+    requestId?: string;
   };
 }
 
@@ -56,12 +58,18 @@ export function subscriptionErrorStatus(code: SubscriptionErrorCode): Contentful
   return code === 'subscription_not_found' ? 404 : 400;
 }
 
-export function toGatewayErrorBody(type: string, code: string, message: string): GatewayErrorBody {
+export function toGatewayErrorBody(
+  type: string,
+  code: string,
+  message: string,
+  extra?: { pactoCode?: string; requestId?: string },
+): GatewayErrorBody {
   return {
     error: {
       type,
       code,
       message,
+      ...extra,
     },
   };
 }

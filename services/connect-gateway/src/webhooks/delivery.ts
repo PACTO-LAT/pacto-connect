@@ -1,5 +1,6 @@
 import type { Prisma, WebhookDelivery, WebhookDeliveryStatus } from '@prisma/client';
 import { prisma } from '../db.js';
+import { setSpanAttr, withSpan } from '../tracing.js';
 import { postSignedWebhook } from './transport.js';
 import type { WebhookEventType } from './types.js';
 
@@ -111,69 +112,92 @@ export async function attemptDelivery(
   deliveryId: string,
   options?: { now?: Date; fetchImpl?: typeof fetch },
 ): Promise<AttemptResult> {
-  const delivery = await prisma.webhookDelivery.findUnique({
-    where: { id: deliveryId },
-    include: { endpoint: true, event: true },
-  });
-
-  if (!delivery) {
-    throw new Error('delivery not found');
-  }
-
-  if (delivery.status === 'succeeded' || delivery.status === 'dead') {
-    return { deliveryId, status: delivery.status };
-  }
-
-  const now = options?.now ?? new Date();
-  const body = JSON.stringify({
-    id: delivery.event.id,
-    type: delivery.eventType,
-    created: Math.floor(delivery.event.createdAt.getTime() / 1000),
-    data: delivery.event.data,
-  });
-
-  const result = await postSignedWebhook(delivery.endpoint.url, body, delivery.endpoint.secret, {
-    fetchImpl: options?.fetchImpl,
-  });
-
-  const attempts = delivery.attempts + 1;
-
-  if (result.ok) {
-    await prisma.webhookDelivery.update({
-      where: { id: deliveryId },
-      data: {
-        status: 'succeeded',
-        attempts,
-        deliveredAt: now,
-        lastStatusCode: result.status ?? null,
-        lastError: null,
-      },
-    });
-
-    return { deliveryId, status: 'succeeded', statusCode: result.status };
-  }
-
-  const exhausted = attempts >= delivery.maxAttempts;
-  const status = exhausted ? 'dead' : 'failed';
-  const nextAttemptAt = exhausted
-    ? delivery.nextAttemptAt
-    : new Date(now.getTime() + computeBackoffMs(attempts));
-  const errorMessage =
-    result.error ??
-    (result.status !== undefined ? `unexpected status ${result.status}` : 'delivery failed');
-
-  await prisma.webhookDelivery.update({
-    where: { id: deliveryId },
-    data: {
-      status,
-      attempts,
-      lastStatusCode: result.status ?? null,
-      lastError: errorMessage,
-      nextAttemptAt,
+  return withSpan(
+    'webhook.deliver',
+    {
+      'pacto.delivery_id': deliveryId,
     },
-  });
+    async (span) => {
+      const delivery = await prisma.webhookDelivery.findUnique({
+        where: { id: deliveryId },
+        include: { endpoint: true, event: true },
+      });
 
-  return { deliveryId, status, statusCode: result.status, error: errorMessage };
+      if (!delivery) {
+        throw new Error('delivery not found');
+      }
+
+      setSpanAttr(span, 'pacto.event_type', delivery.eventType);
+      setSpanAttr(span, 'pacto.endpoint_id', delivery.endpointId);
+
+      if (delivery.status === 'succeeded' || delivery.status === 'dead') {
+        setSpanAttr(span, 'pacto.delivery_status', delivery.status);
+        return { deliveryId, status: delivery.status };
+      }
+
+      const now = options?.now ?? new Date();
+      const body = JSON.stringify({
+        id: delivery.event.id,
+        type: delivery.eventType,
+        created: Math.floor(delivery.event.createdAt.getTime() / 1000),
+        data: delivery.event.data,
+      });
+
+      const result = await postSignedWebhook(
+        delivery.endpoint.url,
+        body,
+        delivery.endpoint.secret,
+        {
+          fetchImpl: options?.fetchImpl,
+        },
+      );
+
+      const attempts = delivery.attempts + 1;
+
+      if (result.ok) {
+        await prisma.webhookDelivery.update({
+          where: { id: deliveryId },
+          data: {
+            status: 'succeeded',
+            attempts,
+            deliveredAt: now,
+            lastStatusCode: result.status ?? null,
+            lastError: null,
+          },
+        });
+
+        setSpanAttr(span, 'pacto.delivery_status', 'succeeded');
+        setSpanAttr(span, 'pacto.status_code', result.status);
+
+        return { deliveryId, status: 'succeeded', statusCode: result.status };
+      }
+
+      const exhausted = attempts >= delivery.maxAttempts;
+      const status = exhausted ? 'dead' : 'failed';
+      const nextAttemptAt = exhausted
+        ? delivery.nextAttemptAt
+        : new Date(now.getTime() + computeBackoffMs(attempts));
+      const errorMessage =
+        result.error ??
+        (result.status !== undefined ? `unexpected status ${result.status}` : 'delivery failed');
+
+      await prisma.webhookDelivery.update({
+        where: { id: deliveryId },
+        data: {
+          status,
+          attempts,
+          lastStatusCode: result.status ?? null,
+          lastError: errorMessage,
+          nextAttemptAt,
+        },
+      });
+
+      setSpanAttr(span, 'pacto.delivery_status', status);
+      setSpanAttr(span, 'pacto.status_code', result.status);
+
+      return { deliveryId, status, statusCode: result.status, error: errorMessage };
+    },
+  );
 }
 
 export interface RunResult {

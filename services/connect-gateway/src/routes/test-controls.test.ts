@@ -197,6 +197,8 @@ describe('test control routes', () => {
         type: 'forbidden',
         code: 'live_key_not_allowed',
         message: 'test controls require a test-mode key',
+        pactoCode: 'PACTO_AUTH',
+        requestId: expect.any(String),
       },
     });
   });
