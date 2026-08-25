@@ -17,6 +17,7 @@ export type CheckoutStep =
   | 'tracking'
   | 'success'
   | 'disputed'
+  | 'refunded'
   | 'error';
 
 export interface CheckoutFlowState {
@@ -42,6 +43,7 @@ export interface CheckoutFlowOptions {
   onChange?: (state: CheckoutFlowState) => void;
   onComplete?: (escrow: Escrow) => void;
   onDispute?: (escrow: Escrow) => void;
+  onRefund?: (escrow: Escrow) => void;
   onError?: (error: Error) => void;
 }
 
@@ -243,6 +245,35 @@ export class CheckoutFlowController {
         trackMilestone(event);
         this.patchState({ step: 'disputed' });
         this.options.onDispute?.(currentEscrow);
+      },
+      { escrowId },
+    );
+
+    session.on(
+      'refunded',
+      (event) => {
+        trackMilestone(event);
+        this.patchState({ step: 'refunded' });
+        this.options.onRefund?.(currentEscrow);
+      },
+      { escrowId },
+    );
+
+    session.on(
+      'dispute.resolved',
+      (event) => {
+        trackMilestone(event);
+        const outcome =
+          event.data && typeof event.data === 'object' && 'outcome' in event.data
+            ? (event.data as { outcome?: string }).outcome
+            : undefined;
+        if (outcome === 'refund') {
+          this.patchState({ step: 'refunded' });
+          this.options.onRefund?.(currentEscrow);
+        } else {
+          this.patchState({ step: 'success' });
+          this.options.onComplete?.(currentEscrow);
+        }
       },
       { escrowId },
     );

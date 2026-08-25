@@ -1,7 +1,10 @@
 export const WEBHOOK_EVENT_TYPES = [
   'escrow.created',
+  'escrow.cancelled',
+  'escrow.refunded',
   'trade.completed',
   'dispute.opened',
+  'dispute.resolved',
   'payment.reported',
   'subscription.created',
   'subscription.charged',

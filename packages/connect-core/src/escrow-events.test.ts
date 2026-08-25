@@ -80,6 +80,7 @@ describe('escrow event subscription', () => {
       escrowId: 'esc_1',
       milestone: 'funded',
       occurredAt: '2024-01-01T00:00:00.000Z',
+      data: {},
     });
 
     subscriber.close();
@@ -145,6 +146,7 @@ describe('escrow event subscription', () => {
       escrowId: 'esc_1',
       milestone: 'released',
       occurredAt: '2024-01-01T00:10:00.000Z',
+      data: {},
     });
 
     const reconnectUrl = vi

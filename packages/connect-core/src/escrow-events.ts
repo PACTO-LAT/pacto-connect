@@ -6,12 +6,22 @@ export const ESCROW_EVENT_NAMES = [
   'fiat.reported',
   'released',
   'disputed',
+  'cancelled',
+  'refunded',
+  'dispute.resolved',
 ] as const;
 
 export type EscrowEventName = (typeof ESCROW_EVENT_NAMES)[number];
 
 /** Maps to Pacto P2P `escrow_milestones` lifecycle states. */
-export type EscrowMilestone = 'funded' | 'fiat_reported' | 'released' | 'disputed';
+export type EscrowMilestone =
+  | 'funded'
+  | 'fiat_reported'
+  | 'released'
+  | 'disputed'
+  | 'cancelled'
+  | 'refunded'
+  | 'dispute_resolved';
 
 export interface EscrowEvent {
   cursor: string;
@@ -19,6 +29,7 @@ export interface EscrowEvent {
   escrowId: string;
   milestone: EscrowMilestone;
   occurredAt: string;
+  data?: Record<string, unknown>;
 }
 
 export type EscrowEventHandler = (event: EscrowEvent) => void;
@@ -42,6 +53,9 @@ const MILESTONE_BY_EVENT: Record<EscrowEventName, EscrowMilestone> = {
   'fiat.reported': 'fiat_reported',
   released: 'released',
   disputed: 'disputed',
+  cancelled: 'cancelled',
+  refunded: 'refunded',
+  'dispute.resolved': 'dispute_resolved',
 };
 
 const DEFAULT_BASE_DELAY_MS = 500;
@@ -84,6 +98,19 @@ function mapToEscrowEvent(
     escrowId,
     milestone: MILESTONE_BY_EVENT[type],
     occurredAt,
+    ...(Object.keys(payload).length > 0
+      ? {
+          data: Object.fromEntries(
+            Object.entries(payload).filter(
+              ([key]) =>
+                key !== 'escrowId' &&
+                key !== 'occurredAt' &&
+                key !== 'milestone' &&
+                key !== 'timestamp',
+            ),
+          ),
+        }
+      : {}),
   };
 }
 

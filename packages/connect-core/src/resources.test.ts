@@ -154,6 +154,112 @@ describe('PactoApiClient test namespace', () => {
   });
 });
 
+describe('PactoApiClient escrows lifecycle', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn());
+    vi.stubGlobal('crypto', {
+      randomUUID: vi.fn(() => 'idem-key-123'),
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const clientOptions = {
+    gatewayUrl,
+    publishableKey,
+    clientSecret,
+  };
+
+  it('cancel posts to /v1/escrows/:id/cancel', async () => {
+    const cancelled = { ...escrow, status: 'cancelled' as const };
+    vi.mocked(fetch).mockResolvedValue(mockFetchResponse(200, { escrow: cancelled }) as Response);
+
+    const api = createApiClient(clientOptions);
+    const response = await api.escrows.cancel('esc_1', { reason: 'buyer_left' });
+
+    expect(response.escrow.status).toBe('cancelled');
+    expect(fetch).toHaveBeenCalledWith(
+      `${gatewayUrl}/v1/escrows/esc_1/cancel`,
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ reason: 'buyer_left' }),
+      }),
+    );
+
+    const headers = vi.mocked(fetch).mock.calls[0]?.[1]?.headers as Record<string, string>;
+    expect(headers[IDEMPOTENCY_KEY_HEADER]).toBe('idem-key-123');
+  });
+
+  it('refund posts to /v1/escrows/:id/refund', async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      mockFetchResponse(200, {
+        escrow: { ...escrow, status: 'released', refundedAmount: '25', remainingAmount: '75' },
+        refund: {
+          id: 'ref_1',
+          escrowId: 'esc_1',
+          amount: 25,
+          reason: 'partial',
+          actor: 'merchant',
+        },
+      }) as Response,
+    );
+
+    const api = createApiClient(clientOptions);
+    const response = await api.escrows.refund('esc_1', { amount: '25', reason: 'partial' });
+
+    expect(response.refund.amount).toBe(25);
+    expect(fetch).toHaveBeenCalledWith(
+      `${gatewayUrl}/v1/escrows/esc_1/refund`,
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ amount: '25', reason: 'partial' }),
+      }),
+    );
+  });
+
+  it('openDispute posts to /v1/escrows/:id/disputes', async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      mockFetchResponse(200, {
+        escrow: { ...escrow, status: 'disputed' },
+        dispute: { id: 'dsp_1', escrowId: 'esc_1', status: 'open', reason: 'late', actor: 'buyer' },
+      }) as Response,
+    );
+
+    const api = createApiClient(clientOptions);
+    await api.escrows.openDispute('esc_1', { actor: 'buyer', reason: 'late' });
+
+    expect(fetch).toHaveBeenCalledWith(
+      `${gatewayUrl}/v1/escrows/esc_1/disputes`,
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ actor: 'buyer', reason: 'late' }),
+      }),
+    );
+  });
+
+  it('resolveDispute posts to /v1/escrows/:id/disputes/:disputeId/resolve', async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      mockFetchResponse(200, {
+        escrow: { ...escrow, status: 'released' },
+        dispute: { id: 'dsp_1', escrowId: 'esc_1', status: 'resolved', resolution: 'release' },
+      }) as Response,
+    );
+
+    const api = createApiClient(clientOptions);
+    await api.escrows.resolveDispute('esc_1', 'dsp_1', { outcome: 'release', note: 'ok' });
+
+    expect(fetch).toHaveBeenCalledWith(
+      `${gatewayUrl}/v1/escrows/esc_1/disputes/dsp_1/resolve`,
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ outcome: 'release', note: 'ok' }),
+      }),
+    );
+  });
+});
+
 describe('PactoApiClient subscriptions', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());

@@ -7,6 +7,7 @@ import { idempotency } from '../middleware/idempotency.js';
 import { validateClientSecret } from '../sessions.js';
 import {
   getSimulator,
+  type SimulatorDispute,
   SimulatorError,
   type SimulatorEscrow,
   type SimulatorEvent,
@@ -17,6 +18,8 @@ type EscrowRouteVariables = {
   apiKey: ApiKey;
   requestId?: string;
 };
+
+import { escrowLifecycleRoutes } from './escrow-lifecycle.js';
 
 const escrows = new Hono<{ Variables: EscrowRouteVariables }>();
 
@@ -80,20 +83,78 @@ export function serializeEscrow(escrow: SimulatorEscrow) {
     status: escrow.status,
     amount: escrow.amount,
     asset: escrow.asset,
+    refundedAmount: escrow.refundedAmount,
+    remainingAmount: escrow.remainingAmount,
     createdAt: escrow.createdAt,
     updatedAt: escrow.updatedAt,
   };
 }
 
+export function serializeRefund(refund: {
+  id: string;
+  escrowId: string;
+  amount: number | string;
+  reason: string;
+  actor: string;
+  createdAt: Date | string;
+}) {
+  return {
+    id: refund.id,
+    escrowId: refund.escrowId,
+    amount: String(refund.amount),
+    reason: refund.reason,
+    actor: refund.actor,
+    createdAt: refund.createdAt instanceof Date ? refund.createdAt.toISOString() : refund.createdAt,
+  };
+}
+
+export function serializeDispute(dispute: {
+  id: string;
+  escrowId: string;
+  status: string;
+  reason: string;
+  actor: string;
+  evidenceRefs: string[];
+  resolution?: string | null;
+  resolvedAt?: Date | string | null;
+  resolutionNote?: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}) {
+  return {
+    id: dispute.id,
+    escrowId: dispute.escrowId,
+    status: dispute.status,
+    reason: dispute.reason,
+    actor: dispute.actor,
+    evidenceRefs: dispute.evidenceRefs,
+    resolution: dispute.resolution ?? null,
+    resolvedAt: dispute.resolvedAt
+      ? dispute.resolvedAt instanceof Date
+        ? dispute.resolvedAt.toISOString()
+        : dispute.resolvedAt
+      : null,
+    resolutionNote: dispute.resolutionNote ?? null,
+    createdAt:
+      dispute.createdAt instanceof Date ? dispute.createdAt.toISOString() : dispute.createdAt,
+    updatedAt:
+      dispute.updatedAt instanceof Date ? dispute.updatedAt.toISOString() : dispute.updatedAt,
+  };
+}
+
 export function simulatorErrorResponse(c: Context, error: SimulatorError) {
-  if (error.code === 'escrow_not_found') {
+  if (error.code === 'escrow_not_found' || error.code === 'dispute_not_found') {
     return c.json(toGatewayErrorBody('escrow_error', error.code, error.message), 404);
+  }
+
+  if (error.code === 'refund_exceeds_balance') {
+    return c.json(toGatewayErrorBody('escrow_error', error.code, error.message), 409);
   }
 
   return c.json(toGatewayErrorBody('escrow_error', error.code, error.message), 409);
 }
 
-function liveNotImplemented(c: Context) {
+export function liveNotImplemented(c: Context) {
   return c.json(
     toGatewayErrorBody('gateway_error', 'not_implemented', 'live escrow proxy not available'),
     501,
@@ -334,5 +395,7 @@ escrows.post('/:id/fiat-report', async (c) => {
     throw error;
   }
 });
+
+escrows.route('/', escrowLifecycleRoutes);
 
 export { escrows as escrowRoutes };

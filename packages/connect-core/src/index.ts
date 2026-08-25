@@ -64,21 +64,30 @@ export {
 } from './i18n.js';
 export { isTestMode, keyMode } from './keys.js';
 export type {
+  CancelEscrowParams,
   CreateEscrowParams,
   CreateQuoteParams,
   DepositParams,
   Escrow,
+  EscrowDispute,
+  EscrowRefund,
   EscrowStatus,
   EscrowStatusResponse,
   FiatPaymentMethod,
   FiatReceiptParams,
   Listing,
+  OpenDisputeParams,
   PactoApiClient,
   Quote,
+  RefundEscrowParams,
+  ResolveDisputeParams,
 } from './resources.js';
 export {
   classifyGatewayError,
+  ESCROW_DETAIL_CODES,
+  type EscrowDetailCode,
   generateRequestId,
+  isEscrowDetailCode,
   isPactoErrorCode,
   PACTO_ERROR_CODES,
   type PactoErrorCode,

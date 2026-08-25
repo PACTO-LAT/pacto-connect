@@ -18,6 +18,7 @@ export interface UseCheckoutFlowOptions {
   enabled: boolean;
   onComplete?: (escrow: Escrow) => void;
   onDispute?: (escrow: Escrow) => void;
+  onRefund?: (escrow: Escrow) => void;
   onError?: (error: Error) => void;
 }
 
@@ -61,11 +62,13 @@ export function useCheckoutFlow(options: UseCheckoutFlowOptions): UseCheckoutFlo
 
   const onCompleteRef = useRef(options.onComplete);
   const onDisputeRef = useRef(options.onDispute);
+  const onRefundRef = useRef(options.onRefund);
   const onErrorRef = useRef(options.onError);
 
   useEffect(() => {
     onCompleteRef.current = options.onComplete;
     onDisputeRef.current = options.onDispute;
+    onRefundRef.current = options.onRefund;
     onErrorRef.current = options.onError;
   });
 
@@ -83,6 +86,7 @@ export function useCheckoutFlow(options: UseCheckoutFlowOptions): UseCheckoutFlo
       onChange: setState,
       onComplete: (escrow) => onCompleteRef.current?.(escrow),
       onDispute: (escrow) => onDisputeRef.current?.(escrow),
+      onRefund: (escrow) => onRefundRef.current?.(escrow),
       onError: (error) => onErrorRef.current?.(error),
     });
 

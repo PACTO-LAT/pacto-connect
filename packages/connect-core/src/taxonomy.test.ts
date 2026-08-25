@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   classifyGatewayError,
+  ESCROW_DETAIL_CODES,
   generateRequestId,
+  isEscrowDetailCode,
   isPactoErrorCode,
   PACTO_ERROR_CODES,
 } from './taxonomy.js';
@@ -44,6 +46,13 @@ describe('classifyGatewayError', () => {
 
   it('maps escrow_error to PACTO_ESCROW', () => {
     expect(classifyGatewayError({ type: 'escrow_error' })).toBe('PACTO_ESCROW');
+  });
+
+  it('exports escrow detail codes for SDK consumers', () => {
+    expect(ESCROW_DETAIL_CODES).toContain('invalid_transition');
+    expect(ESCROW_DETAIL_CODES).toContain('refund_exceeds_balance');
+    expect(isEscrowDetailCode('escrow_not_found')).toBe(true);
+    expect(isEscrowDetailCode('unknown')).toBe(false);
   });
 
   it('maps not_implemented and 501-504 to PACTO_UPSTREAM', () => {

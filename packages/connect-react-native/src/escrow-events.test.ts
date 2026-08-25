@@ -47,7 +47,7 @@ describe('isSessionExpiringSoon', () => {
 });
 
 describe('statusToSyntheticEvent', () => {
-  it('maps funded/released/disputed transitions to milestone events', () => {
+  it('maps funded/released/disputed/cancelled/refunded transitions to milestone events', () => {
     expect(statusToSyntheticEvent('e1', 'active', 'funded', '2026-01-01T00:00:00Z')).toEqual({
       cursor: 'poll-e1-funded-2026-01-01T00:00:00Z',
       type: 'escrow.funded',
@@ -61,16 +61,21 @@ describe('statusToSyntheticEvent', () => {
     expect(statusToSyntheticEvent('e1', 'funded', 'disputed', '2026-01-02T00:00:00Z')?.type).toBe(
       'disputed',
     );
+    expect(statusToSyntheticEvent('e1', 'pending', 'cancelled', '2026-01-02T00:00:00Z')?.type).toBe(
+      'cancelled',
+    );
+    expect(statusToSyntheticEvent('e1', 'released', 'refunded', '2026-01-03T00:00:00Z')?.type).toBe(
+      'refunded',
+    );
   });
 
   it('returns null when the status has not changed', () => {
     expect(statusToSyntheticEvent('e1', 'funded', 'funded', '2026-01-01T00:00:00Z')).toBeNull();
   });
 
-  it('returns null for statuses with no milestone counterpart (pending/active/cancelled)', () => {
+  it('returns null for statuses with no milestone counterpart (pending/active)', () => {
     expect(statusToSyntheticEvent('e1', null, 'pending', '2026-01-01T00:00:00Z')).toBeNull();
     expect(statusToSyntheticEvent('e1', 'pending', 'active', '2026-01-01T00:00:00Z')).toBeNull();
-    expect(statusToSyntheticEvent('e1', 'active', 'cancelled', '2026-01-01T00:00:00Z')).toBeNull();
   });
 });
 
