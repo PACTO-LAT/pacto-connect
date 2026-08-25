@@ -90,6 +90,26 @@ enum DisputeResolution {
   refund
 }
 
+enum SettlementPeriodStatus {
+  open
+  closed
+}
+
+enum LedgerDirection {
+  credit
+  debit
+}
+
+enum LedgerEntryKind {
+  settlement
+  correction
+}
+
+enum PayoutRunStatus {
+  open
+  finalized
+}
+
 model Merchant {
   id        String         @id @default(cuid())
   apiKeyId  String
@@ -104,6 +124,9 @@ model Merchant {
   webhookEvents    WebhookEvent[]
   subscriptions    Subscription[]
   settlements      MerchantSettlement[]
+  settlementPeriods SettlementPeriod[]
+  ledgerEntries    LedgerEntry[]
+  payoutRuns       PayoutRun[]
   escrows          Escrow[]
 
   @@index([apiKeyId])
@@ -349,4 +372,68 @@ model EscrowDispute {
 
   @@index([escrowId])
   @@index([status])
+}
+
+model SettlementPeriod {
+  id         String                 @id @default(cuid())
+  merchantId String
+  merchant   Merchant               @relation(fields: [merchantId], references: [id])
+  periodKey  String
+  startsAt   DateTime
+  endsAt     DateTime
+  status     SettlementPeriodStatus @default(open)
+  closedAt   DateTime?
+  createdAt  DateTime               @default(now())
+
+  ledgerEntries LedgerEntry[]
+  payoutRuns    PayoutRun[]
+
+  @@unique([merchantId, periodKey])
+  @@index([merchantId])
+  @@index([status])
+}
+
+model LedgerEntry {
+  id               String          @id @default(cuid())
+  merchantId       String
+  merchant         Merchant        @relation(fields: [merchantId], references: [id])
+  periodId         String
+  period           SettlementPeriod @relation(fields: [periodId], references: [id])
+  sourceEscrowId   String?
+  direction        LedgerDirection
+  kind             LedgerEntryKind
+  amount           Float
+  asset            String
+  correctsEntryId  String?
+  correctsEntry    LedgerEntry?    @relation("LedgerCorrection", fields: [correctsEntryId], references: [id])
+  corrections      LedgerEntry[]   @relation("LedgerCorrection")
+  occurredAt       DateTime
+  createdAt        DateTime        @default(now())
+  payoutRunId      String?
+  payoutRun        PayoutRun?      @relation(fields: [payoutRunId], references: [id])
+
+  @@index([merchantId])
+  @@index([periodId])
+  @@index([merchantId, asset, occurredAt])
+  @@index([payoutRunId])
+  @@index([sourceEscrowId])
+}
+
+model PayoutRun {
+  id         String          @id @default(cuid())
+  merchantId String
+  merchant   Merchant        @relation(fields: [merchantId], references: [id])
+  periodId   String
+  period     SettlementPeriod @relation(fields: [periodId], references: [id])
+  asset      String
+  status     PayoutRunStatus @default(open)
+  total      Float
+  createdAt  DateTime        @default(now())
+  finalizedAt DateTime?
+
+  ledgerEntries LedgerEntry[]
+
+  @@unique([merchantId, periodId, asset])
+  @@index([merchantId])
+  @@index([periodId])
 }

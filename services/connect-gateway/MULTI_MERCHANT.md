@@ -112,6 +112,9 @@ So one sub-merchant's escrow events never reach another sub-merchant's endpoint,
 | --- | --- |
 | `Merchant` | A sub-account owned by a platform `ApiKey` (`name`, `status`). |
 | `MerchantSettlement` | One row per settled escrow (`escrowId` unique → idempotent), holding `amount`/`asset` for volume aggregation. |
+| `SettlementPeriod` | UTC calendar month bucket per merchant (`periodKey` like `2026-08`); can be closed to block backdated ledger writes. |
+| `LedgerEntry` | Append-only settlement ledger (`credit`/`debit`, `settlement`/`correction`); corrections are new rows, never in-place edits. |
+| `PayoutRun` | Groups unsettled ledger entries for a merchant/period/asset; one run per triple; records totals without moving funds. |
 
 `merchantId` is a nullable foreign key on `CheckoutSession`, `WebhookEndpoint`, `WebhookEvent`, and `Subscription`; `null` means platform-level. All columns are additive and nullable, so existing single-merchant integrations are unaffected.
 

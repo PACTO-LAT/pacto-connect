@@ -501,6 +501,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/merchants/{id}/periods/{periodKey}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Close a merchant settlement period */
+        post: operations["closeSettlementPeriod"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/merchants/{id}/ledger/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Append a ledger correction entry */
+        post: operations["createLedgerCorrection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/merchants/{id}/periods/{periodKey}/payout-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate or refresh a payout run for a period */
+        post: operations["generatePayoutRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/payout-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List payout runs */
+        get: operations["listPayoutRuns"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/payout-runs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Inspect a payout run */
+        get: operations["getPayoutRun"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/merchants/{id}/periods/{periodKey}/statement.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export a merchant statement as CSV */
+        get: operations["exportMerchantStatementCsv"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/webhooks": {
         parameters: {
             query?: never;
@@ -972,6 +1074,64 @@ export interface components {
             result: {
                 [key: string]: unknown;
             };
+        };
+        SettlementPeriodResponse: {
+            period: {
+                id: string;
+                merchantId: string;
+                periodKey: string;
+                /** Format: date-time */
+                startsAt: string;
+                /** Format: date-time */
+                endsAt: string;
+                /** @enum {string} */
+                status: "open" | "closed";
+                /** Format: date-time */
+                closedAt?: string | null;
+                /** Format: date-time */
+                createdAt: string;
+            };
+        };
+        LedgerEntryResponse: {
+            entry: {
+                id: string;
+                merchantId: string;
+                periodId: string;
+                periodKey: string;
+                sourceEscrowId?: string | null;
+                /** @enum {string} */
+                direction: "credit" | "debit";
+                /** @enum {string} */
+                kind: "settlement" | "correction";
+                amount: number;
+                asset: string;
+                correctsEntryId?: string | null;
+                /** Format: date-time */
+                occurredAt: string;
+                /** Format: date-time */
+                createdAt: string;
+                payoutRunId?: string | null;
+            };
+        };
+        PayoutRunResponse: {
+            run: {
+                id: string;
+                merchantId: string;
+                periodId: string;
+                periodKey: string;
+                asset: string;
+                /** @enum {string} */
+                status: "open" | "finalized";
+                total: number;
+                entryCount: number;
+                /** Format: date-time */
+                createdAt: string;
+                /** Format: date-time */
+                finalizedAt?: string | null;
+            };
+        };
+        PayoutRunListResponse: {
+            runs: components["schemas"]["PayoutRunResponse"]["run"][];
         };
         AdminLegacyError: {
             error: string;
@@ -2088,6 +2248,177 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MerchantResponse"];
+                };
+            };
+            401: paths["/v1/quote"]["post"]["responses"]["401"];
+            404: paths["/v1/escrows/{id}"]["get"]["responses"]["404"];
+            503: paths["/admin/keys"]["get"]["responses"]["503"];
+        };
+    };
+    closeSettlementPeriod: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: paths["/admin/merchants/{id}/disable"]["post"]["parameters"]["path"]["id"];
+                periodKey: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Period closed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettlementPeriodResponse"];
+                };
+            };
+            400: paths["/v1/quote"]["post"]["responses"]["400"];
+            401: paths["/v1/quote"]["post"]["responses"]["401"];
+            404: paths["/v1/escrows/{id}"]["get"]["responses"]["404"];
+            503: paths["/admin/keys"]["get"]["responses"]["503"];
+        };
+    };
+    createLedgerCorrection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: paths["/admin/merchants/{id}/disable"]["post"]["parameters"]["path"]["id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    correctsEntryId: string;
+                    amount?: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Correction entry created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LedgerEntryResponse"];
+                };
+            };
+            400: paths["/v1/quote"]["post"]["responses"]["400"];
+            401: paths["/v1/quote"]["post"]["responses"]["401"];
+            404: paths["/v1/escrows/{id}"]["get"]["responses"]["404"];
+            409: paths["/v1/session"]["post"]["responses"]["409"];
+            503: paths["/admin/keys"]["get"]["responses"]["503"];
+        };
+    };
+    generatePayoutRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: paths["/admin/merchants/{id}/disable"]["post"]["parameters"]["path"]["id"];
+                periodKey: paths["/admin/merchants/{id}/periods/{periodKey}/close"]["post"]["parameters"]["path"]["periodKey"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    asset: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Payout run generated */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayoutRunResponse"];
+                };
+            };
+            400: paths["/v1/quote"]["post"]["responses"]["400"];
+            401: paths["/v1/quote"]["post"]["responses"]["401"];
+            404: paths["/v1/escrows/{id}"]["get"]["responses"]["404"];
+            503: paths["/admin/keys"]["get"]["responses"]["503"];
+        };
+    };
+    listPayoutRuns: {
+        parameters: {
+            query?: {
+                merchantId?: string;
+                periodKey?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Payout runs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayoutRunListResponse"];
+                };
+            };
+            400: paths["/v1/quote"]["post"]["responses"]["400"];
+            401: paths["/v1/quote"]["post"]["responses"]["401"];
+            503: paths["/admin/keys"]["get"]["responses"]["503"];
+        };
+    };
+    getPayoutRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Payout run */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayoutRunResponse"];
+                };
+            };
+            401: paths["/v1/quote"]["post"]["responses"]["401"];
+            404: paths["/v1/escrows/{id}"]["get"]["responses"]["404"];
+            503: paths["/admin/keys"]["get"]["responses"]["503"];
+        };
+    };
+    exportMerchantStatementCsv: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: paths["/admin/merchants/{id}/disable"]["post"]["parameters"]["path"]["id"];
+                periodKey: paths["/admin/merchants/{id}/periods/{periodKey}/close"]["post"]["parameters"]["path"]["periodKey"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Statement CSV */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
                 };
             };
             401: paths["/v1/quote"]["post"]["responses"]["401"];
