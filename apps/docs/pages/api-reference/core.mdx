@@ -1569,7 +1569,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 # Class: RailError
 
-Defined in: packages/connect-core/src/rails/types.ts:13
+Defined in: [packages/connect-core/src/rails/types.ts:13](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L13)
 
 ## Extends
 
@@ -1583,7 +1583,7 @@ Defined in: packages/connect-core/src/rails/types.ts:13
 new RailError(code, message): RailError;
 ```
 
-Defined in: packages/connect-core/src/rails/types.ts:14
+Defined in: [packages/connect-core/src/rails/types.ts:14](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L14)
 
 #### Parameters
 
@@ -1607,7 +1607,7 @@ Error.constructor
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
 | <a id="cause"></a> `cause?` | `public` | `unknown` | - | `Error.cause` | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
-| <a id="code"></a> `code` | `readonly` | [`RailErrorCode`](#typealias.railerrorcode) | - | - | packages/connect-core/src/rails/types.ts:15 |
+| <a id="code"></a> `code` | `readonly` | [`RailErrorCode`](#typealias.railerrorcode) | - | - | [packages/connect-core/src/rails/types.ts:15](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L15) |
 | <a id="message"></a> `message` | `public` | `string` | - | `Error.message` | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
 | <a id="name"></a> `name` | `public` | `string` | - | `Error.name` | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
 | <a id="stack"></a> `stack?` | `public` | `string` | - | `Error.stack` | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
@@ -1746,7 +1746,7 @@ Defined in: [packages/connect-core/src/checkout-machine.ts:99](https://github.co
 function assertPaymentRailConformance(adapter): void;
 ```
 
-Defined in: packages/connect-core/src/rails/conformance.ts:11
+Defined in: [packages/connect-core/src/rails/conformance.ts:7](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/conformance.ts#L7)
 
 Reusable interface conformance checks for any payment rail adapter.
 
@@ -1943,7 +1943,7 @@ Framework-agnostic SDK core for Pacto Connect.
 function createDefaultPaymentRailRegistry(): PaymentRailRegistry;
 ```
 
-Defined in: packages/connect-core/src/rails/default-registry.ts:9
+Defined in: [packages/connect-core/src/rails/default-registry.ts:9](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/default-registry.ts#L9)
 
 Registry with the built-in SINPE and SPEI rails pre-registered.
 
@@ -1996,7 +1996,7 @@ Defined in: [packages/connect-core/src/checkout-storage.ts:205](https://github.c
 function createPaymentRailRegistry(): PaymentRailRegistry;
 ```
 
-Defined in: packages/connect-core/src/rails/registry.ts:24
+Defined in: [packages/connect-core/src/rails/registry.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/registry.ts#L24)
 
 Creates an empty payment rail registry.
 
@@ -2015,7 +2015,7 @@ External integrators can register custom rails without modifying core.
 function createSinpeRail(options?): PaymentRailAdapter;
 ```
 
-Defined in: packages/connect-core/src/rails/sinpe.ts:48
+Defined in: [packages/connect-core/src/rails/sinpe.ts:45](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/sinpe.ts#L45)
 
 ## Parameters
 
@@ -2039,7 +2039,7 @@ Defined in: packages/connect-core/src/rails/sinpe.ts:48
 function createSpeiRail(options?): PaymentRailAdapter;
 ```
 
-Defined in: packages/connect-core/src/rails/spei.ts:48
+Defined in: [packages/connect-core/src/rails/spei.ts:45](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/spei.ts#L45)
 
 ## Parameters
 
@@ -3142,50 +3142,50 @@ vars) or by setting the CSS variables directly in their own stylesheet.
 
 # Interface: PaymentInstruction
 
-Defined in: packages/connect-core/src/rails/types.ts:43
+Defined in: [packages/connect-core/src/rails/types.ts:43](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L43)
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="country"></a> `country` | `string` | packages/connect-core/src/rails/types.ts:46 |
-| <a id="currency"></a> `currency` | `string` | packages/connect-core/src/rails/types.ts:47 |
-| <a id="method"></a> `method` | `string` | packages/connect-core/src/rails/types.ts:45 |
-| <a id="railid"></a> `railId` | `string` | packages/connect-core/src/rails/types.ts:44 |
-| <a id="referencehint"></a> `referenceHint` | `string` | packages/connect-core/src/rails/types.ts:48 |
+| <a id="country"></a> `country` | `string` | [packages/connect-core/src/rails/types.ts:46](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L46) |
+| <a id="currency"></a> `currency` | `string` | [packages/connect-core/src/rails/types.ts:47](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L47) |
+| <a id="method"></a> `method` | `string` | [packages/connect-core/src/rails/types.ts:45](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L45) |
+| <a id="railid"></a> `railId` | `string` | [packages/connect-core/src/rails/types.ts:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L44) |
+| <a id="referencehint"></a> `referenceHint` | `string` | [packages/connect-core/src/rails/types.ts:48](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L48) |
 
 
 ---
 
 # Interface: PaymentInstructionInput
 
-Defined in: packages/connect-core/src/rails/types.ts:36
+Defined in: [packages/connect-core/src/rails/types.ts:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L36)
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="amount"></a> `amount` | `number` | packages/connect-core/src/rails/types.ts:39 |
-| <a id="country"></a> `country` | `string` | packages/connect-core/src/rails/types.ts:37 |
-| <a id="currency"></a> `currency` | `string` | packages/connect-core/src/rails/types.ts:38 |
-| <a id="reference"></a> `reference?` | `string` | packages/connect-core/src/rails/types.ts:40 |
+| <a id="amount"></a> `amount` | `number` | [packages/connect-core/src/rails/types.ts:39](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L39) |
+| <a id="country"></a> `country` | `string` | [packages/connect-core/src/rails/types.ts:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L37) |
+| <a id="currency"></a> `currency` | `string` | [packages/connect-core/src/rails/types.ts:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L38) |
+| <a id="reference"></a> `reference?` | `string` | [packages/connect-core/src/rails/types.ts:40](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L40) |
 
 
 ---
 
 # Interface: PaymentRailAdapter
 
-Defined in: packages/connect-core/src/rails/types.ts:63
+Defined in: [packages/connect-core/src/rails/types.ts:63](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L63)
 
 ## Properties
 
 | Property | Modifier | Type | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="contractversion"></a> `contractVersion` | `readonly` | `number` | packages/connect-core/src/rails/types.ts:66 |
-| <a id="countries"></a> `countries` | `readonly` | readonly `string`[] | packages/connect-core/src/rails/types.ts:67 |
-| <a id="currencies"></a> `currencies` | `readonly` | readonly `string`[] | packages/connect-core/src/rails/types.ts:68 |
-| <a id="id"></a> `id` | `readonly` | `string` | packages/connect-core/src/rails/types.ts:64 |
-| <a id="priority"></a> `priority` | `readonly` | `number` | packages/connect-core/src/rails/types.ts:65 |
+| <a id="contractversion"></a> `contractVersion` | `readonly` | `number` | [packages/connect-core/src/rails/types.ts:66](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L66) |
+| <a id="countries"></a> `countries` | `readonly` | readonly `string`[] | [packages/connect-core/src/rails/types.ts:67](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L67) |
+| <a id="currencies"></a> `currencies` | `readonly` | readonly `string`[] | [packages/connect-core/src/rails/types.ts:68](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L68) |
+| <a id="id"></a> `id` | `readonly` | `string` | [packages/connect-core/src/rails/types.ts:64](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L64) |
+| <a id="priority"></a> `priority` | `readonly` | `number` | [packages/connect-core/src/rails/types.ts:65](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L65) |
 
 ## Methods
 
@@ -3195,7 +3195,7 @@ Defined in: packages/connect-core/src/rails/types.ts:63
 confirmSettlement(input): SettlementConfirmation;
 ```
 
-Defined in: packages/connect-core/src/rails/types.ts:71
+Defined in: [packages/connect-core/src/rails/types.ts:71](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L71)
 
 #### Parameters
 
@@ -3215,7 +3215,7 @@ Defined in: packages/connect-core/src/rails/types.ts:71
 paymentInstruction(input): PaymentInstruction;
 ```
 
-Defined in: packages/connect-core/src/rails/types.ts:70
+Defined in: [packages/connect-core/src/rails/types.ts:70](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L70)
 
 #### Parameters
 
@@ -3235,7 +3235,7 @@ Defined in: packages/connect-core/src/rails/types.ts:70
 quote(input): RailQuoteResult;
 ```
 
-Defined in: packages/connect-core/src/rails/types.ts:69
+Defined in: [packages/connect-core/src/rails/types.ts:69](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L69)
 
 #### Parameters
 
@@ -3252,7 +3252,7 @@ Defined in: packages/connect-core/src/rails/types.ts:69
 
 # Interface: PaymentRailRegistry
 
-Defined in: packages/connect-core/src/rails/types.ts:74
+Defined in: [packages/connect-core/src/rails/types.ts:74](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L74)
 
 ## Methods
 
@@ -3262,7 +3262,7 @@ Defined in: packages/connect-core/src/rails/types.ts:74
 listAdapters(): readonly PaymentRailAdapter[];
 ```
 
-Defined in: packages/connect-core/src/rails/types.ts:79
+Defined in: [packages/connect-core/src/rails/types.ts:79](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L79)
 
 #### Returns
 
@@ -3276,7 +3276,7 @@ readonly [`PaymentRailAdapter`](#interface.paymentrailadapter)[]
 listCurrencies(): readonly string[];
 ```
 
-Defined in: packages/connect-core/src/rails/types.ts:78
+Defined in: [packages/connect-core/src/rails/types.ts:78](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L78)
 
 #### Returns
 
@@ -3290,7 +3290,7 @@ readonly `string`[]
 register(adapter): void;
 ```
 
-Defined in: packages/connect-core/src/rails/types.ts:75
+Defined in: [packages/connect-core/src/rails/types.ts:75](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L75)
 
 #### Parameters
 
@@ -3310,7 +3310,7 @@ Defined in: packages/connect-core/src/rails/types.ts:75
 resolve(country, asset): PaymentRailAdapter;
 ```
 
-Defined in: packages/connect-core/src/rails/types.ts:76
+Defined in: [packages/connect-core/src/rails/types.ts:76](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L76)
 
 #### Parameters
 
@@ -3331,7 +3331,7 @@ Defined in: packages/connect-core/src/rails/types.ts:76
 resolveByAsset(asset): PaymentRailAdapter | null;
 ```
 
-Defined in: packages/connect-core/src/rails/types.ts:77
+Defined in: [packages/connect-core/src/rails/types.ts:77](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L77)
 
 #### Parameters
 
@@ -3368,61 +3368,61 @@ Defined in: [packages/connect-core/src/resources.ts:44](https://github.com/PACTO
 
 # Interface: RailQuoteInput
 
-Defined in: packages/connect-core/src/rails/types.ts:23
+Defined in: [packages/connect-core/src/rails/types.ts:23](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L23)
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="amount"></a> `amount` | `number` | packages/connect-core/src/rails/types.ts:26 |
-| <a id="from"></a> `from` | `string` | packages/connect-core/src/rails/types.ts:24 |
-| <a id="to"></a> `to` | `string` | packages/connect-core/src/rails/types.ts:25 |
+| <a id="amount"></a> `amount` | `number` | [packages/connect-core/src/rails/types.ts:26](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L26) |
+| <a id="from"></a> `from` | `string` | [packages/connect-core/src/rails/types.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L24) |
+| <a id="to"></a> `to` | `string` | [packages/connect-core/src/rails/types.ts:25](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L25) |
 
 
 ---
 
 # Interface: RailQuoteResult
 
-Defined in: packages/connect-core/src/rails/types.ts:29
+Defined in: [packages/connect-core/src/rails/types.ts:29](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L29)
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="asof"></a> `asOf` | `string` | packages/connect-core/src/rails/types.ts:33 |
-| <a id="rate"></a> `rate` | `number` | packages/connect-core/src/rails/types.ts:30 |
-| <a id="source"></a> `source` | `string` | packages/connect-core/src/rails/types.ts:32 |
-| <a id="usdper"></a> `usdPer` | `Record`\<`string`, `number`\> | packages/connect-core/src/rails/types.ts:31 |
+| <a id="asof"></a> `asOf` | `string` | [packages/connect-core/src/rails/types.ts:33](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L33) |
+| <a id="rate"></a> `rate` | `number` | [packages/connect-core/src/rails/types.ts:30](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L30) |
+| <a id="source"></a> `source` | `string` | [packages/connect-core/src/rails/types.ts:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L32) |
+| <a id="usdper"></a> `usdPer` | `Record`\<`string`, `number`\> | [packages/connect-core/src/rails/types.ts:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L31) |
 
 
 ---
 
 # Interface: SettlementConfirmation
 
-Defined in: packages/connect-core/src/rails/types.ts:57
+Defined in: [packages/connect-core/src/rails/types.ts:57](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L57)
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="confirmedat"></a> `confirmedAt?` | `string` | packages/connect-core/src/rails/types.ts:60 |
-| <a id="reference"></a> `reference` | `string` | packages/connect-core/src/rails/types.ts:59 |
-| <a id="status"></a> `status` | `"pending"` \| `"confirmed"` \| `"rejected"` | packages/connect-core/src/rails/types.ts:58 |
+| <a id="confirmedat"></a> `confirmedAt?` | `string` | [packages/connect-core/src/rails/types.ts:60](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L60) |
+| <a id="reference"></a> `reference` | `string` | [packages/connect-core/src/rails/types.ts:59](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L59) |
+| <a id="status"></a> `status` | `"pending"` \| `"confirmed"` \| `"rejected"` | [packages/connect-core/src/rails/types.ts:58](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L58) |
 
 
 ---
 
 # Interface: SettlementConfirmationInput
 
-Defined in: packages/connect-core/src/rails/types.ts:51
+Defined in: [packages/connect-core/src/rails/types.ts:51](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L51)
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="amount"></a> `amount?` | `number` | packages/connect-core/src/rails/types.ts:53 |
-| <a id="currency"></a> `currency?` | `string` | packages/connect-core/src/rails/types.ts:54 |
-| <a id="reference"></a> `reference` | `string` | packages/connect-core/src/rails/types.ts:52 |
+| <a id="amount"></a> `amount?` | `number` | [packages/connect-core/src/rails/types.ts:53](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L53) |
+| <a id="currency"></a> `currency?` | `string` | [packages/connect-core/src/rails/types.ts:54](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L54) |
+| <a id="reference"></a> `reference` | `string` | [packages/connect-core/src/rails/types.ts:52](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L52) |
 
 
 ---
@@ -3816,7 +3816,7 @@ type RailErrorCode =
   | "settlement_rejected";
 ```
 
-Defined in: packages/connect-core/src/rails/types.ts:3
+Defined in: [packages/connect-core/src/rails/types.ts:3](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L3)
 
 
 ---
@@ -3966,7 +3966,7 @@ Defined in: [packages/connect-core/src/client.ts:224](https://github.com/PACTO-L
 const RAIL_ADAPTER_CONTRACT_VERSION: 1;
 ```
 
-Defined in: packages/connect-core/src/rails/types.ts:1
+Defined in: [packages/connect-core/src/rails/types.ts:1](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/types.ts#L1)
 
 
 ---
@@ -4032,7 +4032,7 @@ Defined in: [packages/connect-core/src/i18n.ts:100](https://github.com/PACTO-LAT
 const sinpeRail: PaymentRailAdapter;
 ```
 
-Defined in: packages/connect-core/src/rails/sinpe.ts:104
+Defined in: [packages/connect-core/src/rails/sinpe.ts:101](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/sinpe.ts#L101)
 
 
 ---
@@ -4043,4 +4043,4 @@ Defined in: packages/connect-core/src/rails/sinpe.ts:104
 const speiRail: PaymentRailAdapter;
 ```
 
-Defined in: packages/connect-core/src/rails/spei.ts:104
+Defined in: [packages/connect-core/src/rails/spei.ts:101](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/rails/spei.ts#L101)
