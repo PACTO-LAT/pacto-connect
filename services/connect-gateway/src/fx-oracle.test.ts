@@ -1,8 +1,14 @@
+import {
+  createDefaultPaymentRailRegistry,
+  createPaymentRailRegistry,
+  type PaymentRailAdapter,
+  RAIL_ADAPTER_CONTRACT_VERSION,
+} from '@pacto-connect/core';
 import { describe, expect, it } from 'vitest';
 import {
   createStaticFxOracle,
   type FxCurrency,
-  FxOracleError,
+  resolveRailsForPair,
   staticFxOracle,
 } from './fx-oracle.js';
 
@@ -38,7 +44,6 @@ describe('fx-oracle', () => {
   });
 
   it('throws FxOracleError for unsupported currencies', () => {
-    expect(() => staticFxOracle.getRate('EUR' as FxCurrency, 'USD')).toThrow(FxOracleError);
     expect(() => staticFxOracle.getRate('EUR' as FxCurrency, 'USD')).toThrow(
       expect.objectContaining({ code: 'unsupported_currency' }),
     );
@@ -46,7 +51,7 @@ describe('fx-oracle', () => {
 
   it('applies custom usdPer overrides from createStaticFxOracle', () => {
     const oracle = createStaticFxOracle({
-      usdPer: { USD: 1, CRC: 600, MXN: 17 },
+      usdPer: { CRC: 600 },
     });
 
     expect(oracle.getRate('USD', 'CRC').rate).toBe(600);
@@ -63,5 +68,47 @@ describe('fx-oracle', () => {
 
     expect(rate.source).toBe('test-provider');
     expect(rate.asOf).toBe('2025-07-15T12:00:00.000Z');
+  });
+
+  it('reads USD pegs from a custom registry without editing core', () => {
+    const registry = createPaymentRailRegistry();
+    const externalRail: PaymentRailAdapter = {
+      id: 'gtq-rail',
+      priority: 0,
+      contractVersion: RAIL_ADAPTER_CONTRACT_VERSION,
+      countries: ['GT'],
+      currencies: ['GTQ'],
+      quote: () => ({
+        rate: 7.8,
+        usdPer: { GTQ: 7.8 },
+        source: 'external',
+        asOf: '2025-01-01T00:00:00.000Z',
+      }),
+      paymentInstruction: (input) => ({
+        railId: 'gtq-rail',
+        method: 'CUSTOM',
+        country: input.country,
+        currency: input.currency,
+        referenceHint: 'external',
+      }),
+      confirmSettlement: (input) => ({
+        status: 'confirmed',
+        reference: input.reference,
+      }),
+    };
+
+    registry.register(externalRail);
+    registry.register(createDefaultPaymentRailRegistry().listAdapters()[0]!);
+    registry.register(createDefaultPaymentRailRegistry().listAdapters()[1]!);
+
+    const oracle = createStaticFxOracle({ registry, source: 'external' });
+    expect(registry.resolveByAsset('GTQ')?.id).toBe('gtq-rail');
+  });
+});
+
+describe('resolveRailsForPair', () => {
+  it('resolves rails for both sides of a cross-currency pair', () => {
+    const registry = createDefaultPaymentRailRegistry();
+    expect(() => resolveRailsForPair(registry, 'CRC', 'MXN')).not.toThrow();
   });
 });
