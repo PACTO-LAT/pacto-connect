@@ -9,6 +9,7 @@ export type PactoBridgeEventType =
   | 'checkout:close'
   | 'checkout:complete'
   | 'checkout:dispute'
+  | 'checkout:refund'
   | 'checkout:error'
   | 'checkout:step';
 
@@ -17,6 +18,7 @@ export interface PactoBridgePayloadMap {
   'checkout:close': Record<string, never>;
   'checkout:complete': { escrow: Escrow };
   'checkout:dispute': { escrow: Escrow };
+  'checkout:refund': { escrow: Escrow };
   'checkout:error': { message: string };
   'checkout:step': { step: CheckoutStep };
 }
@@ -36,6 +38,7 @@ const BRIDGE_EVENT_TYPES = new Set<PactoBridgeEventType>([
   'checkout:close',
   'checkout:complete',
   'checkout:dispute',
+  'checkout:refund',
   'checkout:error',
   'checkout:step',
 ]);
@@ -48,6 +51,7 @@ const CHECKOUT_STEPS = new Set<CheckoutStep>([
   'tracking',
   'success',
   'disputed',
+  'refunded',
   'error',
 ]);
 
@@ -79,6 +83,7 @@ function isBridgeMessage(value: unknown): value is PactoBridgeMessage {
       return true;
     case 'checkout:complete':
     case 'checkout:dispute':
+    case 'checkout:refund':
       return isEscrow(value.payload.escrow);
     case 'checkout:error':
       return typeof value.payload.message === 'string';

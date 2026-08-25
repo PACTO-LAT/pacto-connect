@@ -10,6 +10,20 @@ export const PACTO_ERROR_CODES = [
   'PACTO_UNKNOWN',
 ] as const;
 
+/** Gateway escrow_error detail codes surfaced on PactoEscrowError.detailCode */
+export const ESCROW_DETAIL_CODES = [
+  'escrow_not_found',
+  'invalid_transition',
+  'refund_exceeds_balance',
+  'dispute_not_found',
+] as const;
+
+export type EscrowDetailCode = (typeof ESCROW_DETAIL_CODES)[number];
+
+export function isEscrowDetailCode(value: unknown): value is EscrowDetailCode {
+  return typeof value === 'string' && (ESCROW_DETAIL_CODES as readonly string[]).includes(value);
+}
+
 export type PactoErrorCode = (typeof PACTO_ERROR_CODES)[number];
 
 export function isPactoErrorCode(value: unknown): value is PactoErrorCode {
