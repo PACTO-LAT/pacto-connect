@@ -47,6 +47,7 @@ export interface FrameMountOptions {
   onStep?: (step: PactoBridgeMessage<'checkout:step'>['payload']['step']) => void;
   onComplete?: (escrow: Escrow) => void;
   onDispute?: (escrow: Escrow) => void;
+  onRefund?: (escrow: Escrow) => void;
   onError?: (error: Error) => void;
   onClose?: () => void;
 }
@@ -144,6 +145,9 @@ export function mountFrame(
         break;
       case 'checkout:dispute':
         options.onDispute?.(message.payload.escrow);
+        break;
+      case 'checkout:refund':
+        options.onRefund?.(message.payload.escrow);
         break;
       case 'checkout:error':
         options.onError?.(new Error(message.payload.message));

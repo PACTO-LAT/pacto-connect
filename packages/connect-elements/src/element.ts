@@ -40,6 +40,7 @@ export interface PactoCheckoutOptions {
   logoAlt?: string;
   onComplete?: (escrow: Escrow) => void;
   onDispute?: (escrow: Escrow) => void;
+  onRefund?: (escrow: Escrow) => void;
   onError?: (error: Error) => void;
   onClose?: () => void;
 }
@@ -238,6 +239,10 @@ export class PactoCheckoutElement extends HTMLElement {
       onDispute: (escrow) => {
         options.onDispute?.(escrow);
         this.bridge?.post({ type: 'checkout:dispute', payload: { escrow } });
+      },
+      onRefund: (escrow) => {
+        options.onRefund?.(escrow);
+        this.bridge?.post({ type: 'checkout:refund', payload: { escrow } });
       },
       onError: (error) => {
         options.onError?.(error);

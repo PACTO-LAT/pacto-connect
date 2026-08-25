@@ -237,6 +237,126 @@ describe('@pacto-connect/elements', () => {
     postMessage.mockRestore();
   });
 
+  it('shows disputed terminal UI and posts checkout:dispute', async () => {
+    const onDispute = vi.fn();
+    const postMessage = vi.spyOn(window, 'postMessage');
+    const sse = createDeferredSseResponse();
+    vi.stubGlobal('fetch', createFetchMock(sse));
+
+    const handle = mount('#checkout-root', {
+      publishableKey,
+      gatewayUrl,
+      listingId,
+      testMode: true,
+      allowedOrigins: ['https://shop.example'],
+      onDispute,
+    });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="deposit-step"]')).toBeTruthy();
+    });
+
+    const user = userEvent.setup();
+    await user.click(
+      document.querySelector('[data-testid="deposit-step"] button') as HTMLButtonElement,
+    );
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="receipt-form"]')).toBeTruthy();
+    });
+    await user.type(
+      document.querySelector('[aria-label="Payment reference"]') as HTMLInputElement,
+      'REF-456',
+    );
+    await user.click(
+      document.querySelector(
+        '[data-testid="receipt-form"] button[type="submit"]',
+      ) as HTMLButtonElement,
+    );
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="tracking-step"]')).toBeTruthy();
+    });
+
+    sse.push(
+      'id: cursor-1\nevent: disputed\ndata: {"escrowId":"esc_1","occurredAt":"2024-01-01T00:10:00.000Z"}\n\n',
+    );
+    sse.close();
+
+    await waitFor(() => {
+      expect(onDispute).toHaveBeenCalledWith(expect.objectContaining({ id: 'esc_1' }));
+    });
+    expect(document.querySelector('[data-testid="checkout-disputed"]')).toBeTruthy();
+    expect(postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        source: 'pacto-connect',
+        message: expect.objectContaining({ type: 'checkout:dispute' }),
+      }),
+      'https://shop.example',
+    );
+
+    handle.destroy();
+    postMessage.mockRestore();
+  });
+
+  it('shows refunded terminal UI and posts checkout:refund', async () => {
+    const onRefund = vi.fn();
+    const postMessage = vi.spyOn(window, 'postMessage');
+    const sse = createDeferredSseResponse();
+    vi.stubGlobal('fetch', createFetchMock(sse));
+
+    const handle = mount('#checkout-root', {
+      publishableKey,
+      gatewayUrl,
+      listingId,
+      testMode: true,
+      allowedOrigins: ['https://shop.example'],
+      onRefund,
+    });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="deposit-step"]')).toBeTruthy();
+    });
+
+    const user = userEvent.setup();
+    await user.click(
+      document.querySelector('[data-testid="deposit-step"] button') as HTMLButtonElement,
+    );
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="receipt-form"]')).toBeTruthy();
+    });
+    await user.type(
+      document.querySelector('[aria-label="Payment reference"]') as HTMLInputElement,
+      'REF-789',
+    );
+    await user.click(
+      document.querySelector(
+        '[data-testid="receipt-form"] button[type="submit"]',
+      ) as HTMLButtonElement,
+    );
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="tracking-step"]')).toBeTruthy();
+    });
+
+    sse.push(
+      'id: cursor-1\nevent: refunded\ndata: {"escrowId":"esc_1","occurredAt":"2024-01-01T00:10:00.000Z"}\n\n',
+    );
+    sse.close();
+
+    await waitFor(() => {
+      expect(onRefund).toHaveBeenCalledWith(expect.objectContaining({ id: 'esc_1' }));
+    });
+    expect(document.querySelector('[data-testid="checkout-refunded"]')).toBeTruthy();
+    expect(postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        source: 'pacto-connect',
+        message: expect.objectContaining({ type: 'checkout:refund' }),
+      }),
+      'https://shop.example',
+    );
+
+    handle.destroy();
+    postMessage.mockRestore();
+  });
+
   it('works as a plain HTML custom element with session-id', async () => {
     const fetchMock = createFetchMock();
     vi.stubGlobal('fetch', fetchMock);

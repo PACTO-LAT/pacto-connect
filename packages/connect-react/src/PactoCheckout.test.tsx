@@ -259,6 +259,53 @@ describe('PactoCheckout', () => {
     expect(screen.getByTestId('checkout-disputed')).toBeInTheDocument();
   });
 
+  it('calls onRefund when escrow is refunded', async () => {
+    const onRefund = vi.fn();
+    const user = userEvent.setup();
+    const sse = createDeferredSseResponse();
+
+    vi.stubGlobal('fetch', createFetchMock(sse));
+
+    render(
+      <PactoCheckout
+        publishableKey={publishableKey}
+        gatewayUrl={gatewayUrl}
+        listingId={listingId}
+        open
+        onClose={() => {}}
+        onRefund={onRefund}
+        testMode
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('deposit-step')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Confirm deposit' }));
+    await waitFor(() => {
+      expect(screen.getByTestId('receipt-form')).toBeInTheDocument();
+    });
+
+    await user.type(screen.getByLabelText('Payment reference'), 'REF-456');
+    await user.click(screen.getByRole('button', { name: 'Submit receipt' }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('tracking-step')).toBeInTheDocument();
+    });
+
+    sse.push(
+      'id: cursor-1\nevent: refunded\ndata: {"escrowId":"esc_1","occurredAt":"2024-01-01T00:10:00.000Z"}\n\n',
+    );
+    sse.close();
+
+    await waitFor(() => {
+      expect(onRefund).toHaveBeenCalledWith(expect.objectContaining({ id: 'esc_1' }));
+    });
+
+    expect(screen.getByTestId('checkout-refunded')).toBeInTheDocument();
+  });
+
   it('shows error state when session creation fails', async () => {
     vi.stubGlobal(
       'fetch',
