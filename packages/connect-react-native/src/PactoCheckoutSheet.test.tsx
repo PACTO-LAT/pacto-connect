@@ -1,4 +1,10 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  buildCheckoutSnapshotScope,
+  checkoutStorageKey,
+  createMemoryCheckoutStorage,
+  serializeCheckoutSnapshot,
+} from '@pacto-connect/core';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PactoCheckoutSheet } from './PactoCheckoutSheet.js';
 import type { TestHandlers } from './test/react-native-webview-mock.js';
@@ -234,9 +240,6 @@ describe('PactoCheckoutSheet', () => {
   });
 
   it('never receives a secret/sk_ key — only publishableKey is a required prop', () => {
-    // Type-level guarantee: PactoCheckoutSheetProps has no clientSecret/secretKey
-    // field, so there is no way for a merchant app to pass one in. Assert the
-    // rendered WebView URL never contains an sk_ prefix regardless of input.
     render(
       <PactoCheckoutSheet
         visible
@@ -246,5 +249,88 @@ describe('PactoCheckoutSheet', () => {
       />,
     );
     expect(getWebViewNode().getAttribute('data-uri')).not.toContain('sk_');
+  });
+
+  it('seeds hosted storage and sessionId when remounting with a persisted snapshot', async () => {
+    const storage = createMemoryCheckoutStorage();
+    const scope = buildCheckoutSnapshotScope({
+      publishableKey: 'pk_test_123',
+      listingId: 'lst_1',
+      mode: 'buy',
+    });
+    const key = checkoutStorageKey(scope);
+    storage.setItem(
+      key,
+      serializeCheckoutSnapshot({
+        version: 1,
+        step: 'deposit',
+        sessionId: 'sess_resumed',
+        selectedListing: null,
+        quote: {
+          id: 'quo_1',
+          asset: 'USDC',
+          amount: '100',
+          price: '5000',
+          side: 'buy',
+          expiresAt: '2099-01-01T00:00:00.000Z',
+          createdAt: '2024-01-01T00:00:00.000Z',
+        },
+        escrow: {
+          id: 'esc_1',
+          quoteId: 'quo_1',
+          status: 'pending',
+          amount: '100',
+          asset: 'USDC',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+        milestones: [],
+        testMode: true,
+        session: {
+          sessionId: 'sess_resumed',
+          clientSecret: 'cs_sess_resumed.sig',
+          expiresAt: '2099-01-01T00:00:00.000Z',
+          mode: 'buy',
+        },
+        scope,
+      }),
+    );
+
+    const { unmount } = render(
+      <PactoCheckoutSheet
+        visible
+        checkoutUrl={CHECKOUT_URL}
+        publishableKey="pk_test_123"
+        listingId="lst_1"
+        storage={storage}
+        onRequestClose={() => {}}
+      />,
+    );
+
+    await waitFor(() => {
+      const injected = getWebViewNode().getAttribute('data-injected-before-load');
+      expect(injected).toContain('sessionStorage.setItem');
+      expect(injected).toContain(key);
+    });
+
+    const uri = getWebViewNode().getAttribute('data-uri');
+    expect(new URL(uri as string).searchParams.get('sessionId')).toBe('sess_resumed');
+
+    unmount();
+
+    render(
+      <PactoCheckoutSheet
+        visible
+        checkoutUrl={CHECKOUT_URL}
+        publishableKey="pk_test_123"
+        listingId="lst_1"
+        storage={storage}
+        onRequestClose={() => {}}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(getWebViewNode().getAttribute('data-injected-before-load')).toContain(key);
+    });
   });
 });

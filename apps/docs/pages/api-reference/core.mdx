@@ -20,7 +20,7 @@ npm install @pacto-connect/core
 
 # Class: CheckoutFlowController
 
-Defined in: [packages/connect-core/src/checkout-flow.ts:62](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L62)
+Defined in: [packages/connect-core/src/checkout-flow.ts:52](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L52)
 
 ## Constructors
 
@@ -30,7 +30,7 @@ Defined in: [packages/connect-core/src/checkout-flow.ts:62](https://github.com/P
 new CheckoutFlowController(options): CheckoutFlowController;
 ```
 
-Defined in: [packages/connect-core/src/checkout-flow.ts:71](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L71)
+Defined in: [packages/connect-core/src/checkout-flow.ts:61](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L61)
 
 #### Parameters
 
@@ -78,7 +78,7 @@ Defined in: [packages/connect-core/src/checkout-flow.ts:81](https://github.com/P
 forceTestDispute(reason?): Promise<void>;
 ```
 
-Defined in: [packages/connect-core/src/checkout-flow.ts:167](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L167)
+Defined in: [packages/connect-core/src/checkout-flow.ts:175](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L175)
 
 #### Parameters
 
@@ -98,7 +98,7 @@ Defined in: [packages/connect-core/src/checkout-flow.ts:167](https://github.com/
 forceTestRelease(): Promise<void>;
 ```
 
-Defined in: [packages/connect-core/src/checkout-flow.ts:149](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L149)
+Defined in: [packages/connect-core/src/checkout-flow.ts:157](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L157)
 
 #### Returns
 
@@ -112,7 +112,7 @@ Defined in: [packages/connect-core/src/checkout-flow.ts:149](https://github.com/
 forceTestTimeout(): Promise<void>;
 ```
 
-Defined in: [packages/connect-core/src/checkout-flow.ts:185](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L185)
+Defined in: [packages/connect-core/src/checkout-flow.ts:193](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L193)
 
 #### Returns
 
@@ -126,7 +126,7 @@ Defined in: [packages/connect-core/src/checkout-flow.ts:185](https://github.com/
 getState(): CheckoutFlowState;
 ```
 
-Defined in: [packages/connect-core/src/checkout-flow.ts:73](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L73)
+Defined in: [packages/connect-core/src/checkout-flow.ts:65](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L65)
 
 #### Returns
 
@@ -140,7 +140,7 @@ Defined in: [packages/connect-core/src/checkout-flow.ts:73](https://github.com/P
 retry(): void;
 ```
 
-Defined in: [packages/connect-core/src/checkout-flow.ts:145](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L145)
+Defined in: [packages/connect-core/src/checkout-flow.ts:153](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L153)
 
 #### Returns
 
@@ -174,7 +174,7 @@ Defined in: [packages/connect-core/src/checkout-flow.ts:91](https://github.com/P
 start(): Promise<void>;
 ```
 
-Defined in: [packages/connect-core/src/checkout-flow.ts:77](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L77)
+Defined in: [packages/connect-core/src/checkout-flow.ts:69](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L69)
 
 #### Returns
 
@@ -191,7 +191,7 @@ submitReceipt(
 receipt?): Promise<void>;
 ```
 
-Defined in: [packages/connect-core/src/checkout-flow.ts:119](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L119)
+Defined in: [packages/connect-core/src/checkout-flow.ts:123](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L123)
 
 #### Parameters
 
@@ -204,6 +204,307 @@ Defined in: [packages/connect-core/src/checkout-flow.ts:119](https://github.com/
 #### Returns
 
 `Promise`\<`void`\>
+
+
+---
+
+# Class: CheckoutQuoteExpiredError
+
+Defined in: [packages/connect-core/src/checkout-machine.ts:27](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L27)
+
+## Extends
+
+- `Error`
+
+## Constructors
+
+### Constructor
+
+```ts
+new CheckoutQuoteExpiredError(message?): CheckoutQuoteExpiredError;
+```
+
+Defined in: [packages/connect-core/src/checkout-machine.ts:28](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L28)
+
+#### Parameters
+
+| Parameter | Type | Default value |
+| ------ | ------ | ------ |
+| `message` | `string` | `'This quote has expired. Please start checkout again.'` |
+
+#### Returns
+
+`CheckoutQuoteExpiredError`
+
+#### Overrides
+
+```ts
+Error.constructor
+```
+
+## Properties
+
+| Property | Modifier | Type | Description | Inherited from | Defined in |
+| ------ | ------ | ------ | ------ | ------ | ------ |
+| <a id="cause"></a> `cause?` | `public` | `unknown` | - | `Error.cause` | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
+| <a id="message"></a> `message` | `public` | `string` | - | `Error.message` | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
+| <a id="name"></a> `name` | `public` | `string` | - | `Error.name` | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
+| <a id="stack"></a> `stack?` | `public` | `string` | - | `Error.stack` | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
+| <a id="stacktracelimit"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | `Error.stackTraceLimit` | node\_modules/@types/node/globals.d.ts:68 |
+
+## Methods
+
+### captureStackTrace()
+
+```ts
+static captureStackTrace(targetObject, constructorOpt?): void;
+```
+
+Defined in: node\_modules/@types/node/globals.d.ts:52
+
+Creates a `.stack` property on `targetObject`, which when accessed returns
+a string representing the location in the code at which
+`Error.captureStackTrace()` was called.
+
+```js
+const myObject = {};
+Error.captureStackTrace(myObject);
+myObject.stack;  // Similar to `new Error().stack`
+```
+
+The first line of the trace will be prefixed with
+`${myObject.name}: ${myObject.message}`.
+
+The optional `constructorOpt` argument accepts a function. If given, all frames
+above `constructorOpt`, including `constructorOpt`, will be omitted from the
+generated stack trace.
+
+The `constructorOpt` argument is useful for hiding implementation
+details of error generation from the user. For instance:
+
+```js
+function a() {
+  b();
+}
+
+function b() {
+  c();
+}
+
+function c() {
+  // Create an error without stack trace to avoid calculating the stack trace twice.
+  const { stackTraceLimit } = Error;
+  Error.stackTraceLimit = 0;
+  const error = new Error();
+  Error.stackTraceLimit = stackTraceLimit;
+
+  // Capture the stack trace above function b
+  Error.captureStackTrace(error, b); // Neither function c, nor b is included in the stack trace
+  throw error;
+}
+
+a();
+```
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `targetObject` | `object` |
+| `constructorOpt?` | `Function` |
+
+#### Returns
+
+`void`
+
+#### Inherited from
+
+```ts
+Error.captureStackTrace
+```
+
+***
+
+### prepareStackTrace()
+
+```ts
+static prepareStackTrace(err, stackTraces): any;
+```
+
+Defined in: node\_modules/@types/node/globals.d.ts:56
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `err` | `Error` |
+| `stackTraces` | `CallSite`[] |
+
+#### Returns
+
+`any`
+
+#### See
+
+https://v8.dev/docs/stack-trace-api#customizing-stack-traces
+
+#### Inherited from
+
+```ts
+Error.prepareStackTrace
+```
+
+
+---
+
+# Class: IllegalCheckoutTransitionError
+
+Defined in: [packages/connect-core/src/checkout-machine.ts:34](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L34)
+
+## Extends
+
+- `Error`
+
+## Constructors
+
+### Constructor
+
+```ts
+new IllegalCheckoutTransitionError(from, to): IllegalCheckoutTransitionError;
+```
+
+Defined in: [packages/connect-core/src/checkout-machine.ts:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L38)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `from` | [`CheckoutStep`](#typealias.checkoutstep) |
+| `to` | [`CheckoutStep`](#typealias.checkoutstep) |
+
+#### Returns
+
+`IllegalCheckoutTransitionError`
+
+#### Overrides
+
+```ts
+Error.constructor
+```
+
+## Properties
+
+| Property | Modifier | Type | Description | Inherited from | Defined in |
+| ------ | ------ | ------ | ------ | ------ | ------ |
+| <a id="cause"></a> `cause?` | `public` | `unknown` | - | `Error.cause` | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
+| <a id="from"></a> `from` | `readonly` | [`CheckoutStep`](#typealias.checkoutstep) | - | - | [packages/connect-core/src/checkout-machine.ts:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L35) |
+| <a id="message"></a> `message` | `public` | `string` | - | `Error.message` | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
+| <a id="name"></a> `name` | `public` | `string` | - | `Error.name` | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
+| <a id="stack"></a> `stack?` | `public` | `string` | - | `Error.stack` | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
+| <a id="to"></a> `to` | `readonly` | [`CheckoutStep`](#typealias.checkoutstep) | - | - | [packages/connect-core/src/checkout-machine.ts:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L36) |
+| <a id="stacktracelimit"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | `Error.stackTraceLimit` | node\_modules/@types/node/globals.d.ts:68 |
+
+## Methods
+
+### captureStackTrace()
+
+```ts
+static captureStackTrace(targetObject, constructorOpt?): void;
+```
+
+Defined in: node\_modules/@types/node/globals.d.ts:52
+
+Creates a `.stack` property on `targetObject`, which when accessed returns
+a string representing the location in the code at which
+`Error.captureStackTrace()` was called.
+
+```js
+const myObject = {};
+Error.captureStackTrace(myObject);
+myObject.stack;  // Similar to `new Error().stack`
+```
+
+The first line of the trace will be prefixed with
+`${myObject.name}: ${myObject.message}`.
+
+The optional `constructorOpt` argument accepts a function. If given, all frames
+above `constructorOpt`, including `constructorOpt`, will be omitted from the
+generated stack trace.
+
+The `constructorOpt` argument is useful for hiding implementation
+details of error generation from the user. For instance:
+
+```js
+function a() {
+  b();
+}
+
+function b() {
+  c();
+}
+
+function c() {
+  // Create an error without stack trace to avoid calculating the stack trace twice.
+  const { stackTraceLimit } = Error;
+  Error.stackTraceLimit = 0;
+  const error = new Error();
+  Error.stackTraceLimit = stackTraceLimit;
+
+  // Capture the stack trace above function b
+  Error.captureStackTrace(error, b); // Neither function c, nor b is included in the stack trace
+  throw error;
+}
+
+a();
+```
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `targetObject` | `object` |
+| `constructorOpt?` | `Function` |
+
+#### Returns
+
+`void`
+
+#### Inherited from
+
+```ts
+Error.captureStackTrace
+```
+
+***
+
+### prepareStackTrace()
+
+```ts
+static prepareStackTrace(err, stackTraces): any;
+```
+
+Defined in: node\_modules/@types/node/globals.d.ts:56
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `err` | `Error` |
+| `stackTraces` | `CallSite`[] |
+
+#### Returns
+
+`any`
+
+#### See
+
+https://v8.dev/docs/stack-trace-api#customizing-stack-traces
+
+#### Inherited from
+
+```ts
+Error.prepareStackTrace
+```
 
 
 ---
@@ -1266,6 +1567,52 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 ---
 
+# Function: applyCheckoutTransition()
+
+```ts
+function applyCheckoutTransition(state, partial): CheckoutFlowState;
+```
+
+Defined in: [packages/connect-core/src/checkout-machine.ts:99](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L99)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `state` | [`CheckoutFlowState`](#interface.checkoutflowstate) |
+| `partial` | `Partial`\<[`CheckoutFlowState`](#interface.checkoutflowstate)\> |
+
+## Returns
+
+[`CheckoutFlowState`](#interface.checkoutflowstate)
+
+
+---
+
+# Function: buildCheckoutSnapshotScope()
+
+```ts
+function buildCheckoutSnapshotScope(options): CheckoutSnapshotScope;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:46](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L46)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `options` | \&#123; `listingId?`: `string`; `mode`: [`CheckoutMode`](#typealias.checkoutmode); `publishableKey`: `string`; \&#125; |
+| `options.listingId?` | `string` |
+| `options.mode` | [`CheckoutMode`](#typealias.checkoutmode) |
+| `options.publishableKey` | `string` |
+
+## Returns
+
+[`CheckoutSnapshotScope`](#interface.checkoutsnapshotscope)
+
+
+---
+
 # Function: buildCheckoutStylesheet()
 
 ```ts
@@ -1277,6 +1624,49 @@ Defined in: [packages/connect-core/src/theme.ts:116](https://github.com/PACTO-LA
 The default checkout stylesheet, tokenized. Every themeable value is written
 as `var(--pacto-*, <default>)` where the default comes from DEFAULT_THEME, so
 there is exactly one source for each default literal.
+
+## Returns
+
+`string`
+
+
+---
+
+# Function: canTransition()
+
+```ts
+function canTransition(from, to): boolean;
+```
+
+Defined in: [packages/connect-core/src/checkout-machine.ts:74](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L74)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `from` | [`CheckoutStep`](#typealias.checkoutstep) |
+| `to` | [`CheckoutStep`](#typealias.checkoutstep) |
+
+## Returns
+
+`boolean`
+
+
+---
+
+# Function: checkoutStorageKey()
+
+```ts
+function checkoutStorageKey(scope): string;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:41](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L41)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `scope` | [`CheckoutSnapshotScope`](#interface.checkoutsnapshotscope) |
 
 ## Returns
 
@@ -1373,13 +1763,70 @@ Framework-agnostic SDK core for Pacto Connect.
 
 ---
 
+# Function: createInitialCheckoutState()
+
+```ts
+function createInitialCheckoutState(testMode?): CheckoutFlowState;
+```
+
+Defined in: [packages/connect-core/src/checkout-machine.ts:60](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L60)
+
+## Parameters
+
+| Parameter | Type | Default value |
+| ------ | ------ | ------ |
+| `testMode` | `boolean` | `false` |
+
+## Returns
+
+[`CheckoutFlowState`](#interface.checkoutflowstate)
+
+
+---
+
+# Function: createMemoryCheckoutStorage()
+
+```ts
+function createMemoryCheckoutStorage(): CheckoutStorageAdapter;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:205](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L205)
+
+## Returns
+
+[`CheckoutStorageAdapter`](#interface.checkoutstorageadapter)
+
+
+---
+
+# Function: createWebCheckoutStorage()
+
+```ts
+function createWebCheckoutStorage(storage): CheckoutStorageAdapter;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:227](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L227)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `storage` | [`WebStorageLike`](#interface.webstoragelike) |
+
+## Returns
+
+[`CheckoutStorageAdapter`](#interface.checkoutstorageadapter)
+
+
+---
+
 # Function: formatMessage()
 
 ```ts
 function formatMessage(template, params): string;
 ```
 
-Defined in: [packages/connect-core/src/i18n.ts:187](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L187)
+Defined in: [packages/connect-core/src/i18n.ts:190](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L190)
 
 Replace `{name}` placeholders in `template` with values from `params`.
 
@@ -1431,6 +1878,28 @@ Entry point for the Pacto Connect SDK.
 ## Returns
 
 [`PactoClient`](#interface.pactoclient)
+
+
+---
+
+# Function: isCheckoutSnapshotExpired()
+
+```ts
+function isCheckoutSnapshotExpired(snapshot, now): boolean;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:164](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L164)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `snapshot` | [`CheckoutSnapshot`](#interface.checkoutsnapshot) |
+| `now` | `number` |
+
+## Returns
+
+`boolean`
 
 
 ---
@@ -1528,6 +1997,70 @@ value is "PACTO\_AUTH" \| "PACTO\_RATE\_LIMIT" \| "PACTO\_UPSTREAM" \| "PACTO\_V
 
 ---
 
+# Function: isPersistableStep()
+
+```ts
+function isPersistableStep(step): boolean;
+```
+
+Defined in: [packages/connect-core/src/checkout-machine.ts:82](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L82)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `step` | [`CheckoutStep`](#typealias.checkoutstep) |
+
+## Returns
+
+`boolean`
+
+
+---
+
+# Function: isQuoteExpired()
+
+```ts
+function isQuoteExpired(quote, now): boolean;
+```
+
+Defined in: [packages/connect-core/src/checkout-machine.ts:86](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L86)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `quote` | [`Quote`](#interface.quote) \| `null` |
+| `now` | `number` |
+
+## Returns
+
+`boolean`
+
+
+---
+
+# Function: isTerminalCheckoutStep()
+
+```ts
+function isTerminalCheckoutStep(step): boolean;
+```
+
+Defined in: [packages/connect-core/src/checkout-machine.ts:116](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L116)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `step` | [`CheckoutStep`](#typealias.checkoutstep) |
+
+## Returns
+
+`boolean`
+
+
+---
+
 # Function: isTestMode()
 
 ```ts
@@ -1570,13 +2103,34 @@ Defined in: [packages/connect-core/src/keys.ts:5](https://github.com/PACTO-LAT/p
 
 ---
 
+# Function: parseCheckoutSnapshot()
+
+```ts
+function parseCheckoutSnapshot(raw): CheckoutSnapshot | null;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:79](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L79)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `raw` | `string` |
+
+## Returns
+
+[`CheckoutSnapshot`](#interface.checkoutsnapshot) \| `null`
+
+
+---
+
 # Function: resolveMessages()
 
 ```ts
 function resolveMessages(locale?, overrides?): PactoMessages;
 ```
 
-Defined in: [packages/connect-core/src/i18n.ts:175](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L175)
+Defined in: [packages/connect-core/src/i18n.ts:178](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L178)
 
 Resolve a locale to its message set, deep-merged with optional overrides.
 Unknown locales fall back to English. Pass a full `PactoMessages` shape via
@@ -1592,6 +2146,49 @@ Unknown locales fall back to English. Pass a full `PactoMessages` shape via
 ## Returns
 
 [`PactoMessages`](#interface.pactomessages)
+
+
+---
+
+# Function: serializeCheckoutSnapshot()
+
+```ts
+function serializeCheckoutSnapshot(snapshot): string;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:59](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L59)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `snapshot` | [`CheckoutSnapshot`](#interface.checkoutsnapshot) |
+
+## Returns
+
+`string`
+
+
+---
+
+# Function: snapshotMatchesScope()
+
+```ts
+function snapshotMatchesScope(snapshot, scope): boolean;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:182](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L182)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `snapshot` | [`CheckoutSnapshot`](#interface.checkoutsnapshot) |
+| `scope` | [`CheckoutSnapshotScope`](#interface.checkoutsnapshotscope) |
+
+## Returns
+
+`boolean`
 
 
 ---
@@ -1772,13 +2369,15 @@ Defined in: [packages/connect-core/src/checkout-flow.ts:35](https://github.com/P
 | <a id="gatewayurl"></a> `gatewayUrl?` | `string` | - | [packages/connect-core/src/checkout-flow.ts:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L37) |
 | <a id="listingid"></a> `listingId?` | `string` | - | [packages/connect-core/src/checkout-flow.ts:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L38) |
 | <a id="mode"></a> `mode?` | [`CheckoutMode`](#typealias.checkoutmode) | - | [packages/connect-core/src/checkout-flow.ts:39](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L39) |
-| <a id="onchange"></a> `onChange?` | (`state`) => `void` | - | [packages/connect-core/src/checkout-flow.ts:43](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L43) |
-| <a id="oncomplete"></a> `onComplete?` | (`escrow`) => `void` | - | [packages/connect-core/src/checkout-flow.ts:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L44) |
-| <a id="ondispute"></a> `onDispute?` | (`escrow`) => `void` | - | [packages/connect-core/src/checkout-flow.ts:45](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L45) |
-| <a id="onerror"></a> `onError?` | (`error`) => `void` | - | [packages/connect-core/src/checkout-flow.ts:47](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L47) |
-| <a id="onrefund"></a> `onRefund?` | (`escrow`) => `void` | - | [packages/connect-core/src/checkout-flow.ts:46](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L46) |
+| <a id="now"></a> `now?` | () => `number` | - | [packages/connect-core/src/checkout-flow.ts:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L44) |
+| <a id="onchange"></a> `onChange?` | (`state`) => `void` | - | [packages/connect-core/src/checkout-flow.ts:45](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L45) |
+| <a id="oncomplete"></a> `onComplete?` | (`escrow`) => `void` | - | [packages/connect-core/src/checkout-flow.ts:46](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L46) |
+| <a id="ondispute"></a> `onDispute?` | (`escrow`) => `void` | - | [packages/connect-core/src/checkout-flow.ts:47](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L47) |
+| <a id="onerror"></a> `onError?` | (`error`) => `void` | - | [packages/connect-core/src/checkout-flow.ts:49](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L49) |
+| <a id="onrefund"></a> `onRefund?` | (`escrow`) => `void` | - | [packages/connect-core/src/checkout-flow.ts:48](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L48) |
 | <a id="publishablekey"></a> `publishableKey` | `string` | - | [packages/connect-core/src/checkout-flow.ts:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L36) |
 | <a id="session"></a> `session?` | [`PactoSessionData`](#interface.pactosessiondata) | Pre-created session; skips POST /v1/session when provided. | [packages/connect-core/src/checkout-flow.ts:42](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L42) |
+| <a id="storage"></a> `storage?` | [`CheckoutStorageAdapter`](#interface.checkoutstorageadapter) | - | [packages/connect-core/src/checkout-flow.ts:43](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L43) |
 | <a id="testmode"></a> `testMode?` | `boolean` | - | [packages/connect-core/src/checkout-flow.ts:40](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L40) |
 
 
@@ -1786,21 +2385,143 @@ Defined in: [packages/connect-core/src/checkout-flow.ts:35](https://github.com/P
 
 # Interface: CheckoutFlowState
 
-Defined in: [packages/connect-core/src/checkout-flow.ts:23](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L23)
+Defined in: [packages/connect-core/src/checkout-machine.ts:15](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L15)
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="error"></a> `error` | `Error` \| `null` | [packages/connect-core/src/checkout-flow.ts:30](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L30) |
-| <a id="escrow"></a> `escrow` | [`Escrow`](#interface.escrow) \| `null` | [packages/connect-core/src/checkout-flow.ts:28](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L28) |
-| <a id="listings"></a> `listings` | [`Listing`](#interface.listing)[] | [packages/connect-core/src/checkout-flow.ts:26](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L26) |
-| <a id="milestones"></a> `milestones` | [`EscrowEvent`](#interface.escrowevent)[] | [packages/connect-core/src/checkout-flow.ts:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L31) |
-| <a id="quote"></a> `quote` | [`Quote`](#interface.quote) \| `null` | [packages/connect-core/src/checkout-flow.ts:29](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L29) |
-| <a id="selectedlisting"></a> `selectedListing` | [`Listing`](#interface.listing) \| `null` | [packages/connect-core/src/checkout-flow.ts:27](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L27) |
-| <a id="sessionid"></a> `sessionId` | `string` \| `null` | [packages/connect-core/src/checkout-flow.ts:25](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L25) |
-| <a id="step"></a> `step` | [`CheckoutStep`](#typealias.checkoutstep) | [packages/connect-core/src/checkout-flow.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L24) |
-| <a id="testmode"></a> `testMode` | `boolean` | [packages/connect-core/src/checkout-flow.ts:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L32) |
+| <a id="error"></a> `error` | `Error` \| `null` | [packages/connect-core/src/checkout-machine.ts:22](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L22) |
+| <a id="escrow"></a> `escrow` | [`Escrow`](#interface.escrow) \| `null` | [packages/connect-core/src/checkout-machine.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L20) |
+| <a id="listings"></a> `listings` | [`Listing`](#interface.listing)[] | [packages/connect-core/src/checkout-machine.ts:18](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L18) |
+| <a id="milestones"></a> `milestones` | [`EscrowEvent`](#interface.escrowevent)[] | [packages/connect-core/src/checkout-machine.ts:23](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L23) |
+| <a id="quote"></a> `quote` | [`Quote`](#interface.quote) \| `null` | [packages/connect-core/src/checkout-machine.ts:21](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L21) |
+| <a id="selectedlisting"></a> `selectedListing` | [`Listing`](#interface.listing) \| `null` | [packages/connect-core/src/checkout-machine.ts:19](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L19) |
+| <a id="sessionid"></a> `sessionId` | `string` \| `null` | [packages/connect-core/src/checkout-machine.ts:17](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L17) |
+| <a id="step"></a> `step` | [`CheckoutStep`](#typealias.checkoutstep) | [packages/connect-core/src/checkout-machine.ts:16](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L16) |
+| <a id="testmode"></a> `testMode` | `boolean` | [packages/connect-core/src/checkout-machine.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L24) |
+
+
+---
+
+# Interface: CheckoutSessionEnvelope
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:8](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L8)
+
+## Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="clientsecret"></a> `clientSecret` | `string` | [packages/connect-core/src/checkout-storage.ts:10](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L10) |
+| <a id="expiresat"></a> `expiresAt` | `string` | [packages/connect-core/src/checkout-storage.ts:11](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L11) |
+| <a id="mode"></a> `mode` | [`CheckoutMode`](#typealias.checkoutmode) | [packages/connect-core/src/checkout-storage.ts:12](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L12) |
+| <a id="sessionid"></a> `sessionId` | `string` | [packages/connect-core/src/checkout-storage.ts:9](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L9) |
+
+
+---
+
+# Interface: CheckoutSnapshot
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:22](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L22)
+
+## Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="escrow"></a> `escrow` | [`Escrow`](#interface.escrow) \| `null` | [packages/connect-core/src/checkout-storage.ts:28](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L28) |
+| <a id="milestones"></a> `milestones` | [`EscrowEvent`](#interface.escrowevent)[] | [packages/connect-core/src/checkout-storage.ts:29](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L29) |
+| <a id="quote"></a> `quote` | [`Quote`](#interface.quote) \| `null` | [packages/connect-core/src/checkout-storage.ts:27](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L27) |
+| <a id="scope"></a> `scope` | [`CheckoutSnapshotScope`](#interface.checkoutsnapshotscope) | [packages/connect-core/src/checkout-storage.ts:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L32) |
+| <a id="selectedlisting"></a> `selectedListing` | [`Listing`](#interface.listing) \| `null` | [packages/connect-core/src/checkout-storage.ts:26](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L26) |
+| <a id="session"></a> `session` | [`CheckoutSessionEnvelope`](#interface.checkoutsessionenvelope) | [packages/connect-core/src/checkout-storage.ts:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L31) |
+| <a id="sessionid"></a> `sessionId` | `string` | [packages/connect-core/src/checkout-storage.ts:25](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L25) |
+| <a id="step"></a> `step` | [`CheckoutStep`](#typealias.checkoutstep) | [packages/connect-core/src/checkout-storage.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L24) |
+| <a id="testmode"></a> `testMode` | `boolean` | [packages/connect-core/src/checkout-storage.ts:30](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L30) |
+| <a id="version"></a> `version` | `1` | [packages/connect-core/src/checkout-storage.ts:23](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L23) |
+
+
+---
+
+# Interface: CheckoutSnapshotScope
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:15](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L15)
+
+## Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="browse"></a> `browse` | `boolean` | [packages/connect-core/src/checkout-storage.ts:18](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L18) |
+| <a id="listingid"></a> `listingId?` | `string` | [packages/connect-core/src/checkout-storage.ts:17](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L17) |
+| <a id="mode"></a> `mode` | [`CheckoutMode`](#typealias.checkoutmode) | [packages/connect-core/src/checkout-storage.ts:19](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L19) |
+| <a id="publishablekey"></a> `publishableKey` | `string` | [packages/connect-core/src/checkout-storage.ts:16](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L16) |
+
+
+---
+
+# Interface: CheckoutStorageAdapter
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L35)
+
+## Methods
+
+### getItem()
+
+```ts
+getItem(key): string | Promise<string | null> | null;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L36)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `key` | `string` |
+
+#### Returns
+
+`string` \| `Promise`\<`string` \| `null`\> \| `null`
+
+***
+
+### removeItem()
+
+```ts
+removeItem(key): void | Promise<void>;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L38)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `key` | `string` |
+
+#### Returns
+
+`void` \| `Promise`\<`void`\>
+
+***
+
+### setItem()
+
+```ts
+setItem(key, value): void | Promise<void>;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L37)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `key` | `string` |
+| `value` | `string` |
+
+#### Returns
+
+`void` \| `Promise`\<`void`\>
 
 
 ---
@@ -2192,19 +2913,20 @@ Defined in: [packages/connect-core/src/i18n.ts:14](https://github.com/PACTO-LAT/
 | `actions.forceTimeout` | `string` | - | [packages/connect-core/src/i18n.ts:25](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L25) |
 | `actions.retry` | `string` | - | [packages/connect-core/src/i18n.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L20) |
 | `actions.submitReceipt` | `string` | - | [packages/connect-core/src/i18n.ts:22](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L22) |
-| <a id="labels"></a> `labels` | \&#123; `availableListings`: `string`; `depositInstruction`: `string`; `disputed`: `string`; `escrowMilestones`: `string`; `genericError`: `string`; `loading`: `string`; `paymentMethod`: `string`; `reference`: `string`; `referenceAria`: `string`; `refunded`: `string`; `simulatorControls`: `string`; `success`: `string`; `testBanner`: `string`; `waiting`: `string`; \&#125; | - | [packages/connect-core/src/i18n.ts:27](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L27) |
+| <a id="labels"></a> `labels` | \&#123; `availableListings`: `string`; `depositInstruction`: `string`; `disputed`: `string`; `escrowMilestones`: `string`; `genericError`: `string`; `loading`: `string`; `paymentMethod`: `string`; `quoteExpired`: `string`; `reference`: `string`; `referenceAria`: `string`; `refunded`: `string`; `simulatorControls`: `string`; `success`: `string`; `testBanner`: `string`; `waiting`: `string`; \&#125; | - | [packages/connect-core/src/i18n.ts:27](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L27) |
 | `labels.availableListings` | `string` | - | [packages/connect-core/src/i18n.ts:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L31) |
-| `labels.depositInstruction` | `string` | Placeholders: &#123;amount&#125; &#123;asset&#125; | [packages/connect-core/src/i18n.ts:39](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L39) |
-| `labels.disputed` | `string` | Placeholder: &#123;escrowId&#125; | [packages/connect-core/src/i18n.ts:43](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L43) |
+| `labels.depositInstruction` | `string` | Placeholders: &#123;amount&#125; &#123;asset&#125; | [packages/connect-core/src/i18n.ts:40](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L40) |
+| `labels.disputed` | `string` | Placeholder: &#123;escrowId&#125; | [packages/connect-core/src/i18n.ts:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L44) |
 | `labels.escrowMilestones` | `string` | - | [packages/connect-core/src/i18n.ts:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L32) |
 | `labels.genericError` | `string` | - | [packages/connect-core/src/i18n.ts:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L37) |
 | `labels.loading` | `string` | - | [packages/connect-core/src/i18n.ts:34](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L34) |
 | `labels.paymentMethod` | `string` | - | [packages/connect-core/src/i18n.ts:28](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L28) |
+| `labels.quoteExpired` | `string` | - | [packages/connect-core/src/i18n.ts:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L38) |
 | `labels.reference` | `string` | - | [packages/connect-core/src/i18n.ts:29](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L29) |
 | `labels.referenceAria` | `string` | - | [packages/connect-core/src/i18n.ts:30](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L30) |
-| `labels.refunded` | `string` | Placeholder: &#123;escrowId&#125; | [packages/connect-core/src/i18n.ts:45](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L45) |
+| `labels.refunded` | `string` | Placeholder: &#123;escrowId&#125; | [packages/connect-core/src/i18n.ts:46](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L46) |
 | `labels.simulatorControls` | `string` | - | [packages/connect-core/src/i18n.ts:33](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L33) |
-| `labels.success` | `string` | Placeholder: &#123;escrowId&#125; | [packages/connect-core/src/i18n.ts:41](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L41) |
+| `labels.success` | `string` | Placeholder: &#123;escrowId&#125; | [packages/connect-core/src/i18n.ts:42](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L42) |
 | `labels.testBanner` | `string` | - | [packages/connect-core/src/i18n.ts:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L36) |
 | `labels.waiting` | `string` | - | [packages/connect-core/src/i18n.ts:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L35) |
 | <a id="milestones"></a> `milestones` | `Record`\<[`EscrowEventName`](#typealias.escroweventname), `string`\> | - | [packages/connect-core/src/i18n.ts:16](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L16) |
@@ -2312,6 +3034,74 @@ Defined in: [packages/connect-core/src/resources.ts:92](https://github.com/PACTO
 
 ---
 
+# Interface: WebStorageLike
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:221](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L221)
+
+## Methods
+
+### getItem()
+
+```ts
+getItem(key): string | null;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:222](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L222)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `key` | `string` |
+
+#### Returns
+
+`string` \| `null`
+
+***
+
+### removeItem()
+
+```ts
+removeItem(key): void;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:224](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L224)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `key` | `string` |
+
+#### Returns
+
+`void`
+
+***
+
+### setItem()
+
+```ts
+setItem(key, value): void;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:223](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L223)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `key` | `string` |
+| `value` | `string` |
+
+#### Returns
+
+`void`
+
+
+---
+
 # Type Alias: CheckoutMode
 
 ```ts
@@ -2338,7 +3128,7 @@ type CheckoutStep =
   | "error";
 ```
 
-Defined in: [packages/connect-core/src/checkout-flow.ts:12](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-flow.ts#L12)
+Defined in: [packages/connect-core/src/checkout-machine.ts:4](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-machine.ts#L4)
 
 
 ---
@@ -2536,6 +3326,17 @@ Defined in: [packages/connect-core/src/i18n.ts:12](https://github.com/PACTO-LAT/
 
 ---
 
+# Variable: CHECKOUT\_SNAPSHOT\_VERSION
+
+```ts
+const CHECKOUT_SNAPSHOT_VERSION: 1;
+```
+
+Defined in: [packages/connect-core/src/checkout-storage.ts:6](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L6)
+
+
+---
+
 # Variable: DEFAULT\_GATEWAY\_URL
 
 ```ts
@@ -2670,7 +3471,7 @@ Defined in: [packages/connect-core/src/theme.ts:35](https://github.com/PACTO-LAT
 const VERSION: "0.0.0" = '0.0.0';
 ```
 
-Defined in: [packages/connect-core/src/index.ts:105](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/index.ts#L105)
+Defined in: [packages/connect-core/src/index.ts:131](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/index.ts#L131)
 
 
 ---
@@ -2681,7 +3482,7 @@ Defined in: [packages/connect-core/src/index.ts:105](https://github.com/PACTO-LA
 const enMessages: PactoMessages;
 ```
 
-Defined in: [packages/connect-core/src/i18n.ts:49](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L49)
+Defined in: [packages/connect-core/src/i18n.ts:50](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L50)
 
 
 ---
@@ -2692,4 +3493,4 @@ Defined in: [packages/connect-core/src/i18n.ts:49](https://github.com/PACTO-LAT/
 const esMessages: PactoMessages;
 ```
 
-Defined in: [packages/connect-core/src/i18n.ts:98](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L98)
+Defined in: [packages/connect-core/src/i18n.ts:100](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L100)

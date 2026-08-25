@@ -1,10 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   BRIDGE_SHIM_SCRIPT,
+  buildCheckoutStorageSeedScript,
+  buildCheckoutStorageSyncScript,
   buildCheckoutUrl,
   buildInboundBridgeScript,
   checkoutOrigin,
   dispatchBridgeMessage,
+  parseCheckoutStorageSyncMessage,
   parseWebViewBridgeMessage,
 } from './webview-bridge.js';
 
@@ -145,6 +148,33 @@ describe('parseWebViewBridgeMessage', () => {
       message: { type: 'checkout:close', payload: {} },
     });
     expect(parseWebViewBridgeMessage(raw, 'not-a-url', expectedOrigin)).toBeNull();
+  });
+});
+
+describe('checkout storage bridge helpers', () => {
+  it('builds a sessionStorage seed script', () => {
+    const script = buildCheckoutStorageSeedScript('pacto:checkout:key', '{"step":"deposit"}');
+    expect(script).toContain('sessionStorage.setItem("pacto:checkout:key"');
+    expect(script.trim().endsWith('true;')).toBe(true);
+  });
+
+  it('builds a sync script that posts hosted storage back to native', () => {
+    expect(buildCheckoutStorageSyncScript()).toContain('pacto:checkout:');
+    expect(buildCheckoutStorageSyncScript()).toContain('ReactNativeWebView');
+  });
+
+  it('parses native storage sync payloads', () => {
+    const payload = parseCheckoutStorageSyncMessage(
+      JSON.stringify({
+        source: 'pacto-connect-rn-sync',
+        payload: { key: 'pacto:checkout:pk', value: '{"step":"deposit"}' },
+      }),
+    );
+
+    expect(payload).toEqual({
+      key: 'pacto:checkout:pk',
+      value: '{"step":"deposit"}',
+    });
   });
 });
 

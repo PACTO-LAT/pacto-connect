@@ -2,12 +2,23 @@ import {
   CheckoutFlowController,
   type CheckoutFlowState,
   type CheckoutStep,
+  type CheckoutStorageAdapter,
+  createInitialCheckoutState,
+  createWebCheckoutStorage,
   type Escrow,
   type Listing,
 } from '@pacto-connect/core';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 export type { CheckoutStep };
+
+function defaultCheckoutStorage(): CheckoutStorageAdapter | undefined {
+  if (typeof sessionStorage === 'undefined') {
+    return undefined;
+  }
+
+  return createWebCheckoutStorage(sessionStorage);
+}
 
 export interface UseCheckoutFlowOptions {
   publishableKey: string;
@@ -15,6 +26,7 @@ export interface UseCheckoutFlowOptions {
   listingId?: string;
   mode?: 'buy' | 'sell';
   testMode?: boolean;
+  storage?: CheckoutStorageAdapter;
   enabled: boolean;
   onComplete?: (escrow: Escrow) => void;
   onDispute?: (escrow: Escrow) => void;
@@ -44,21 +56,10 @@ export interface UseCheckoutFlowResult {
   retry: () => void;
 }
 
-const INITIAL_STATE: CheckoutFlowState = {
-  step: 'loading',
-  sessionId: null,
-  listings: [],
-  selectedListing: null,
-  escrow: null,
-  quote: null,
-  error: null,
-  milestones: [],
-  testMode: false,
-};
-
 export function useCheckoutFlow(options: UseCheckoutFlowOptions): UseCheckoutFlowResult {
-  const [state, setState] = useState<CheckoutFlowState>(INITIAL_STATE);
+  const [state, setState] = useState<CheckoutFlowState>(() => createInitialCheckoutState());
   const controllerRef = useRef<CheckoutFlowController | null>(null);
+  const storage = useMemo(() => options.storage ?? defaultCheckoutStorage(), [options.storage]);
 
   const onCompleteRef = useRef(options.onComplete);
   const onDisputeRef = useRef(options.onDispute);
@@ -83,6 +84,7 @@ export function useCheckoutFlow(options: UseCheckoutFlowOptions): UseCheckoutFlo
       listingId: options.listingId,
       mode: options.mode,
       testMode: options.testMode,
+      storage,
       onChange: setState,
       onComplete: (escrow) => onCompleteRef.current?.(escrow),
       onDispute: (escrow) => onDisputeRef.current?.(escrow),
@@ -96,7 +98,6 @@ export function useCheckoutFlow(options: UseCheckoutFlowOptions): UseCheckoutFlo
     return () => {
       controller.destroy();
       controllerRef.current = null;
-      setState(INITIAL_STATE);
     };
   }, [
     options.enabled,
@@ -105,6 +106,7 @@ export function useCheckoutFlow(options: UseCheckoutFlowOptions): UseCheckoutFlo
     options.mode,
     options.publishableKey,
     options.testMode,
+    storage,
   ]);
 
   return {
