@@ -57,9 +57,9 @@ vi.mock('../keys.js', () => ({
   cutoverApiKey: vi.fn(),
 }));
 
+import * as keys from '../keys.js';
 import * as delivery from '../webhooks/delivery.js';
 import * as endpoints from '../webhooks/endpoints.js';
-import * as keys from '../keys.js';
 
 describe('contract: admin routes', () => {
   beforeEach(() => {

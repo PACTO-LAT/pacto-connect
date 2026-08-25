@@ -1,4 +1,3 @@
-import { type HttpClientOptions, request } from './http.js';
 import type {
   CancelEscrowParams,
   CreateEscrowParams,
@@ -14,6 +13,7 @@ import type {
   ResolveDisputeParams,
   Subscription,
 } from './api-types.js';
+import { type HttpClientOptions, request } from './http.js';
 
 export type {
   CancelEscrowParams,

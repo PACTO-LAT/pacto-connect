@@ -1,10 +1,10 @@
+import type { GatewayErrorBody } from './api-types.js';
 import {
   classifyGatewayError,
   isPactoErrorCode,
   type PactoErrorCode,
   REQUEST_ID_HEADER,
 } from './taxonomy.js';
-import type { GatewayErrorBody } from './api-types.js';
 
 export type { GatewayErrorBody };
 

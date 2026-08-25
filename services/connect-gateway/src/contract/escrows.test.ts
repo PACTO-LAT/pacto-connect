@@ -129,10 +129,10 @@ describe('contract: escrow routes', () => {
     });
     const created = (await createRes.json()) as { escrow: { id: string } };
 
-    const eventsRes = await app.request(
-      `/v1/escrows/events?escrowId=${created.escrow.id}`,
-      { headers, signal: AbortSignal.timeout(100) },
-    );
+    const eventsRes = await app.request(`/v1/escrows/events?escrowId=${created.escrow.id}`, {
+      headers,
+      signal: AbortSignal.timeout(100),
+    });
 
     await expectResponseMatchesSpec(eventsRes, {
       method: 'GET',

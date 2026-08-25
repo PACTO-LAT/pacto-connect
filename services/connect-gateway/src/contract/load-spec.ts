@@ -21,16 +21,7 @@ export async function loadOpenApiSpec(): Promise<OpenAPIV3_1.Document> {
 
 export type OpenApiRoute = { method: string; path: string };
 
-const HTTP_METHODS = new Set([
-  'get',
-  'post',
-  'put',
-  'patch',
-  'delete',
-  'head',
-  'options',
-  'trace',
-]);
+const HTTP_METHODS = new Set(['get', 'post', 'put', 'patch', 'delete', 'head', 'options', 'trace']);
 
 export async function listOpenApiRoutes(): Promise<OpenApiRoute[]> {
   const spec = await loadOpenApiSpec();

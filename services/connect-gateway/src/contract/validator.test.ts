@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { loadOpenApiSpec } from './load-spec.js';
 import { validateAgainstSchema } from './assert-response.js';
+import { loadOpenApiSpec } from './load-spec.js';
 
 describe('contract: response validator', () => {
   it('rejects a success body missing a required field', async () => {

@@ -6,7 +6,10 @@ import SwaggerParser from '@apidevtools/swagger-parser';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const specEntry = path.join(repoRoot, 'services/connect-gateway/openapi/openapi.yaml');
-const bundledSpecPath = path.join(repoRoot, 'services/connect-gateway/openapi/gateway.bundled.yaml');
+const bundledSpecPath = path.join(
+  repoRoot,
+  'services/connect-gateway/openapi/gateway.bundled.yaml',
+);
 const outputPath = path.join(repoRoot, 'packages/connect-core/src/generated/openapi.ts');
 
 async function main(): Promise<void> {
@@ -15,11 +18,10 @@ async function main(): Promise<void> {
   writeFileSync(bundledSpecPath, JSON.stringify(bundled, null, 2));
 
   mkdirSync(path.dirname(outputPath), { recursive: true });
-  execFileSync(
-    'npx',
-    ['openapi-typescript', bundledSpecPath, '-o', outputPath],
-    { cwd: repoRoot, stdio: 'inherit' },
-  );
+  execFileSync('npx', ['openapi-typescript', bundledSpecPath, '-o', outputPath], {
+    cwd: repoRoot,
+    stdio: 'inherit',
+  });
 
   const generated = readFileSync(outputPath, 'utf8');
   if (!generated.startsWith('// @ts-nocheck')) {
