@@ -196,7 +196,13 @@ describe('PactoApiClient escrows lifecycle', () => {
     vi.mocked(fetch).mockResolvedValue(
       mockFetchResponse(200, {
         escrow: { ...escrow, status: 'released', refundedAmount: '25', remainingAmount: '75' },
-        refund: { id: 'ref_1', escrowId: 'esc_1', amount: 25, reason: 'partial', actor: 'merchant' },
+        refund: {
+          id: 'ref_1',
+          escrowId: 'esc_1',
+          amount: 25,
+          reason: 'partial',
+          actor: 'merchant',
+        },
       }) as Response,
     );
 

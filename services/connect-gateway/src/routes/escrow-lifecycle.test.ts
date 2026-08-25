@@ -74,8 +74,8 @@ vi.mock('../idempotency.js', async (importOriginal) => {
 });
 
 import { prisma } from '../db.js';
-import * as keys from '../keys.js';
 import { beginIdempotency, completeIdempotency } from '../idempotency.js';
+import * as keys from '../keys.js';
 import {
   emitDisputeOpened,
   emitDisputeResolved,
@@ -410,13 +410,11 @@ describe('escrow lifecycle routes', () => {
     const idempotencyKey = 'idem-cancel-1';
     const replayBody = JSON.stringify({ escrow: { id: escrowId, status: 'cancelled' } });
 
-    vi.mocked(beginIdempotency)
-      .mockResolvedValueOnce({ kind: 'proceed' })
-      .mockResolvedValueOnce({
-        kind: 'replay',
-        statusCode: 200,
-        responseBody: replayBody,
-      });
+    vi.mocked(beginIdempotency).mockResolvedValueOnce({ kind: 'proceed' }).mockResolvedValueOnce({
+      kind: 'replay',
+      statusCode: 200,
+      responseBody: replayBody,
+    });
 
     const first = await app.request(`/v1/escrows/${escrowId}/cancel`, {
       method: 'POST',

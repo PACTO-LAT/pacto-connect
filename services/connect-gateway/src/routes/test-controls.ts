@@ -2,9 +2,9 @@ import type { ApiKey } from '@prisma/client';
 import { Hono } from 'hono';
 import { prisma } from '../db.js';
 import { toGatewayErrorBody } from '../errors.js';
+import { openDisputeEscrow, SimulatorError } from '../escrow/lifecycle.js';
 import { chargeSubscription } from '../subscriptions/charge.js';
 import { getSubscription } from '../subscriptions/subscriptions.js';
-import { openDisputeEscrow, SimulatorError } from '../escrow/lifecycle.js';
 import { getSimulator } from '../testmode/simulator.js';
 import { authenticateEscrowRequest, serializeEscrow, simulatorErrorResponse } from './escrows.js';
 
@@ -57,7 +57,10 @@ testControls.post('/escrows/:id/dispute', async (c) => {
       evidenceRefs: [],
     });
     if (!result) {
-      return c.json(toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'), 404);
+      return c.json(
+        toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'),
+        404,
+      );
     }
     return c.json({ escrow: serializeEscrow(result.data.escrow) });
   } catch (error) {
@@ -92,7 +95,10 @@ testControls.post('/escrows/:id/timeout', async (c) => {
       evidenceRefs: [],
     });
     if (!result) {
-      return c.json(toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'), 404);
+      return c.json(
+        toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'),
+        404,
+      );
     }
     return c.json({ escrow: serializeEscrow(result.data.escrow) });
   } catch (error) {

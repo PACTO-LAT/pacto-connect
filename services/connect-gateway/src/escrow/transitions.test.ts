@@ -68,15 +68,17 @@ describe('assertTransition — happy paths', () => {
   });
 
   it('resolve dispute to release', () => {
-    expect(
-      assertTransition('disputed', { type: 'resolve_dispute', outcome: 'release' }),
-    ).toEqual({ ok: true, nextStatus: 'released' });
+    expect(assertTransition('disputed', { type: 'resolve_dispute', outcome: 'release' })).toEqual({
+      ok: true,
+      nextStatus: 'released',
+    });
   });
 
   it('resolve dispute to refund', () => {
-    expect(
-      assertTransition('disputed', { type: 'resolve_dispute', outcome: 'refund' }),
-    ).toEqual({ ok: true, nextStatus: 'refunded' });
+    expect(assertTransition('disputed', { type: 'resolve_dispute', outcome: 'refund' })).toEqual({
+      ok: true,
+      nextStatus: 'refunded',
+    });
   });
 });
 

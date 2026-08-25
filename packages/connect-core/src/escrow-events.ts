@@ -101,7 +101,13 @@ function mapToEscrowEvent(
     ...(Object.keys(payload).length > 0
       ? {
           data: Object.fromEntries(
-            Object.entries(payload).filter(([key]) => key !== 'escrowId' && key !== 'occurredAt' && key !== 'milestone' && key !== 'timestamp'),
+            Object.entries(payload).filter(
+              ([key]) =>
+                key !== 'escrowId' &&
+                key !== 'occurredAt' &&
+                key !== 'milestone' &&
+                key !== 'timestamp',
+            ),
           ),
         }
       : {}),

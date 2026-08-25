@@ -7,8 +7,8 @@ import { idempotency } from '../middleware/idempotency.js';
 import { validateClientSecret } from '../sessions.js';
 import {
   getSimulator,
-  SimulatorError,
   type SimulatorDispute,
+  SimulatorError,
   type SimulatorEscrow,
   type SimulatorEvent,
 } from '../testmode/simulator.js';
@@ -104,8 +104,7 @@ export function serializeRefund(refund: {
     amount: String(refund.amount),
     reason: refund.reason,
     actor: refund.actor,
-    createdAt:
-      refund.createdAt instanceof Date ? refund.createdAt.toISOString() : refund.createdAt,
+    createdAt: refund.createdAt instanceof Date ? refund.createdAt.toISOString() : refund.createdAt,
   };
 }
 
@@ -136,8 +135,10 @@ export function serializeDispute(dispute: {
         : dispute.resolvedAt
       : null,
     resolutionNote: dispute.resolutionNote ?? null,
-    createdAt: dispute.createdAt instanceof Date ? dispute.createdAt.toISOString() : dispute.createdAt,
-    updatedAt: dispute.updatedAt instanceof Date ? dispute.updatedAt.toISOString() : dispute.updatedAt,
+    createdAt:
+      dispute.createdAt instanceof Date ? dispute.createdAt.toISOString() : dispute.createdAt,
+    updatedAt:
+      dispute.updatedAt instanceof Date ? dispute.updatedAt.toISOString() : dispute.updatedAt,
   };
 }
 

@@ -1,6 +1,11 @@
 import type { EscrowActor, EscrowDispute, EscrowRefund } from '@prisma/client';
 import { prisma } from '../db.js';
-import { SimulatorError, type SimulatorDispute, type SimulatorEscrow, getSimulator } from '../testmode/simulator.js';
+import {
+  getSimulator,
+  type SimulatorDispute,
+  SimulatorError,
+  type SimulatorEscrow,
+} from '../testmode/simulator.js';
 import {
   emitDisputeOpened,
   emitDisputeResolved,
@@ -16,7 +21,13 @@ export interface LifecycleResult<T> {
 }
 
 function mapActor(value: string): EscrowActor {
-  if (value === 'buyer' || value === 'seller' || value === 'merchant' || value === 'admin' || value === 'system') {
+  if (
+    value === 'buyer' ||
+    value === 'seller' ||
+    value === 'merchant' ||
+    value === 'admin' ||
+    value === 'system'
+  ) {
     return value;
   }
   return 'system';

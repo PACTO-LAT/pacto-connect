@@ -162,7 +162,10 @@ export interface EscrowsResource {
   reportFiatPayment(id: string, params: FiatReceiptParams): Promise<{ escrow: Escrow }>;
   cancel(id: string, params?: CancelEscrowParams): Promise<{ escrow: Escrow }>;
   refund(id: string, params: RefundEscrowParams): Promise<{ escrow: Escrow; refund: EscrowRefund }>;
-  openDispute(id: string, params: OpenDisputeParams): Promise<{ escrow: Escrow; dispute: EscrowDispute }>;
+  openDispute(
+    id: string,
+    params: OpenDisputeParams,
+  ): Promise<{ escrow: Escrow; dispute: EscrowDispute }>;
   resolveDispute(
     id: string,
     disputeId: string,

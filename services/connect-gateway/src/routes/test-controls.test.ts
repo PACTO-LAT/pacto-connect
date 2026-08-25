@@ -72,10 +72,10 @@ vi.mock('../webhooks/events.js', () => ({
 
 vi.mock('../subscriptions/charge.js', () => ({ chargeSubscription: vi.fn() }));
 
+import type { EscrowDispute } from '@prisma/client';
 import { prisma } from '../db.js';
 import * as keys from '../keys.js';
 import { chargeSubscription } from '../subscriptions/charge.js';
-import type { EscrowDispute } from '@prisma/client';
 
 function testHeaders(apiKey: ApiKey = mockApiKey) {
   return {

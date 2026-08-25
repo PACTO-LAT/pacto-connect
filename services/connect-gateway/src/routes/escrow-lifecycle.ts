@@ -1,5 +1,6 @@
 import type { ApiKey } from '@prisma/client';
 import { Hono } from 'hono';
+import { toGatewayErrorBody } from '../errors.js';
 import {
   cancelEscrow,
   openDisputeEscrow,
@@ -7,7 +8,6 @@ import {
   resolveDisputeEscrow,
   SimulatorError,
 } from '../escrow/lifecycle.js';
-import { toGatewayErrorBody } from '../errors.js';
 import { idempotency } from '../middleware/idempotency.js';
 import {
   authenticateEscrowRequest,
@@ -22,7 +22,9 @@ type EscrowRouteVariables = { apiKey: ApiKey; requestId?: string };
 
 const lifecycle = new Hono<{ Variables: EscrowRouteVariables }>();
 
-function extractAdminToken(c: { req: { header: (name: string) => string | undefined } }): string | null {
+function extractAdminToken(c: {
+  req: { header: (name: string) => string | undefined };
+}): string | null {
   const authorization = c.req.header('Authorization');
   if (!authorization?.startsWith('Bearer ')) {
     return null;
@@ -34,11 +36,17 @@ function extractAdminToken(c: { req: { header: (name: string) => string | undefi
 function adminAuth(c: Parameters<typeof authenticateEscrowRequest>[0]): Response | null {
   const expected = process.env.GATEWAY_ADMIN_TOKEN;
   if (!expected) {
-    return c.json(toGatewayErrorBody('gateway_error', 'not_configured', 'admin token not configured'), 503);
+    return c.json(
+      toGatewayErrorBody('gateway_error', 'not_configured', 'admin token not configured'),
+      503,
+    );
   }
   const token = extractAdminToken(c);
   if (!token || token !== expected) {
-    return c.json(toGatewayErrorBody('auth_error', 'invalid_admin_token', 'Admin authorization required'), 401);
+    return c.json(
+      toGatewayErrorBody('auth_error', 'invalid_admin_token', 'Admin authorization required'),
+      401,
+    );
   }
   return null;
 }
@@ -65,7 +73,10 @@ lifecycle.post('/:id/cancel', idempotency(), async (c) => {
     });
 
     if (!result) {
-      return c.json(toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'), 404);
+      return c.json(
+        toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'),
+        404,
+      );
     }
 
     return c.json({ escrow: serializeEscrow(result.data.escrow) });
@@ -91,15 +102,24 @@ lifecycle.post('/:id/refund', idempotency(), async (c) => {
   const body = await c.req.json<{ amount?: string; reason?: string }>();
 
   if (!body.amount || typeof body.amount !== 'string') {
-    return c.json(toGatewayErrorBody('validation_error', 'invalid_request', 'amount is required'), 400);
+    return c.json(
+      toGatewayErrorBody('validation_error', 'invalid_request', 'amount is required'),
+      400,
+    );
   }
   if (!body.reason || typeof body.reason !== 'string') {
-    return c.json(toGatewayErrorBody('validation_error', 'invalid_request', 'reason is required'), 400);
+    return c.json(
+      toGatewayErrorBody('validation_error', 'invalid_request', 'reason is required'),
+      400,
+    );
   }
 
   const amount = Number(body.amount);
   if (!Number.isFinite(amount)) {
-    return c.json(toGatewayErrorBody('validation_error', 'invalid_request', 'amount must be a number'), 400);
+    return c.json(
+      toGatewayErrorBody('validation_error', 'invalid_request', 'amount must be a number'),
+      400,
+    );
   }
 
   try {
@@ -113,7 +133,10 @@ lifecycle.post('/:id/refund', idempotency(), async (c) => {
     });
 
     if (!result) {
-      return c.json(toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'), 404);
+      return c.json(
+        toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'),
+        404,
+      );
     }
 
     return c.json({
@@ -152,7 +175,10 @@ lifecycle.post('/:id/disputes', idempotency(), async (c) => {
     );
   }
   if (!body.reason || typeof body.reason !== 'string') {
-    return c.json(toGatewayErrorBody('validation_error', 'invalid_request', 'reason is required'), 400);
+    return c.json(
+      toGatewayErrorBody('validation_error', 'invalid_request', 'reason is required'),
+      400,
+    );
   }
 
   try {
@@ -168,7 +194,10 @@ lifecycle.post('/:id/disputes', idempotency(), async (c) => {
     });
 
     if (!result) {
-      return c.json(toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'), 404);
+      return c.json(
+        toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'),
+        404,
+      );
     }
 
     return c.json({
@@ -198,7 +227,11 @@ lifecycle.post('/:id/disputes/:disputeId/resolve', idempotency(), async (c) => {
 
   if (body.outcome !== 'release' && body.outcome !== 'refund') {
     return c.json(
-      toGatewayErrorBody('validation_error', 'invalid_request', 'outcome must be release or refund'),
+      toGatewayErrorBody(
+        'validation_error',
+        'invalid_request',
+        'outcome must be release or refund',
+      ),
       400,
     );
   }
@@ -213,7 +246,10 @@ lifecycle.post('/:id/disputes/:disputeId/resolve', idempotency(), async (c) => {
     });
 
     if (!result) {
-      return c.json(toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'), 404);
+      return c.json(
+        toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'),
+        404,
+      );
     }
 
     return c.json({

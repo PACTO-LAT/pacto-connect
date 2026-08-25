@@ -20,8 +20,7 @@ export const emitDisputeOpened = (
   apiKeyId: string,
   data: Prisma.InputJsonValue,
   merchantId?: string,
-): Promise<DispatchResult> =>
-  dispatchEvent({ apiKeyId, merchantId, type: 'dispute.opened', data });
+): Promise<DispatchResult> => dispatchEvent({ apiKeyId, merchantId, type: 'dispute.opened', data });
 
 export const emitEscrowCancelled = (
   apiKeyId: string,

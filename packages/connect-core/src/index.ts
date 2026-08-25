@@ -85,11 +85,11 @@ export type {
 export {
   classifyGatewayError,
   ESCROW_DETAIL_CODES,
+  type EscrowDetailCode,
   generateRequestId,
   isEscrowDetailCode,
   isPactoErrorCode,
   PACTO_ERROR_CODES,
-  type EscrowDetailCode,
   type PactoErrorCode,
   REQUEST_ID_HEADER,
 } from './taxonomy.js';
