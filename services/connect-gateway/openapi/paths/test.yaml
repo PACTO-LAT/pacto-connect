@@ -1,0 +1,150 @@
+/v1/test/escrows/{id}/dispute:
+  post:
+    operationId: testForceDispute
+    summary: Force escrow into dispute (test mode)
+    tags: [test]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/EscrowIdPath'
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/TestDisputeRequest'
+    responses:
+      '200':
+        description: Escrow disputed
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/EscrowResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/test/escrows/{id}/timeout:
+  post:
+    operationId: testForceTimeout
+    summary: Force escrow timeout dispute (test mode)
+    tags: [test]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/EscrowIdPath'
+    responses:
+      '200':
+        description: Escrow timed out
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/EscrowResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/test/escrows/{id}/release:
+  post:
+    operationId: testForceRelease
+    summary: Force escrow release (test mode)
+    tags: [test]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/EscrowIdPath'
+    responses:
+      '200':
+        description: Escrow released
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/EscrowResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/test/subscriptions/{id}/advance:
+  post:
+    operationId: testAdvanceSubscription
+    summary: Advance subscription billing cycle (test mode)
+    tags: [test]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/SubscriptionIdPath'
+    responses:
+      '200':
+        description: Charge attempted
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/ChargeResultResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/test/subscriptions/{id}/fail-next:
+  post:
+    operationId: testFailNextCharge
+    summary: Mark next subscription charge to fail (test mode)
+    tags: [test]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/SubscriptionIdPath'
+    responses:
+      '200':
+        description: Flag set
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/OkResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'

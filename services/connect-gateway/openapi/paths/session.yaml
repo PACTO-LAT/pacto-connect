@@ -1,0 +1,76 @@
+/v1/session:
+  post:
+    operationId: createSession
+    summary: Create a checkout session
+    tags: [session]
+    security:
+      - PublishableKey: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/IdempotencyKeyHeader'
+      - $ref: '../components/parameters.yaml#/RequestIdHeader'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/CreateSessionRequest'
+    responses:
+      '200':
+        description: Session created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/SessionResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '410':
+        $ref: '../components/responses.yaml#/Gone'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses.yaml#/InternalError'
+
+/v1/session/refresh:
+  post:
+    operationId: refreshSession
+    summary: Refresh a checkout session
+    tags: [session]
+    security:
+      - PublishableKey: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/RequestIdHeader'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/RefreshSessionRequest'
+    responses:
+      '200':
+        description: Session refreshed
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/SessionResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '410':
+        $ref: '../components/responses.yaml#/Gone'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses.yaml#/InternalError'

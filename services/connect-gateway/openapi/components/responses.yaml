@@ -1,0 +1,73 @@
+BadRequest:
+  description: Validation error
+  content:
+    application/json:
+      schema:
+        $ref: './schemas.yaml#/ErrorEnvelope'
+
+Unauthorized:
+  description: Authentication required or invalid credentials
+  content:
+    application/json:
+      schema:
+        $ref: './schemas.yaml#/ErrorEnvelope'
+
+Forbidden:
+  description: Origin or key not allowed
+  content:
+    application/json:
+      schema:
+        $ref: './schemas.yaml#/ErrorEnvelope'
+
+NotFound:
+  description: Resource not found
+  content:
+    application/json:
+      schema:
+        $ref: './schemas.yaml#/ErrorEnvelope'
+
+Conflict:
+  description: Conflict (idempotency, replay, state transition)
+  content:
+    application/json:
+      schema:
+        $ref: './schemas.yaml#/ErrorEnvelope'
+
+Gone:
+  description: Resource expired
+  content:
+    application/json:
+      schema:
+        $ref: './schemas.yaml#/ErrorEnvelope'
+
+TooManyRequests:
+  description: Rate limit exceeded
+  headers:
+    Retry-After:
+      schema:
+        type: string
+  content:
+    application/json:
+      schema:
+        $ref: './schemas.yaml#/ErrorEnvelope'
+
+NotImplemented:
+  description: Live mode not implemented
+  content:
+    application/json:
+      schema:
+        $ref: './schemas.yaml#/ErrorEnvelope'
+
+ServiceUnavailable:
+  description: Service not configured
+  content:
+    application/json:
+      schema:
+        $ref: './schemas.yaml#/ErrorEnvelope'
+
+InternalError:
+  description: Internal server error
+  content:
+    application/json:
+      schema:
+        $ref: './schemas.yaml#/ErrorEnvelope'

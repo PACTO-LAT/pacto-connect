@@ -1,0 +1,26 @@
+/v1/webhooks/inbound:
+  post:
+    operationId: receiveInboundWebhook
+    summary: Receive an inbound webhook from Pacto
+    tags: [webhooks]
+    security:
+      - WebhookSignature: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/InboundWebhookRequest'
+    responses:
+      '200':
+        description: Event accepted
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/InboundWebhookResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '500':
+        $ref: '../components/responses.yaml#/InternalError'

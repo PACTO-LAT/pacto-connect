@@ -1,0 +1,366 @@
+/v1/escrows/events:
+  get:
+    operationId: streamEscrowEvents
+    summary: Stream escrow lifecycle events (SSE)
+    tags: [escrows]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/LastEventIdHeader'
+      - $ref: '../components/parameters.yaml#/EscrowEventsEscrowIdQuery'
+      - $ref: '../components/parameters.yaml#/EscrowEventsCursorQuery'
+    responses:
+      '200':
+        description: Server-sent events stream
+        content:
+          text/event-stream:
+            schema:
+              type: string
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/escrows:
+  post:
+    operationId: createEscrow
+    summary: Create an escrow
+    tags: [escrows]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/IdempotencyKeyHeader'
+      - $ref: '../components/parameters.yaml#/RequestIdHeader'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/CreateEscrowRequest'
+    responses:
+      '200':
+        description: Escrow created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/EscrowResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses.yaml#/InternalError'
+
+/v1/escrows/{id}:
+  get:
+    operationId: getEscrow
+    summary: Retrieve an escrow
+    tags: [escrows]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/EscrowIdPath'
+    responses:
+      '200':
+        description: Escrow details
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/EscrowResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/escrows/{id}/status:
+  get:
+    operationId: getEscrowStatus
+    summary: Get escrow status
+    tags: [escrows]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/EscrowIdPath'
+    responses:
+      '200':
+        description: Escrow status
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/EscrowStatusResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/escrows/{id}/deposit:
+  post:
+    operationId: depositEscrow
+    summary: Deposit funds into escrow
+    tags: [escrows]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/EscrowIdPath'
+    responses:
+      '200':
+        description: Escrow deposited
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/EscrowResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/escrows/{id}/fiat-report:
+  post:
+    operationId: reportFiatPayment
+    summary: Report fiat payment receipt
+    tags: [escrows]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/EscrowIdPath'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/FiatReportRequest'
+    responses:
+      '200':
+        description: Fiat payment reported
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/EscrowResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/escrows/{id}/cancel:
+  post:
+    operationId: cancelEscrow
+    summary: Cancel an escrow
+    tags: [escrows]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/IdempotencyKeyHeader'
+      - $ref: '../components/parameters.yaml#/EscrowIdPath'
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/CancelEscrowRequest'
+    responses:
+      '200':
+        description: Escrow cancelled
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/EscrowResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/escrows/{id}/refund:
+  post:
+    operationId: refundEscrow
+    summary: Refund an escrow
+    tags: [escrows]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/IdempotencyKeyHeader'
+      - $ref: '../components/parameters.yaml#/EscrowIdPath'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/RefundEscrowRequest'
+    responses:
+      '200':
+        description: Escrow refunded
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/EscrowRefundResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/escrows/{id}/disputes:
+  post:
+    operationId: openEscrowDispute
+    summary: Open an escrow dispute
+    tags: [escrows]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/IdempotencyKeyHeader'
+      - $ref: '../components/parameters.yaml#/EscrowIdPath'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/OpenDisputeRequest'
+    responses:
+      '200':
+        description: Dispute opened
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/EscrowDisputeResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/escrows/{id}/disputes/{disputeId}/resolve:
+  post:
+    operationId: resolveEscrowDispute
+    summary: Resolve an escrow dispute (admin)
+    tags: [escrows]
+    security:
+      - PublishableKey: []
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/IdempotencyKeyHeader'
+      - $ref: '../components/parameters.yaml#/EscrowIdPath'
+      - $ref: '../components/parameters.yaml#/DisputeIdPath'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/ResolveDisputeRequest'
+    responses:
+      '200':
+        description: Dispute resolved
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/EscrowDisputeResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'

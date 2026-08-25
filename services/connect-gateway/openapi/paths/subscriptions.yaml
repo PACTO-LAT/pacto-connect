@@ -1,0 +1,124 @@
+/v1/subscriptions:
+  post:
+    operationId: createSubscription
+    summary: Create a subscription
+    tags: [subscriptions]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/IdempotencyKeyHeader'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/CreateSubscriptionRequest'
+    responses:
+      '200':
+        description: Subscription created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/SubscriptionResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses.yaml#/InternalError'
+  get:
+    operationId: listSubscriptions
+    summary: List subscriptions for the session
+    tags: [subscriptions]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+    responses:
+      '200':
+        description: Subscription list
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/SubscriptionListResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/subscriptions/{id}:
+  get:
+    operationId: getSubscription
+    summary: Retrieve a subscription
+    tags: [subscriptions]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/SubscriptionIdPath'
+    responses:
+      '200':
+        description: Subscription details
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/SubscriptionResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+
+/v1/subscriptions/{id}/cancel:
+  post:
+    operationId: cancelSubscription
+    summary: Cancel a subscription
+    tags: [subscriptions]
+    security:
+      - PublishableKey: []
+      - ClientSecret: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/SubscriptionIdPath'
+    responses:
+      '200':
+        description: Subscription cancelled
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/SubscriptionResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '501':
+        $ref: '../components/responses.yaml#/NotImplemented'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
