@@ -31,6 +31,24 @@ describe('quotes service', () => {
     expect(result.effectiveRate).toBeDefined();
   });
 
+  it.each([
+    { from: 'USD' as const, to: 'CRC' as const, expectedRate: 510 },
+    { from: 'USD' as const, to: 'MXN' as const, expectedRate: 17 },
+    { from: 'CRC' as const, to: 'MXN' as const, expectedRate: 17 / 510 },
+  ])('matches pre-migration golden rate for $from->$to', ({ from, to, expectedRate }) => {
+    const result = createQuote({
+      apiKeyId: 'key_1',
+      from,
+      to,
+      amount: 1,
+      spreadBps: 0,
+    });
+
+    expect(result.baseRate).toBeCloseTo(expectedRate);
+    expect(result.source).toBe('static');
+    expect(result.asOf).toBe('2025-06-01T00:00:00.000Z');
+  });
+
   it('round-trips a freshly created token', () => {
     const result = createQuote({
       apiKeyId: 'key_1',

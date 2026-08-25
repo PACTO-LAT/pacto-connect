@@ -89,6 +89,26 @@ export {
   resolveMessages,
 } from './i18n.js';
 export { isTestMode, keyMode } from './keys.js';
+export {
+  assertPaymentRailConformance,
+  createDefaultPaymentRailRegistry,
+  createPaymentRailRegistry,
+  createSinpeRail,
+  createSpeiRail,
+  type PaymentInstruction,
+  type PaymentInstructionInput,
+  type PaymentRailAdapter,
+  type PaymentRailRegistry,
+  RAIL_ADAPTER_CONTRACT_VERSION,
+  RailError,
+  type RailErrorCode,
+  type RailQuoteInput,
+  type RailQuoteResult,
+  type SettlementConfirmation,
+  type SettlementConfirmationInput,
+  sinpeRail,
+  speiRail,
+} from './rails/index.js';
 export type {
   CancelEscrowParams,
   CreateEscrowParams,
