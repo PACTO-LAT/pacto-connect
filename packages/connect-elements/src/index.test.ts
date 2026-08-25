@@ -1,4 +1,4 @@
-import { isOriginAllowed } from '@pacto-connect/core';
+import { createMemoryCheckoutStorage, isOriginAllowed } from '@pacto-connect/core';
 import { waitFor } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -26,7 +26,7 @@ const quote = {
   amount: '100',
   price: '5000',
   side: 'buy' as const,
-  expiresAt: '2024-01-02T00:00:00.000Z',
+  expiresAt: '2099-01-01T00:00:00.000Z',
   createdAt: '2024-01-01T00:00:00.000Z',
 };
 
@@ -138,6 +138,7 @@ describe('@pacto-connect/elements', () => {
   beforeEach(() => {
     registerPactoCheckoutElement();
     document.body.innerHTML = '<div id="checkout-root"></div>';
+    sessionStorage.clear();
   });
 
   afterEach(() => {
@@ -355,6 +356,42 @@ describe('@pacto-connect/elements', () => {
 
     handle.destroy();
     postMessage.mockRestore();
+  });
+
+  it('resumes persisted flow after teardown and reopen with shared storage', async () => {
+    const storage = createMemoryCheckoutStorage();
+    const fetchMock = createFetchMock();
+    vi.stubGlobal('fetch', fetchMock);
+
+    const handle = mount('#checkout-root', {
+      publishableKey,
+      gatewayUrl,
+      listingId,
+      storage,
+    });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="deposit-step"]')).toBeTruthy();
+    });
+
+    handle.destroy();
+
+    mount('#checkout-root', {
+      publishableKey,
+      gatewayUrl,
+      listingId,
+      storage,
+    });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="deposit-step"]')).toBeTruthy();
+    });
+
+    const sessionPostsAfterFirst = fetchMock.mock.calls.filter(
+      ([input, init]) =>
+        String(input).includes('/v1/session') && (init?.method ?? 'GET') === 'POST',
+    );
+    expect(sessionPostsAfterFirst).toHaveLength(1);
   });
 
   it('works as a plain HTML custom element with session-id', async () => {

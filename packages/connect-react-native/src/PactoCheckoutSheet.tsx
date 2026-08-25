@@ -1,13 +1,29 @@
-import type { CheckoutMode, CheckoutStep, Escrow } from '@pacto-connect/core';
-import { useCallback, useMemo, useRef } from 'react';
+import type {
+  CheckoutMode,
+  CheckoutStep,
+  CheckoutStorageAdapter,
+  Escrow,
+} from '@pacto-connect/core';
+import { type CheckoutSnapshot, serializeCheckoutSnapshot } from '@pacto-connect/core';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, Modal, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import WebView, { type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview';
 import {
+  buildCheckoutSnapshotScope,
+  checkoutStorageKey,
+  createDefaultReactNativeCheckoutStorage,
+  isCheckoutSnapshotExpired,
+  parseCheckoutSnapshot,
+} from './checkout-storage.js';
+import {
   BRIDGE_SHIM_SCRIPT,
+  buildCheckoutStorageSeedScript,
+  buildCheckoutStorageSyncScript,
   buildCheckoutUrl,
   buildInboundBridgeScript,
   checkoutOrigin,
   dispatchBridgeMessage,
+  parseCheckoutStorageSyncMessage,
   parseWebViewBridgeMessage,
 } from './webview-bridge.js';
 
@@ -20,6 +36,7 @@ export interface PactoCheckoutSheetProps {
   sessionId?: string;
   mode?: CheckoutMode;
   testMode?: boolean;
+  storage?: CheckoutStorageAdapter;
   /**
    * App deep-link (custom scheme or universal link) the hosted page should
    * navigate to after an external payment step. Pair with `usePactoDeepLink`
@@ -62,6 +79,56 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
   // `undefined` and `WebViewProps & undefined` is unusable. Instantiating it
   // explicitly works around the upstream declaration, independent of the ref.
   const webViewRef = useRef<WebView<object>>(null);
+  const storage = useMemo(
+    () => props.storage ?? createDefaultReactNativeCheckoutStorage(),
+    [props.storage],
+  );
+
+  const snapshotScope = useMemo(
+    () =>
+      buildCheckoutSnapshotScope({
+        publishableKey: props.publishableKey,
+        listingId: props.listingId,
+        mode: props.mode ?? 'buy',
+      }),
+    [props.publishableKey, props.listingId, props.mode],
+  );
+
+  const storageKey = useMemo(() => checkoutStorageKey(snapshotScope), [snapshotScope]);
+  const [resumedSnapshot, setResumedSnapshot] = useState<CheckoutSnapshot | null>(null);
+
+  useEffect(() => {
+    if (!props.visible) {
+      setResumedSnapshot(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    void Promise.resolve(storage.getItem(storageKey)).then((raw) => {
+      if (cancelled) {
+        return;
+      }
+
+      if (!raw) {
+        setResumedSnapshot(null);
+        return;
+      }
+
+      const snapshot = parseCheckoutSnapshot(raw);
+      if (!snapshot || isCheckoutSnapshotExpired(snapshot, Date.now())) {
+        void Promise.resolve(storage.removeItem(storageKey));
+        setResumedSnapshot(null);
+        return;
+      }
+
+      setResumedSnapshot(snapshot);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [props.visible, storage, storageKey]);
 
   const uri = useMemo(
     () =>
@@ -69,7 +136,7 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
         checkoutUrl: props.checkoutUrl,
         publishableKey: props.publishableKey,
         listingId: props.listingId,
-        sessionId: props.sessionId,
+        sessionId: props.sessionId ?? resumedSnapshot?.sessionId,
         mode: props.mode,
         testMode: props.testMode,
         returnUrl: props.returnUrl,
@@ -82,10 +149,34 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
       props.mode,
       props.testMode,
       props.returnUrl,
+      resumedSnapshot?.sessionId,
     ],
   );
 
+  const injectedBeforeLoad = useMemo(() => {
+    if (!resumedSnapshot) {
+      return BRIDGE_SHIM_SCRIPT;
+    }
+
+    return `${buildCheckoutStorageSeedScript(storageKey, serializeCheckoutSnapshot(resumedSnapshot))}${BRIDGE_SHIM_SCRIPT}`;
+  }, [resumedSnapshot, storageKey]);
+
   const expectedOrigin = useMemo(() => checkoutOrigin(props.checkoutUrl), [props.checkoutUrl]);
+
+  const syncHostedStorage = useCallback(() => {
+    webViewRef.current?.injectJavaScript(buildCheckoutStorageSyncScript());
+  }, []);
+
+  const persistSyncedSnapshot = useCallback(
+    (payload: { key: string; value: string }) => {
+      if (payload.key !== storageKey) {
+        return;
+      }
+
+      void Promise.resolve(storage.setItem(storageKey, payload.value));
+    },
+    [storage, storageKey],
+  );
 
   const handleClose = useCallback(() => {
     // Mirrors `mountFrame().close()`: ask the embedded checkout to close
@@ -99,6 +190,12 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
 
   const handleMessage = useCallback(
     (event: WebViewMessageEvent) => {
+      const storageSync = parseCheckoutStorageSyncMessage(event.nativeEvent.data);
+      if (storageSync) {
+        persistSyncedSnapshot(storageSync);
+        return;
+      }
+
       const message = parseWebViewBridgeMessage(
         event.nativeEvent.data,
         event.nativeEvent.url,
@@ -109,9 +206,18 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
       }
 
       dispatchBridgeMessage(message, {
-        onReady: props.onReady,
-        onStep: props.onStep,
-        onComplete: props.onComplete,
+        onReady: (sessionId) => {
+          props.onReady?.(sessionId);
+          syncHostedStorage();
+        },
+        onStep: (step) => {
+          props.onStep?.(step);
+          syncHostedStorage();
+        },
+        onComplete: (escrow) => {
+          void Promise.resolve(storage.removeItem(storageKey));
+          props.onComplete?.(escrow);
+        },
         onDispute: props.onDispute,
         onError: props.onError,
         onClose: props.onRequestClose,
@@ -119,12 +225,16 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
     },
     [
       expectedOrigin,
+      persistSyncedSnapshot,
       props.onReady,
       props.onStep,
       props.onComplete,
       props.onDispute,
       props.onError,
       props.onRequestClose,
+      storage,
+      storageKey,
+      syncHostedStorage,
     ],
   );
 
@@ -180,7 +290,7 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
           source={{ uri }}
           onMessage={handleMessage}
           onShouldStartLoadWithRequest={handleShouldStartLoad}
-          injectedJavaScriptBeforeContentLoaded={BRIDGE_SHIM_SCRIPT}
+          injectedJavaScriptBeforeContentLoaded={injectedBeforeLoad}
           startInLoadingState
         />
       </SafeAreaView>

@@ -1,3 +1,4 @@
+import { createMemoryCheckoutStorage } from '@pacto-connect/core';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -24,7 +25,7 @@ const quote = {
   amount: '100',
   price: '5000',
   side: 'buy' as const,
-  expiresAt: '2024-01-02T00:00:00.000Z',
+  expiresAt: '2099-01-01T00:00:00.000Z',
   createdAt: '2024-01-01T00:00:00.000Z',
 };
 
@@ -156,6 +157,7 @@ describe('PactoCheckout', () => {
   beforeEach(() => {
     defaultSse = createDeferredSseResponse();
     vi.stubGlobal('fetch', createFetchMock(defaultSse));
+    sessionStorage.clear();
   });
 
   afterEach(() => {
@@ -578,6 +580,128 @@ describe('PactoCheckout', () => {
       );
 
       expect(await screen.findByRole('button', { name: 'Pay now' })).toBeInTheDocument();
+    });
+  });
+
+  describe('durable flow state', () => {
+    it('resumes at the same step after remount when storage is shared', async () => {
+      const storage = createMemoryCheckoutStorage();
+      const fetchMock = createFetchMock();
+      vi.stubGlobal('fetch', fetchMock);
+
+      const { unmount } = render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          listingId={listingId}
+          open
+          onClose={() => {}}
+          storage={storage}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('deposit-step')).toBeInTheDocument();
+      });
+
+      unmount();
+
+      render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          listingId={listingId}
+          open
+          onClose={() => {}}
+          storage={storage}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('deposit-step')).toBeInTheDocument();
+      });
+
+      const sessionPosts = fetchMock.mock.calls.filter(
+        ([input, init]) =>
+          String(input).includes('/v1/session') && (init?.method ?? 'GET') === 'POST',
+      );
+      expect(sessionPosts).toHaveLength(1);
+    });
+
+    it('surfaces quote expiry instead of a live deposit after remount', async () => {
+      const storage = createMemoryCheckoutStorage();
+      const expiredQuote = {
+        ...quote,
+        expiresAt: '2024-01-01T00:00:00.000Z',
+      };
+
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+          const url = String(input);
+          const method = init?.method ?? 'GET';
+
+          if (url.includes('/v1/session') && method === 'POST') {
+            return jsonResponse({
+              sessionId: 'sess_1',
+              clientSecret: 'cs_sess_1.sig',
+              expiresAt: '2099-01-01T00:00:00.000Z',
+              mode: 'buy',
+            });
+          }
+
+          if (url.includes(`/v1/listings/${listingId}`)) {
+            return jsonResponse({ listing });
+          }
+
+          if (url.endsWith('/v1/quotes') && method === 'POST') {
+            return jsonResponse({ quote: expiredQuote });
+          }
+
+          if (url.endsWith('/v1/escrows') && method === 'POST') {
+            return jsonResponse({ escrow });
+          }
+
+          return jsonResponse({ error: 'not found' }, 404);
+        }),
+      );
+
+      const { unmount } = render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          listingId={listingId}
+          open
+          onClose={() => {}}
+          storage={storage}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('deposit-step')).toBeInTheDocument();
+      });
+
+      unmount();
+
+      render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          listingId={listingId}
+          open
+          onClose={() => {}}
+          storage={storage}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('checkout-error')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByTestId('deposit-step')).not.toBeInTheDocument();
+      expect(screen.getByTestId('checkout-error')).toHaveTextContent(
+        'This quote has expired. Please start checkout again.',
+      );
     });
   });
 });

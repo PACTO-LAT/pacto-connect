@@ -8,6 +8,13 @@
  */
 
 export {
+  buildCheckoutSnapshotScope,
+  checkoutStorageKey,
+  createDefaultReactNativeCheckoutStorage,
+  createReactNativeCheckoutStorage,
+  type ReactNativeStorageBackend,
+} from './checkout-storage.js';
+export {
   type PactoReturnLinkResult,
   parsePactoReturnUrl,
   type UsePactoDeepLinkOptions,
@@ -35,10 +42,14 @@ export {
 export {
   BRIDGE_SHIM_SCRIPT,
   type BuildCheckoutUrlOptions,
+  buildCheckoutStorageSeedScript,
+  buildCheckoutStorageSyncScript,
   buildCheckoutUrl,
   buildInboundBridgeScript,
+  CHECKOUT_STORAGE_SYNC_SOURCE,
   checkoutOrigin,
   dispatchBridgeMessage,
+  parseCheckoutStorageSyncMessage,
   parseWebViewBridgeMessage,
 } from './webview-bridge.js';
 

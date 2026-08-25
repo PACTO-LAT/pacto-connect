@@ -10,6 +10,7 @@ export type {
   CheckoutFlowState,
   CheckoutMode,
   CheckoutStep,
+  CheckoutStorageAdapter,
   CreateCheckoutSessionParams,
   CreateEscrowParams,
   CreateQuoteParams,
@@ -40,6 +41,9 @@ export type {
 export {
   buildCheckoutStylesheet,
   CheckoutFlowController,
+  createInitialCheckoutState,
+  createMemoryCheckoutStorage,
+  createWebCheckoutStorage,
   DEFAULT_THEME,
   ESCROW_EVENT_NAMES,
   isPactoErrorCode,

@@ -101,6 +101,42 @@ export function buildInboundBridgeScript(message: PactoBridgeMessage): string {
   return `window.postMessage(${JSON.stringify(envelope)}, '*'); true;`;
 }
 
+export interface CheckoutStorageSyncPayload {
+  key: string;
+  value: string;
+}
+
+export const CHECKOUT_STORAGE_SYNC_SOURCE = 'pacto-connect-rn-sync';
+
+export function buildCheckoutStorageSeedScript(storageKey: string, raw: string): string {
+  return `(function(){try{sessionStorage.setItem(${JSON.stringify(storageKey)}, ${JSON.stringify(raw)});}catch(e){}})();true;`;
+}
+
+export function buildCheckoutStorageSyncScript(): string {
+  return `(function(){try{var key=null;var value=null;for(var i=0;i<sessionStorage.length;i++){var k=sessionStorage.key(i);if(k&&k.indexOf('pacto:checkout:')===0){key=k;value=sessionStorage.getItem(k);break;}}if(key&&value&&window.ReactNativeWebView){window.ReactNativeWebView.postMessage(JSON.stringify({source:${JSON.stringify(CHECKOUT_STORAGE_SYNC_SOURCE)},payload:{key:key,value:value}}));}}catch(e){}})();true;`;
+}
+
+export function parseCheckoutStorageSyncMessage(raw: string): CheckoutStorageSyncPayload | null {
+  try {
+    const parsed = JSON.parse(raw) as { source?: string; payload?: CheckoutStorageSyncPayload };
+    if (parsed.source !== CHECKOUT_STORAGE_SYNC_SOURCE) {
+      return null;
+    }
+
+    if (!parsed.payload || typeof parsed.payload.key !== 'string') {
+      return null;
+    }
+
+    if (typeof parsed.payload.value !== 'string') {
+      return null;
+    }
+
+    return parsed.payload;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Validates and unwraps a raw `onMessage` payload from the WebView. `currentUrl`
  * (the WebView's current page URL, from `nativeEvent.url`) stands in for the

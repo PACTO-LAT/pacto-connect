@@ -1,4 +1,5 @@
 import {
+  type CheckoutStorageAdapter,
   type DeepPartial,
   type FiatPaymentMethod,
   formatMessage,
@@ -29,6 +30,7 @@ export interface PactoCheckoutProps {
   listingId?: string;
   mode?: 'buy' | 'sell';
   testMode?: boolean;
+  storage?: CheckoutStorageAdapter;
   open: boolean;
   onClose: () => void;
   onComplete?: (escrow: import('@pacto-connect/core').Escrow) => void;
@@ -56,6 +58,7 @@ export function PactoCheckout(props: PactoCheckoutProps) {
     listingId: props.listingId,
     mode: props.mode,
     testMode: props.testMode,
+    storage: props.storage,
     enabled: props.open,
     onComplete: props.onComplete,
     onDispute: props.onDispute,

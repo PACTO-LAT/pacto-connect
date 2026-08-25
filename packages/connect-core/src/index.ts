@@ -25,7 +25,33 @@ export {
   type CheckoutFlowOptions,
   type CheckoutFlowState,
   type CheckoutStep,
+  createInitialCheckoutState,
 } from './checkout-flow.js';
+export {
+  applyCheckoutTransition,
+  CheckoutQuoteExpiredError,
+  canTransition,
+  IllegalCheckoutTransitionError,
+  isPersistableStep,
+  isQuoteExpired,
+  isTerminalCheckoutStep,
+} from './checkout-machine.js';
+export {
+  buildCheckoutSnapshotScope,
+  CHECKOUT_SNAPSHOT_VERSION,
+  type CheckoutSessionEnvelope,
+  type CheckoutSnapshot,
+  type CheckoutSnapshotScope,
+  type CheckoutStorageAdapter,
+  checkoutStorageKey,
+  createMemoryCheckoutStorage,
+  createWebCheckoutStorage,
+  isCheckoutSnapshotExpired,
+  parseCheckoutSnapshot,
+  serializeCheckoutSnapshot,
+  snapshotMatchesScope,
+  type WebStorageLike,
+} from './checkout-storage.js';
 export {
   type CheckoutMode,
   type CreateCheckoutSessionParams,

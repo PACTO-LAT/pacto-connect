@@ -35,6 +35,7 @@ export interface PactoMessages {
     waiting: string;
     testBanner: string;
     genericError: string;
+    quoteExpired: string;
     /** Placeholders: {amount} {asset} */
     depositInstruction: string;
     /** Placeholder: {escrowId} */
@@ -88,6 +89,7 @@ export const en: PactoMessages = {
     waiting: 'Waiting for escrow release…',
     testBanner: 'TEST MODE — no real funds or Stellar transactions',
     genericError: 'Something went wrong',
+    quoteExpired: 'This quote has expired. Please start checkout again.',
     depositInstruction: 'Deposit {amount} {asset} to the escrow contract.',
     success: 'Payment complete. Escrow {escrowId} released.',
     disputed: 'Escrow {escrowId} has been disputed.',
@@ -137,6 +139,7 @@ export const es: PactoMessages = {
     waiting: 'Esperando la liberación de la garantía…',
     testBanner: 'MODO DE PRUEBA — sin fondos reales ni transacciones en Stellar',
     genericError: 'Algo salió mal',
+    quoteExpired: 'Esta cotización expiró. Vuelve a iniciar el pago.',
     depositInstruction: 'Deposita {amount} {asset} al contrato de garantía.',
     success: 'Pago completado. Garantía {escrowId} liberada.',
     disputed: 'La garantía {escrowId} ha sido disputada.',

@@ -2,7 +2,9 @@ import {
   type BridgeClient,
   CheckoutFlowController,
   type CheckoutMode,
+  type CheckoutStorageAdapter,
   createBridgeClient,
+  createWebCheckoutStorage,
   type DeepPartial,
   type Escrow,
   type PactoBridgeMessage,
@@ -26,6 +28,7 @@ export interface PactoCheckoutOptions {
   sessionExpiresAt?: string | Date;
   mode?: CheckoutMode;
   testMode?: boolean;
+  storage?: CheckoutStorageAdapter;
   allowedOrigins?: string[];
   /** Inject the default modal stylesheet (default `true`). Set `false` to fully self-style. */
   injectStyles?: boolean;
@@ -60,6 +63,14 @@ function parseAllowedOrigins(value: string | null): string[] | undefined {
     .filter(Boolean);
 
   return origins.length > 0 ? origins : undefined;
+}
+
+function defaultCheckoutStorage(): CheckoutStorageAdapter | undefined {
+  if (typeof sessionStorage === 'undefined') {
+    return undefined;
+  }
+
+  return createWebCheckoutStorage(sessionStorage);
 }
 
 function resolveSession(options: PactoCheckoutOptions): PactoSessionData | undefined {
@@ -224,6 +235,7 @@ export class PactoCheckoutElement extends HTMLElement {
       mode: options.mode,
       testMode: options.testMode,
       session,
+      storage: options.storage ?? defaultCheckoutStorage(),
       onChange: (state) => {
         if (state.sessionId && !this.readyPosted) {
           this.readyPosted = true;
