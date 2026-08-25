@@ -4,7 +4,8 @@ import { prisma } from '../db.js';
 import { toGatewayErrorBody } from '../errors.js';
 import { chargeSubscription } from '../subscriptions/charge.js';
 import { getSubscription } from '../subscriptions/subscriptions.js';
-import { getSimulator, SimulatorError } from '../testmode/simulator.js';
+import { openDisputeEscrow, SimulatorError } from '../escrow/lifecycle.js';
+import { getSimulator } from '../testmode/simulator.js';
 import { authenticateEscrowRequest, serializeEscrow, simulatorErrorResponse } from './escrows.js';
 
 type TestControlVariables = {
@@ -47,13 +48,18 @@ testControls.post('/escrows/:id/dispute', async (c) => {
   };
 
   try {
-    const escrow = getSimulator().forceDispute(
-      session.id,
-      c.req.param('id'),
-      typeof body.reason === 'string' ? body.reason : undefined,
-      apiKey.id,
-    );
-    return c.json({ escrow: serializeEscrow(escrow) });
+    const result = await openDisputeEscrow({
+      sessionId: session.id,
+      escrowId: c.req.param('id'),
+      apiKeyId: apiKey.id,
+      actor: 'system',
+      reason: typeof body.reason === 'string' ? body.reason : 'manual',
+      evidenceRefs: [],
+    });
+    if (!result) {
+      return c.json(toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'), 404);
+    }
+    return c.json({ escrow: serializeEscrow(result.data.escrow) });
   } catch (error) {
     if (error instanceof SimulatorError) {
       return simulatorErrorResponse(c, error);
@@ -77,8 +83,18 @@ testControls.post('/escrows/:id/timeout', async (c) => {
   const { session, apiKey } = auth;
 
   try {
-    const escrow = getSimulator().forceTimeout(session.id, c.req.param('id'), apiKey.id);
-    return c.json({ escrow: serializeEscrow(escrow) });
+    const result = await openDisputeEscrow({
+      sessionId: session.id,
+      escrowId: c.req.param('id'),
+      apiKeyId: apiKey.id,
+      actor: 'system',
+      reason: 'timeout',
+      evidenceRefs: [],
+    });
+    if (!result) {
+      return c.json(toGatewayErrorBody('escrow_error', 'escrow_not_found', 'Escrow not found'), 404);
+    }
+    return c.json({ escrow: serializeEscrow(result.data.escrow) });
   } catch (error) {
     if (error instanceof SimulatorError) {
       return simulatorErrorResponse(c, error);

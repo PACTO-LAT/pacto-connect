@@ -61,7 +61,13 @@ vi.mock('../db.js', () => ({
       findFirst: vi.fn(),
       update: vi.fn(),
     },
+    escrow: { upsert: vi.fn(), update: vi.fn() },
+    escrowDispute: { create: vi.fn() },
   },
+}));
+
+vi.mock('../webhooks/events.js', () => ({
+  emitDisputeOpened: vi.fn().mockResolvedValue({ eventId: 'evt', deliveries: 0 }),
 }));
 
 vi.mock('../subscriptions/charge.js', () => ({ chargeSubscription: vi.fn() }));
@@ -69,6 +75,7 @@ vi.mock('../subscriptions/charge.js', () => ({ chargeSubscription: vi.fn() }));
 import { prisma } from '../db.js';
 import * as keys from '../keys.js';
 import { chargeSubscription } from '../subscriptions/charge.js';
+import type { EscrowDispute } from '@prisma/client';
 
 function testHeaders(apiKey: ApiKey = mockApiKey) {
   return {
@@ -121,8 +128,26 @@ describe('test control routes', () => {
 
     vi.mocked(keys.findActiveApiKeyByPublishableKey).mockReset();
     vi.mocked(prisma.checkoutSession.findUnique).mockReset();
+    vi.mocked(prisma.escrow.upsert).mockReset();
+    vi.mocked(prisma.escrow.update).mockReset();
+    vi.mocked(prisma.escrowDispute.create).mockReset();
     vi.mocked(keys.findActiveApiKeyByPublishableKey).mockResolvedValue(mockApiKey);
     vi.mocked(prisma.checkoutSession.findUnique).mockResolvedValue(mockCheckoutSession);
+    vi.mocked(prisma.escrow.upsert).mockImplementation(async ({ create }) => create as never);
+    vi.mocked(prisma.escrow.update).mockImplementation(async ({ data }) => data as never);
+    vi.mocked(prisma.escrowDispute.create).mockImplementation(
+      async ({ data }) =>
+        ({
+          ...(data as EscrowDispute),
+          status: 'open',
+          resolution: null,
+          resolvedBy: null,
+          resolvedAt: null,
+          resolutionNote: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }) as EscrowDispute,
+    );
   });
 
   it('disputes, times out, and releases escrows with a test key', async () => {

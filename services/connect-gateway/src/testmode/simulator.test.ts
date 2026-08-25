@@ -163,6 +163,99 @@ describe('EscrowSimulator', () => {
     );
   });
 
+  it('cancels pending escrows and tracks remaining balance on partial refunds', () => {
+    const simulator = getSimulator();
+    const escrow = simulator.createEscrow({
+      apiKeyId: 'key_1',
+      sessionId: 'session_1',
+      quoteId: 'quote_1',
+      amount: '100',
+      asset: 'USDC',
+    });
+
+    const cancelled = simulator.cancel('session_1', escrow.id, 'key_1');
+    expect(cancelled.status).toBe('cancelled');
+
+    const releasedEscrow = simulator.createEscrow({
+      apiKeyId: 'key_1',
+      sessionId: 'session_1',
+      quoteId: 'quote_2',
+      amount: '100',
+      asset: 'USDC',
+    });
+    simulator.deposit('session_1', releasedEscrow.id, 'key_1');
+    simulator.forceRelease('session_1', releasedEscrow.id, 'key_1');
+
+    const partial = simulator.refund(
+      'session_1',
+      releasedEscrow.id,
+      { amount: 40, reason: 'partial', actor: 'merchant' },
+      'key_1',
+    );
+    expect(partial.escrow.status).toBe('released');
+    expect(partial.escrow.remainingAmount).toBe('60');
+    expect(partial.escrow.refundedAmount).toBe('40');
+
+    const full = simulator.refund(
+      'session_1',
+      releasedEscrow.id,
+      { amount: 60, reason: 'rest', actor: 'merchant' },
+      'key_1',
+    );
+    expect(full.escrow.status).toBe('refunded');
+    expect(full.escrow.remainingAmount).toBe('0');
+  });
+
+  it('resolves disputes to released or refunded', () => {
+    const simulator = getSimulator();
+    const escrow = simulator.createEscrow({
+      apiKeyId: 'key_1',
+      sessionId: 'session_1',
+      quoteId: 'quote_1',
+      amount: '100',
+      asset: 'USDC',
+    });
+    simulator.deposit('session_1', escrow.id, 'key_1');
+    const { dispute } = simulator.openDispute(
+      'session_1',
+      escrow.id,
+      { reason: 'late', actor: 'buyer' },
+      'key_1',
+    );
+
+    const released = simulator.resolveDispute(
+      'session_1',
+      escrow.id,
+      dispute.id,
+      { outcome: 'release' },
+      'key_1',
+    );
+    expect(released.escrow.status).toBe('released');
+
+    const escrowTwo = simulator.createEscrow({
+      apiKeyId: 'key_1',
+      sessionId: 'session_1',
+      quoteId: 'quote_2',
+      amount: '50',
+      asset: 'USDC',
+    });
+    simulator.deposit('session_1', escrowTwo.id, 'key_1');
+    const opened = simulator.openDispute(
+      'session_1',
+      escrowTwo.id,
+      { reason: 'bad_item', actor: 'seller' },
+      'key_1',
+    );
+    const refunded = simulator.resolveDispute(
+      'session_1',
+      escrowTwo.id,
+      opened.dispute.id,
+      { outcome: 'refund' },
+      'key_1',
+    );
+    expect(refunded.escrow.status).toBe('refunded');
+  });
+
   it('supports event log replay with monotonic cursors', () => {
     const simulator = getSimulator();
     const escrow = simulator.createEscrow({
