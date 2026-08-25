@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import * as core from './index';
 import { init, PactoSession, VERSION } from './index';
 
 const gatewayUrl = 'https://gateway.example';
@@ -14,6 +15,67 @@ function mockFetchResponse(status: number, body: Record<string, unknown>) {
 }
 
 describe('@pacto-connect/core', () => {
+  it('exposes a stable public export surface', () => {
+    const exportNames = Object.keys(core).sort();
+    expect(exportNames).toMatchInlineSnapshot(`
+      [
+        "CHECKOUT_SNAPSHOT_VERSION",
+        "CheckoutFlowController",
+        "CheckoutQuoteExpiredError",
+        "DEFAULT_GATEWAY_URL",
+        "DEFAULT_THEME",
+        "ESCROW_DETAIL_CODES",
+        "ESCROW_EVENT_NAMES",
+        "IllegalCheckoutTransitionError",
+        "PACTO_BRIDGE_SOURCE",
+        "PACTO_BRIDGE_VERSION",
+        "PACTO_ERROR_CODES",
+        "Pacto",
+        "PactoApiError",
+        "PactoAuthError",
+        "PactoError",
+        "PactoEscrowError",
+        "PactoRateLimitError",
+        "PactoSession",
+        "PactoSessionError",
+        "REQUEST_ID_HEADER",
+        "STYLE_ELEMENT_ID",
+        "VERSION",
+        "applyCheckoutTransition",
+        "buildCheckoutSnapshotScope",
+        "buildCheckoutStylesheet",
+        "canTransition",
+        "checkoutStorageKey",
+        "classifyGatewayError",
+        "createBridgeClient",
+        "createBridgeHost",
+        "createInitialCheckoutState",
+        "createMemoryCheckoutStorage",
+        "createWebCheckoutStorage",
+        "enMessages",
+        "esMessages",
+        "formatMessage",
+        "generateRequestId",
+        "init",
+        "isCheckoutSnapshotExpired",
+        "isEscrowDetailCode",
+        "isOriginAllowed",
+        "isPactoBridgeEnvelope",
+        "isPactoErrorCode",
+        "isPersistableStep",
+        "isQuoteExpired",
+        "isTerminalCheckoutStep",
+        "isTestMode",
+        "keyMode",
+        "parseCheckoutSnapshot",
+        "resolveMessages",
+        "serializeCheckoutSnapshot",
+        "snapshotMatchesScope",
+        "themeToCssVars",
+      ]
+    `);
+  });
+
   it('exposes a version', () => {
     expect(VERSION).toBe('0.0.0');
   });

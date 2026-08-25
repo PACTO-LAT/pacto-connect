@@ -4,16 +4,9 @@ import {
   type PactoErrorCode,
   REQUEST_ID_HEADER,
 } from './taxonomy.js';
+import type { GatewayErrorBody } from './api-types.js';
 
-export interface GatewayErrorBody {
-  error?: {
-    type?: string;
-    code?: string;
-    message?: string;
-    pactoCode?: string;
-    requestId?: string;
-  };
-}
+export type { GatewayErrorBody };
 
 export interface ErrorContext {
   path: string;

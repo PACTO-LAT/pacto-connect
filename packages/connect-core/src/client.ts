@@ -2,6 +2,7 @@
  * Pacto client bootstrap — extracted from index for use by checkout-flow without circular imports.
  */
 
+import type { CheckoutMode, GatewaySessionResponse } from './api-types.js';
 import { errorFromResponse, type GatewayErrorBody, PactoError } from './errors.js';
 import {
   type EscrowEventHandler,
@@ -12,7 +13,7 @@ import {
 import { PUBLISHABLE_KEY_HEADER } from './http.js';
 import { createApiClient, type PactoApiClient } from './resources.js';
 
-export type CheckoutMode = 'buy' | 'sell';
+export type { CheckoutMode } from './api-types.js';
 
 export interface PactoInitOptions {
   /** Publishable key issued by the Connect Gateway (pk_live_* / pk_test_*). */
@@ -46,13 +47,6 @@ export interface PactoClient {
   createCheckoutSession(params: CreateCheckoutSessionParams): Promise<PactoSession>;
   resumeCheckoutSession(data: PactoSessionData): PactoSession;
   api(session: PactoSession): PactoApiClient;
-}
-
-interface GatewaySessionResponse {
-  sessionId: string;
-  clientSecret: string;
-  expiresAt: string;
-  mode: CheckoutMode;
 }
 
 interface SessionRuntimeConfig {

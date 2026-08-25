@@ -1,13 +1,35 @@
 import { type HttpClientOptions, request } from './http.js';
+import type {
+  CancelEscrowParams,
+  CreateEscrowParams,
+  CreateSubscriptionParams,
+  DepositParams,
+  Escrow,
+  EscrowDispute,
+  EscrowRefund,
+  EscrowStatusResponse,
+  FiatReceiptParams,
+  OpenDisputeParams,
+  RefundEscrowParams,
+  ResolveDisputeParams,
+  Subscription,
+} from './api-types.js';
 
-export type EscrowStatus =
-  | 'pending'
-  | 'active'
-  | 'funded'
-  | 'released'
-  | 'cancelled'
-  | 'disputed'
-  | 'refunded';
+export type {
+  CancelEscrowParams,
+  CreateEscrowParams,
+  DepositParams,
+  Escrow,
+  EscrowDispute,
+  EscrowRefund,
+  EscrowStatus,
+  EscrowStatusResponse,
+  FiatPaymentMethod,
+  FiatReceiptParams,
+  OpenDisputeParams,
+  RefundEscrowParams,
+  ResolveDisputeParams,
+} from './api-types.js';
 
 export interface Listing {
   id: string;
@@ -36,112 +58,6 @@ export interface CreateQuoteParams {
   amount: string;
   price: string;
   side: 'buy' | 'sell';
-}
-
-export interface Escrow {
-  id: string;
-  quoteId: string;
-  status: EscrowStatus;
-  amount: string;
-  asset: string;
-  refundedAmount?: string;
-  remainingAmount?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface EscrowStatusResponse {
-  id: string;
-  status: EscrowStatus;
-  updatedAt: string;
-}
-
-export interface CreateEscrowParams {
-  quoteId: string;
-}
-
-export interface DepositParams {
-  /** When true, simulates on-chain deposit in Gateway test mode. */
-  testMode?: boolean;
-}
-
-export type FiatPaymentMethod = 'SINPE' | 'SPEI';
-
-export interface FiatReceiptParams {
-  method: FiatPaymentMethod;
-  reference: string;
-  /** Base64-encoded receipt image or document. */
-  receipt?: string;
-}
-
-export interface CancelEscrowParams {
-  reason?: string;
-}
-
-export interface RefundEscrowParams {
-  amount: string;
-  reason: string;
-}
-
-export interface OpenDisputeParams {
-  actor: 'buyer' | 'seller';
-  reason: string;
-  evidenceRefs?: string[];
-}
-
-export interface ResolveDisputeParams {
-  outcome: 'release' | 'refund';
-  note?: string;
-}
-
-export interface EscrowRefund {
-  id: string;
-  escrowId: string;
-  amount: string;
-  reason: string;
-  actor: string;
-  createdAt: string;
-}
-
-export interface EscrowDispute {
-  id: string;
-  escrowId: string;
-  status: 'open' | 'resolved';
-  reason: string;
-  actor: string;
-  evidenceRefs: string[];
-  resolution?: 'release' | 'refund';
-  resolvedAt?: string | null;
-  resolutionNote?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type SubscriptionStatus = 'active' | 'past_due' | 'canceled';
-export type SubscriptionInterval = 'day' | 'week' | 'month';
-
-export interface Subscription {
-  id: string;
-  status: SubscriptionStatus;
-  from: string;
-  to: string;
-  amount: number;
-  asset: string;
-  interval: SubscriptionInterval;
-  payerRef: string | null;
-  nextChargeAt: string;
-  canceledAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateSubscriptionParams {
-  from: string;
-  to: string;
-  amount: number;
-  interval: SubscriptionInterval;
-  asset?: string;
-  payerRef?: string;
 }
 
 export interface ListingsResource {
