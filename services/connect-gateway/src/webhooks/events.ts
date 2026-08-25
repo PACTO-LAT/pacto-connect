@@ -19,7 +19,30 @@ export const emitTradeCompleted = (
 export const emitDisputeOpened = (
   apiKeyId: string,
   data: Prisma.InputJsonValue,
-): Promise<DispatchResult> => dispatchEvent({ apiKeyId, type: 'dispute.opened', data });
+  merchantId?: string,
+): Promise<DispatchResult> =>
+  dispatchEvent({ apiKeyId, merchantId, type: 'dispute.opened', data });
+
+export const emitEscrowCancelled = (
+  apiKeyId: string,
+  data: Prisma.InputJsonValue,
+  merchantId?: string,
+): Promise<DispatchResult> =>
+  dispatchEvent({ apiKeyId, merchantId, type: 'escrow.cancelled', data });
+
+export const emitEscrowRefunded = (
+  apiKeyId: string,
+  data: Prisma.InputJsonValue,
+  merchantId?: string,
+): Promise<DispatchResult> =>
+  dispatchEvent({ apiKeyId, merchantId, type: 'escrow.refunded', data });
+
+export const emitDisputeResolved = (
+  apiKeyId: string,
+  data: Prisma.InputJsonValue,
+  merchantId?: string,
+): Promise<DispatchResult> =>
+  dispatchEvent({ apiKeyId, merchantId, type: 'dispute.resolved', data });
 
 export const emitPaymentReported = (
   apiKeyId: string,

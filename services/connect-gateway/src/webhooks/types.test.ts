@@ -9,6 +9,12 @@ describe('webhook event types', () => {
     expect(WEBHOOK_EVENT_TYPES).toContain('subscription.canceled');
   });
 
+  it('includes escrow reversal and dispute lifecycle events', () => {
+    expect(WEBHOOK_EVENT_TYPES).toContain('escrow.cancelled');
+    expect(WEBHOOK_EVENT_TYPES).toContain('escrow.refunded');
+    expect(WEBHOOK_EVENT_TYPES).toContain('dispute.resolved');
+  });
+
   it('recognizes subscription.charged as a valid type', () => {
     expect(isWebhookEventType('subscription.charged')).toBe(true);
   });

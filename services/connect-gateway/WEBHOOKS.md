@@ -13,8 +13,11 @@ Authorization: Bearer $GATEWAY_ADMIN_TOKEN
 | Event type | Description |
 | --- | --- |
 | `escrow.created` | An escrow was created for a trade. |
+| `escrow.cancelled` | An unfunded escrow was cancelled before deposit. |
+| `escrow.refunded` | A refund was issued against a settled escrow. |
 | `trade.completed` | A trade reached a completed state. |
 | `dispute.opened` | A dispute was opened on a trade. |
+| `dispute.resolved` | An admin resolved an open dispute. |
 | `payment.reported` | A payment was reported for a trade. |
 | `subscription.created` | A recurring subscription was created. |
 | `subscription.charged` | A subscription billing cycle succeeded and created an escrow. |
