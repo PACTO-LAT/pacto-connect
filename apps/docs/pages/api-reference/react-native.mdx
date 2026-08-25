@@ -96,7 +96,7 @@ Body for `/.well-known/apple-app-site-association` (no file extension, served as
 function buildCheckoutSnapshotScope(options): CheckoutSnapshotScope;
 ```
 
-Defined in: connect-core/dist/index.d.ts:400
+Defined in: connect-core/dist/index.d.ts:674
 
 @pacto-connect/react-native
 
@@ -109,9 +109,9 @@ the checkout UI natively.
 
 | Parameter | Type |
 | ------ | ------ |
-| `options` | \&#123; `listingId?`: `string`; `mode`: `CheckoutMode`; `publishableKey`: `string`; \&#125; |
+| `options` | \&#123; `listingId?`: `string`; `mode`: `"buy"` \| `"sell"`; `publishableKey`: `string`; \&#125; |
 | `options.listingId?` | `string` |
-| `options.mode` | `CheckoutMode` |
+| `options.mode` | `"buy"` \| `"sell"` |
 | `options.publishableKey` | `string` |
 
 ## Returns
@@ -233,7 +233,7 @@ Defined in: [connect-react-native/src/webview-bridge.ts:31](https://github.com/P
 function checkoutStorageKey(scope): string;
 ```
 
-Defined in: connect-core/dist/index.d.ts:399
+Defined in: connect-core/dist/index.d.ts:673
 
 @pacto-connect/react-native
 
@@ -487,8 +487,8 @@ Pure mapper the polling loop uses — exported for testing without a live timer.
 | Parameter | Type |
 | ------ | ------ |
 | `escrowId` | `string` |
-| `previousStatus` | `EscrowStatus` \| `null` |
-| `status` | `EscrowStatus` |
+| `previousStatus` | \| `"disputed"` \| `"refunded"` \| `"released"` \| `"pending"` \| `"active"` \| `"funded"` \| `"cancelled"` \| `null` |
+| `status` | \| `"disputed"` \| `"refunded"` \| `"released"` \| `"pending"` \| `"active"` \| `"funded"` \| `"cancelled"` |
 | `updatedAt` | `string` |
 
 ## Returns
@@ -614,7 +614,7 @@ channel (`ReactNativeWebView.postMessage` out, `injectJavaScript` in).
 | ------ | ------ | ------ | ------ |
 | <a id="checkouturl"></a> `checkoutUrl` | `string` | URL of the hosted checkout page (the one running `bootstrapCheckoutFrame`). | [connect-react-native/src/webview-bridge.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L20) |
 | <a id="listingid"></a> `listingId?` | `string` | - | [connect-react-native/src/webview-bridge.ts:22](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L22) |
-| <a id="mode"></a> `mode?` | `CheckoutMode` | - | [connect-react-native/src/webview-bridge.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L24) |
+| <a id="mode"></a> `mode?` | `"buy"` \| `"sell"` | - | [connect-react-native/src/webview-bridge.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L24) |
 | <a id="params"></a> `params?` | `Record`\<`string`, `string`\> | - | [connect-react-native/src/webview-bridge.ts:28](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L28) |
 | <a id="publishablekey"></a> `publishableKey` | `string` | - | [connect-react-native/src/webview-bridge.ts:21](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L21) |
 | <a id="returnurl"></a> `returnUrl?` | `string` | App deep-link the hosted page should return to after an external payment step. | [connect-react-native/src/webview-bridge.ts:27](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L27) |
@@ -634,7 +634,7 @@ Defined in: [connect-react-native/src/PactoCheckoutSheet.tsx:30](https://github.
 | ------ | ------ | ------ | ------ |
 | <a id="checkouturl"></a> `checkoutUrl` | `string` | URL of the hosted checkout page (the one running `bootstrapCheckoutFrame`). | [connect-react-native/src/PactoCheckoutSheet.tsx:33](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L33) |
 | <a id="listingid"></a> `listingId?` | `string` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L35) |
-| <a id="mode"></a> `mode?` | `CheckoutMode` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L37) |
+| <a id="mode"></a> `mode?` | `"buy"` \| `"sell"` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L37) |
 | <a id="oncomplete"></a> `onComplete?` | (`escrow`) => `void` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:50](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L50) |
 | <a id="ondispute"></a> `onDispute?` | (`escrow`) => `void` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:51](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L51) |
 | <a id="onerror"></a> `onError?` | (`error`) => `void` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:52](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L52) |
@@ -775,7 +775,7 @@ Defined in: [connect-react-native/src/escrow-events.ts:14](https://github.com/PA
 | <a id="escrowid"></a> `escrowId` | `string` | - | [connect-react-native/src/escrow-events.ts:21](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L21) |
 | <a id="expiresat"></a> `expiresAt` | `string` \| `Date` | - | [connect-react-native/src/escrow-events.ts:19](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L19) |
 | <a id="gatewayurl"></a> `gatewayUrl?` | `string` | - | [connect-react-native/src/escrow-events.ts:15](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L15) |
-| <a id="mode"></a> `mode` | `CheckoutMode` | - | [connect-react-native/src/escrow-events.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L20) |
+| <a id="mode"></a> `mode` | `"buy"` \| `"sell"` | - | [connect-react-native/src/escrow-events.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L20) |
 | <a id="onevent"></a> `onEvent?` | (`event`) => `void` | - | [connect-react-native/src/escrow-events.ts:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L32) |
 | <a id="onsessionrefresh"></a> `onSessionRefresh?` | (`session`) => `void` | Called after the hook transparently rotates to a refreshed session (new `clientSecret`/`expiresAt`) — persist it if you resume tracking across app restarts. | [connect-react-native/src/escrow-events.ts:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L38) |
 | <a id="pollintervalms"></a> `pollIntervalMs?` | `number` | Polling interval used when the SSE transport isn't available. Default 4000ms. | [connect-react-native/src/escrow-events.ts:26](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L26) |
@@ -797,7 +797,7 @@ Defined in: [connect-react-native/src/escrow-events.ts:41](https://github.com/PA
 | ------ | ------ | ------ | ------ |
 | <a id="error"></a> `error` | `Error` \| `null` | - | [connect-react-native/src/escrow-events.ts:46](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L46) |
 | <a id="milestones"></a> `milestones` | `EscrowEvent`[] | - | [connect-react-native/src/escrow-events.ts:42](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L42) |
-| <a id="status"></a> `status` | `EscrowStatus` \| `null` | Only populated by the polling transport — SSE tracks milestones, not a standalone status. | [connect-react-native/src/escrow-events.ts:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L44) |
+| <a id="status"></a> `status` | \| `"disputed"` \| `"refunded"` \| `"released"` \| `"pending"` \| `"active"` \| `"funded"` \| `"cancelled"` \| `null` | Only populated by the polling transport — SSE tracks milestones, not a standalone status. | [connect-react-native/src/escrow-events.ts:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L44) |
 | <a id="transport"></a> `transport` | [`PactoEscrowTransport`](#typealias.pactoescrowtransport) \| `null` | - | [connect-react-native/src/escrow-events.ts:45](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L45) |
 
 
