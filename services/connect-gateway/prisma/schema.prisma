@@ -63,6 +63,33 @@ enum MerchantStatus {
   disabled
 }
 
+enum EscrowStatus {
+  pending
+  funded
+  released
+  disputed
+  cancelled
+  refunded
+}
+
+enum EscrowActor {
+  buyer
+  seller
+  merchant
+  admin
+  system
+}
+
+enum DisputeStatus {
+  open
+  resolved
+}
+
+enum DisputeResolution {
+  release
+  refund
+}
+
 model Merchant {
   id        String         @id @default(cuid())
   apiKeyId  String
@@ -77,6 +104,7 @@ model Merchant {
   webhookEvents    WebhookEvent[]
   subscriptions    Subscription[]
   settlements      MerchantSettlement[]
+  escrows          Escrow[]
 
   @@index([apiKeyId])
   @@index([status])
@@ -111,6 +139,7 @@ model ApiKey {
   webhookEvents      WebhookEvent[]
   subscriptions      Subscription[]
   merchants          Merchant[]
+  escrows            Escrow[]
   rotatedFromId  String?           @unique
   rotatedFrom    ApiKey?           @relation("KeyRotation", fields: [rotatedFromId], references: [id])
   supersededBy   ApiKey?           @relation("KeyRotation")
@@ -265,4 +294,59 @@ model WebhookNonce {
   createdAt DateTime @default(now())
 
   @@index([expiresAt])
+}
+
+model Escrow {
+  id            String       @id
+  apiKeyId      String
+  apiKey        ApiKey       @relation(fields: [apiKeyId], references: [id])
+  sessionId     String
+  quoteId       String
+  status        EscrowStatus @default(pending)
+  amount        Float
+  asset         String
+  merchantId    String?
+  merchant      Merchant?    @relation(fields: [merchantId], references: [id])
+  cancelReason  String?
+  cancelledAt   DateTime?
+  cancelledBy   EscrowActor?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  refunds       EscrowRefund[]
+  disputes      EscrowDispute[]
+
+  @@index([apiKeyId, sessionId])
+  @@index([status])
+  @@index([merchantId])
+}
+
+model EscrowRefund {
+  id        String      @id @default(cuid())
+  escrowId  String
+  escrow    Escrow      @relation(fields: [escrowId], references: [id])
+  amount    Float
+  reason    String
+  actor     EscrowActor
+  createdAt DateTime    @default(now())
+
+  @@index([escrowId])
+}
+
+model EscrowDispute {
+  id              String             @id @default(cuid())
+  escrowId        String
+  escrow          Escrow             @relation(fields: [escrowId], references: [id])
+  status          DisputeStatus      @default(open)
+  reason          String
+  actor           EscrowActor
+  evidenceRefs    String[]
+  resolution      DisputeResolution?
+  resolvedBy      EscrowActor?
+  resolvedAt      DateTime?
+  resolutionNote  String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([escrowId])
+  @@index([status])
 }
