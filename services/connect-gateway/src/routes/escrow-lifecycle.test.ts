@@ -167,17 +167,20 @@ describe('escrow lifecycle routes', () => {
 
     vi.mocked(keys.findActiveApiKeyByPublishableKey).mockResolvedValue(mockApiKey);
     vi.mocked(prisma.checkoutSession.findUnique).mockResolvedValue(mockCheckoutSession);
-    vi.mocked(prisma.escrow.upsert).mockImplementation(async ({ create }) => ({
-      ...(create as Escrow),
+    vi.mocked(prisma.escrow.upsert).mockImplementation((async (args: { create: Escrow }) => ({
+      ...args.create,
       createdAt: new Date(),
       updatedAt: new Date(),
-    }));
-    vi.mocked(prisma.escrow.update).mockImplementation(async ({ where, data }) => ({
-      id: where.id,
+    })) as never);
+    vi.mocked(prisma.escrow.update).mockImplementation((async (args: {
+      where: { id: string };
+      data: { status?: Escrow['status'] };
+    }) => ({
+      id: args.where.id,
       apiKeyId: 'key_1',
       sessionId: 'session_1',
       quoteId: 'quote_1',
-      status: data.status ?? 'cancelled',
+      status: args.data.status ?? 'cancelled',
       amount: 100,
       asset: 'USDC',
       merchantId: null,
@@ -186,13 +189,17 @@ describe('escrow lifecycle routes', () => {
       cancelledBy: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-    }));
-    vi.mocked(prisma.escrowRefund.create).mockImplementation(async ({ data }) => ({
-      ...(data as EscrowRefund),
+    })) as never);
+    vi.mocked(prisma.escrowRefund.create).mockImplementation((async (args: {
+      data: EscrowRefund;
+    }) => ({
+      ...args.data,
       createdAt: new Date(),
-    }));
-    vi.mocked(prisma.escrowDispute.create).mockImplementation(async ({ data }) => ({
-      ...(data as EscrowDispute),
+    })) as never);
+    vi.mocked(prisma.escrowDispute.create).mockImplementation((async (args: {
+      data: EscrowDispute;
+    }) => ({
+      ...args.data,
       status: 'open',
       resolution: null,
       resolvedBy: null,
@@ -200,7 +207,7 @@ describe('escrow lifecycle routes', () => {
       resolutionNote: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-    }));
+    })) as never);
 
     vi.mocked(emitEscrowCancelled).mockClear();
     vi.mocked(emitEscrowRefunded).mockClear();

@@ -72,7 +72,7 @@ vi.mock('../webhooks/events.js', () => ({
 
 vi.mock('../subscriptions/charge.js', () => ({ chargeSubscription: vi.fn() }));
 
-import type { EscrowDispute } from '@prisma/client';
+import type { Escrow, EscrowDispute } from '@prisma/client';
 import { prisma } from '../db.js';
 import * as keys from '../keys.js';
 import { chargeSubscription } from '../subscriptions/charge.js';
@@ -133,12 +133,16 @@ describe('test control routes', () => {
     vi.mocked(prisma.escrowDispute.create).mockReset();
     vi.mocked(keys.findActiveApiKeyByPublishableKey).mockResolvedValue(mockApiKey);
     vi.mocked(prisma.checkoutSession.findUnique).mockResolvedValue(mockCheckoutSession);
-    vi.mocked(prisma.escrow.upsert).mockImplementation(async ({ create }) => create as never);
-    vi.mocked(prisma.escrow.update).mockImplementation(async ({ data }) => data as never);
+    vi.mocked(prisma.escrow.upsert).mockImplementation(
+      (async (args: { create: Escrow }) => args.create) as never,
+    );
+    vi.mocked(prisma.escrow.update).mockImplementation(
+      (async (args: { data: Record<string, unknown> }) => args.data) as never,
+    );
     vi.mocked(prisma.escrowDispute.create).mockImplementation(
-      async ({ data }) =>
+      (async (args: { data: EscrowDispute }) =>
         ({
-          ...(data as EscrowDispute),
+          ...args.data,
           status: 'open',
           resolution: null,
           resolvedBy: null,
@@ -146,7 +150,7 @@ describe('test control routes', () => {
           resolutionNote: null,
           createdAt: new Date(),
           updatedAt: new Date(),
-        }) as EscrowDispute,
+        }) as EscrowDispute) as never,
     );
   });
 

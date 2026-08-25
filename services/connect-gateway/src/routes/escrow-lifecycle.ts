@@ -22,6 +22,20 @@ type EscrowRouteVariables = { apiKey: ApiKey; requestId?: string };
 
 const lifecycle = new Hono<{ Variables: EscrowRouteVariables }>();
 
+function requireRouteParam(
+  c: Parameters<typeof authenticateEscrowRequest>[0],
+  name: string,
+): string | Response {
+  const value = c.req.param(name);
+  if (!value) {
+    return c.json(
+      toGatewayErrorBody('validation_error', 'invalid_request', `${name} is required`),
+      400,
+    );
+  }
+  return value;
+}
+
 function extractAdminToken(c: {
   req: { header: (name: string) => string | undefined };
 }): string | null {
@@ -62,12 +76,22 @@ lifecycle.post('/:id/cancel', idempotency(), async (c) => {
     return liveNotImplemented(c);
   }
 
-  const body = await c.req.json<{ reason?: string }>().catch(() => ({}));
+  const escrowId = requireRouteParam(c, 'id');
+  if (escrowId instanceof Response) {
+    return escrowId;
+  }
+
+  let body: { reason?: string } = {};
+  try {
+    body = await c.req.json<{ reason?: string }>();
+  } catch {
+    body = {};
+  }
 
   try {
     const result = await cancelEscrow({
       sessionId: session.id,
-      escrowId: c.req.param('id'),
+      escrowId,
       apiKeyId: apiKey.id,
       reason: typeof body.reason === 'string' ? body.reason : undefined,
     });
@@ -99,6 +123,11 @@ lifecycle.post('/:id/refund', idempotency(), async (c) => {
     return liveNotImplemented(c);
   }
 
+  const escrowId = requireRouteParam(c, 'id');
+  if (escrowId instanceof Response) {
+    return escrowId;
+  }
+
   const body = await c.req.json<{ amount?: string; reason?: string }>();
 
   if (!body.amount || typeof body.amount !== 'string') {
@@ -125,7 +154,7 @@ lifecycle.post('/:id/refund', idempotency(), async (c) => {
   try {
     const result = await refundEscrow({
       sessionId: session.id,
-      escrowId: c.req.param('id'),
+      escrowId,
       apiKeyId: apiKey.id,
       amount,
       reason: body.reason,
@@ -162,6 +191,11 @@ lifecycle.post('/:id/disputes', idempotency(), async (c) => {
     return liveNotImplemented(c);
   }
 
+  const escrowId = requireRouteParam(c, 'id');
+  if (escrowId instanceof Response) {
+    return escrowId;
+  }
+
   const body = await c.req.json<{
     actor?: string;
     reason?: string;
@@ -184,7 +218,7 @@ lifecycle.post('/:id/disputes', idempotency(), async (c) => {
   try {
     const result = await openDisputeEscrow({
       sessionId: session.id,
-      escrowId: c.req.param('id'),
+      escrowId,
       apiKeyId: apiKey.id,
       actor: body.actor,
       reason: body.reason,
@@ -236,10 +270,19 @@ lifecycle.post('/:id/disputes/:disputeId/resolve', idempotency(), async (c) => {
     );
   }
 
+  const escrowId = requireRouteParam(c, 'id');
+  if (escrowId instanceof Response) {
+    return escrowId;
+  }
+  const disputeId = requireRouteParam(c, 'disputeId');
+  if (disputeId instanceof Response) {
+    return disputeId;
+  }
+
   try {
     const result = await resolveDisputeEscrow({
-      escrowId: c.req.param('id'),
-      disputeId: c.req.param('disputeId'),
+      escrowId,
+      disputeId,
       apiKeyId: apiKey.id,
       outcome: body.outcome,
       note: typeof body.note === 'string' ? body.note : undefined,
