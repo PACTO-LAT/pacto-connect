@@ -768,3 +768,164 @@ AdminLegacyError:
       type: string
     code:
       type: string
+
+SettlementPeriodPublic:
+  type: object
+  required: [id, merchantId, periodKey, startsAt, endsAt, status, createdAt]
+  properties:
+    id:
+      type: string
+    merchantId:
+      type: string
+    periodKey:
+      type: string
+    startsAt:
+      type: string
+      format: date-time
+    endsAt:
+      type: string
+      format: date-time
+    status:
+      type: string
+      enum: [open, closed]
+    closedAt:
+      type: string
+      format: date-time
+      nullable: true
+    createdAt:
+      type: string
+      format: date-time
+
+SettlementPeriodResponse:
+  type: object
+  required: [period]
+  properties:
+    period:
+      $ref: '#/SettlementPeriodPublic'
+
+LedgerEntryPublic:
+  type: object
+  required:
+    - id
+    - merchantId
+    - periodId
+    - periodKey
+    - direction
+    - kind
+    - amount
+    - asset
+    - occurredAt
+    - createdAt
+  properties:
+    id:
+      type: string
+    merchantId:
+      type: string
+    periodId:
+      type: string
+    periodKey:
+      type: string
+    sourceEscrowId:
+      type: string
+      nullable: true
+    direction:
+      type: string
+      enum: [credit, debit]
+    kind:
+      type: string
+      enum: [settlement, correction]
+    amount:
+      type: number
+    asset:
+      type: string
+    correctsEntryId:
+      type: string
+      nullable: true
+    occurredAt:
+      type: string
+      format: date-time
+    createdAt:
+      type: string
+      format: date-time
+    payoutRunId:
+      type: string
+      nullable: true
+
+LedgerEntryResponse:
+  type: object
+  required: [entry]
+  properties:
+    entry:
+      $ref: '#/LedgerEntryPublic'
+
+CreateLedgerCorrectionRequest:
+  type: object
+  required: [correctsEntryId]
+  properties:
+    correctsEntryId:
+      type: string
+    amount:
+      type: number
+      minimum: 0
+      exclusiveMinimum: true
+
+PayoutRunPublic:
+  type: object
+  required:
+    - id
+    - merchantId
+    - periodId
+    - periodKey
+    - asset
+    - status
+    - total
+    - entryCount
+    - createdAt
+  properties:
+    id:
+      type: string
+    merchantId:
+      type: string
+    periodId:
+      type: string
+    periodKey:
+      type: string
+    asset:
+      type: string
+    status:
+      type: string
+      enum: [open, finalized]
+    total:
+      type: number
+    entryCount:
+      type: integer
+    createdAt:
+      type: string
+      format: date-time
+    finalizedAt:
+      type: string
+      format: date-time
+      nullable: true
+
+PayoutRunResponse:
+  type: object
+  required: [run]
+  properties:
+    run:
+      $ref: '#/PayoutRunPublic'
+
+PayoutRunListResponse:
+  type: object
+  required: [runs]
+  properties:
+    runs:
+      type: array
+      items:
+        $ref: '#/PayoutRunPublic'
+
+CreatePayoutRunRequest:
+  type: object
+  required: [asset]
+  properties:
+    asset:
+      type: string

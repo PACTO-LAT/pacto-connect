@@ -151,3 +151,33 @@ DeliveryLimitQuery:
   schema:
     type: integer
     minimum: 1
+
+PeriodKeyPath:
+  name: periodKey
+  in: path
+  required: true
+  schema:
+    type: string
+    pattern: '^\d{4}-\d{2}$'
+
+PayoutRunIdPath:
+  name: id
+  in: path
+  required: true
+  schema:
+    type: string
+
+PayoutRunMerchantIdQuery:
+  name: merchantId
+  in: query
+  required: false
+  schema:
+    type: string
+
+PayoutRunPeriodKeyQuery:
+  name: periodKey
+  in: query
+  required: false
+  schema:
+    type: string
+    pattern: '^\d{4}-\d{2}$'

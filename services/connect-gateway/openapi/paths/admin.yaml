@@ -186,6 +186,168 @@
       '503':
         $ref: '../components/responses.yaml#/ServiceUnavailable'
 
+/admin/merchants/{id}/periods/{periodKey}/close:
+  post:
+    operationId: closeSettlementPeriod
+    summary: Close a merchant settlement period
+    tags: [admin]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/MerchantIdPath'
+      - $ref: '../components/parameters.yaml#/PeriodKeyPath'
+    responses:
+      '200':
+        description: Period closed
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/SettlementPeriodResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/merchants/{id}/ledger/corrections:
+  post:
+    operationId: createLedgerCorrection
+    summary: Append a ledger correction entry
+    tags: [admin]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/MerchantIdPath'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/CreateLedgerCorrectionRequest'
+    responses:
+      '201':
+        description: Correction entry created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/LedgerEntryResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/merchants/{id}/periods/{periodKey}/payout-runs:
+  post:
+    operationId: generatePayoutRun
+    summary: Generate or refresh a payout run for a period
+    tags: [admin]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/MerchantIdPath'
+      - $ref: '../components/parameters.yaml#/PeriodKeyPath'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/CreatePayoutRunRequest'
+    responses:
+      '201':
+        description: Payout run generated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/PayoutRunResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/payout-runs:
+  get:
+    operationId: listPayoutRuns
+    summary: List payout runs
+    tags: [admin]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PayoutRunMerchantIdQuery'
+      - $ref: '../components/parameters.yaml#/PayoutRunPeriodKeyQuery'
+    responses:
+      '200':
+        description: Payout runs
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/PayoutRunListResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/payout-runs/{id}:
+  get:
+    operationId: getPayoutRun
+    summary: Inspect a payout run
+    tags: [admin]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PayoutRunIdPath'
+    responses:
+      '200':
+        description: Payout run
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/PayoutRunResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/merchants/{id}/periods/{periodKey}/statement.csv:
+  get:
+    operationId: exportMerchantStatementCsv
+    summary: Export a merchant statement as CSV
+    tags: [admin]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/MerchantIdPath'
+      - $ref: '../components/parameters.yaml#/PeriodKeyPath'
+    responses:
+      '200':
+        description: Statement CSV
+        content:
+          text/csv:
+            schema:
+              type: string
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
 /admin/webhooks:
   get:
     operationId: listWebhookEndpoints

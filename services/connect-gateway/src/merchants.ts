@@ -1,5 +1,6 @@
 import type { Merchant, MerchantStatus } from '@prisma/client';
 import { prisma } from './db.js';
+import { appendSettlementEntry } from './ledger.js';
 
 export interface MerchantPublic {
   id: string;
@@ -96,7 +97,16 @@ export async function recordSettlement(input: {
   asset: string;
 }): Promise<void> {
   try {
-    await prisma.merchantSettlement.create({ data: input });
+    await prisma.$transaction(async (tx) => {
+      await tx.merchantSettlement.create({ data: input });
+      await appendSettlementEntry(tx, {
+        merchantId: input.merchantId,
+        sourceEscrowId: input.escrowId,
+        amount: input.amount,
+        asset: input.asset,
+        occurredAt: new Date(),
+      });
+    });
   } catch (error) {
     // P2002 = unique constraint on escrowId: settlement already recorded, no-op.
     if ((error as { code?: string }).code === 'P2002') {
