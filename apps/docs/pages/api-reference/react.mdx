@@ -1394,7 +1394,7 @@ skip this by passing `injectStyles={false}` to `<PactoCheckout/>`.
 function isPactoErrorCode(value): value is "PACTO_AUTH" | "PACTO_RATE_LIMIT" | "PACTO_UPSTREAM" | "PACTO_VALIDATION" | "PACTO_SESSION" | "PACTO_ESCROW" | "PACTO_NETWORK" | "PACTO_INTERNAL" | "PACTO_UNKNOWN";
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:24
+Defined in: packages/connect-core/dist/index.d.ts:391
 
 ## Parameters
 
@@ -1614,7 +1614,7 @@ Defined in: packages/connect-core/dist/index.d.ts:449
 
 # Interface: DepositParams
 
-Defined in: packages/connect-core/dist/index.d.ts:394
+Defined in: packages/connect-core/dist/index.d.ts:378
 
 SDK-only deposit params (gateway ignores extra body fields today).
 
@@ -1622,7 +1622,7 @@ SDK-only deposit params (gateway ignores extra body fields today).
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="testmode"></a> `testMode?` | `boolean` | When true, simulates on-chain deposit in Gateway test mode. | packages/connect-core/dist/index.d.ts:396 |
+| <a id="testmode"></a> `testMode?` | `boolean` | When true, simulates on-chain deposit in Gateway test mode. | packages/connect-core/dist/index.d.ts:380 |
 
 
 ---
@@ -1995,7 +1995,7 @@ Defined in: [packages/connect-react/src/hooks/useCheckoutFlow.ts:43](https://git
 type CheckoutMode = Schemas["CheckoutMode"];
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:380
+Defined in: packages/connect-core/dist/index.d.ts:364
 
 Public aliases for gateway-backed API entity and request types.
 
@@ -2047,7 +2047,7 @@ Defined in: packages/connect-core/dist/index.d.ts:590
 type CreateEscrowParams = Pick<Schemas["CreateEscrowRequest"], "quoteId">;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:384
+Defined in: packages/connect-core/dist/index.d.ts:368
 
 
 ---
@@ -2075,7 +2075,7 @@ Defined in: packages/connect-core/dist/index.d.ts:827
 type Escrow = Schemas["Escrow"];
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:382
+Defined in: packages/connect-core/dist/index.d.ts:366
 
 
 ---
@@ -2138,7 +2138,7 @@ Maps to Pacto P2P `escrow_milestones` lifecycle states.
 type EscrowStatus = Schemas["EscrowStatus"];
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:381
+Defined in: packages/connect-core/dist/index.d.ts:365
 
 
 ---
@@ -2149,7 +2149,7 @@ Defined in: packages/connect-core/dist/index.d.ts:381
 type EscrowStatusResponse = Schemas["EscrowStatusBody"];
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:383
+Defined in: packages/connect-core/dist/index.d.ts:367
 
 
 ---
@@ -2160,7 +2160,7 @@ Defined in: packages/connect-core/dist/index.d.ts:383
 type FiatPaymentMethod = Schemas["FiatPaymentMethod"];
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:385
+Defined in: packages/connect-core/dist/index.d.ts:369
 
 
 ---
@@ -2171,7 +2171,7 @@ Defined in: packages/connect-core/dist/index.d.ts:385
 type FiatReceiptParams = Schemas["FiatReportRequest"];
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:386
+Defined in: packages/connect-core/dist/index.d.ts:370
 
 
 ---
@@ -2182,7 +2182,7 @@ Defined in: packages/connect-core/dist/index.d.ts:386
 type PactoErrorCode = typeof PACTO_ERROR_CODES[number];
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:23
+Defined in: packages/connect-core/dist/index.d.ts:390
 
 
 ---
@@ -2231,7 +2231,7 @@ Defined in: packages/connect-core/dist/index.d.ts:1
 const PACTO_ERROR_CODES: readonly ["PACTO_AUTH", "PACTO_RATE_LIMIT", "PACTO_UPSTREAM", "PACTO_VALIDATION", "PACTO_SESSION", "PACTO_ESCROW", "PACTO_NETWORK", "PACTO_INTERNAL", "PACTO_UNKNOWN"];
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:18
+Defined in: packages/connect-core/dist/index.d.ts:385
 
 
 ---
