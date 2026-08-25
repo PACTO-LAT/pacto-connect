@@ -1,0 +1,153 @@
+PublishableKeyHeader:
+  name: x-pacto-publishable-key
+  in: header
+  required: false
+  description: Publishable API key (pk_test_* or pk_live_*). Required on /v1/* routes except inbound webhooks.
+  schema:
+    type: string
+
+OriginHeader:
+  name: Origin
+  in: header
+  required: false
+  description: Browser origin for CORS validation. Referer is accepted as fallback.
+  schema:
+    type: string
+
+IdempotencyKeyHeader:
+  name: Idempotency-Key
+  in: header
+  required: false
+  description: Idempotency key for safe retries on write operations.
+  schema:
+    type: string
+
+RequestIdHeader:
+  name: x-pacto-request-id
+  in: header
+  required: false
+  description: Client-supplied request correlation id.
+  schema:
+    type: string
+
+LastEventIdHeader:
+  name: Last-Event-ID
+  in: header
+  required: false
+  description: SSE replay cursor for escrow events stream.
+  schema:
+    type: string
+
+EscrowIdPath:
+  name: id
+  in: path
+  required: true
+  schema:
+    type: string
+
+DisputeIdPath:
+  name: disputeId
+  in: path
+  required: true
+  schema:
+    type: string
+
+SubscriptionIdPath:
+  name: id
+  in: path
+  required: true
+  schema:
+    type: string
+
+KeyIdPath:
+  name: id
+  in: path
+  required: true
+  schema:
+    type: string
+
+KeyIdMerchantsPath:
+  name: keyId
+  in: path
+  required: true
+  schema:
+    type: string
+
+MerchantIdPath:
+  name: id
+  in: path
+  required: true
+  schema:
+    type: string
+
+WebhookEndpointIdPath:
+  name: id
+  in: path
+  required: true
+  schema:
+    type: string
+
+DeliveryIdPath:
+  name: id
+  in: path
+  required: true
+  schema:
+    type: string
+
+EscrowEventsEscrowIdQuery:
+  name: escrowId
+  in: query
+  required: false
+  schema:
+    type: string
+
+EscrowEventsCursorQuery:
+  name: cursor
+  in: query
+  required: false
+  schema:
+    type: string
+
+WebhookApiKeyIdQuery:
+  name: apiKeyId
+  in: query
+  required: false
+  schema:
+    type: string
+
+WebhookMerchantIdQuery:
+  name: merchantId
+  in: query
+  required: false
+  schema:
+    type: string
+
+DeliveryStatusQuery:
+  name: status
+  in: query
+  required: false
+  schema:
+    type: string
+    enum: [pending, succeeded, failed, dead]
+
+DeliveryEndpointIdQuery:
+  name: endpointId
+  in: query
+  required: false
+  schema:
+    type: string
+
+DeliveryEventIdQuery:
+  name: eventId
+  in: query
+  required: false
+  schema:
+    type: string
+
+DeliveryLimitQuery:
+  name: limit
+  in: query
+  required: false
+  schema:
+    type: integer
+    minimum: 1

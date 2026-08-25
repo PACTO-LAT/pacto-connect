@@ -1,0 +1,411 @@
+/admin/keys:
+  get:
+    operationId: listApiKeys
+    summary: List API keys
+    tags: [admin]
+    security:
+      - AdminToken: []
+    responses:
+      '200':
+        description: API keys
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/ApiKeyListResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+  post:
+    operationId: createApiKey
+    summary: Create an API key pair
+    tags: [admin]
+    security:
+      - AdminToken: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/CreateApiKeyRequest'
+    responses:
+      '201':
+        description: Key created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/ApiKeyCreatedResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/keys/{id}/rotate:
+  post:
+    operationId: rotateApiKey
+    summary: Rotate an API key
+    tags: [admin]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/KeyIdPath'
+    responses:
+      '200':
+        description: Key rotated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/ApiKeyCreatedResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/keys/{id}/cutover:
+  post:
+    operationId: cutoverApiKey
+    summary: Cut over to rotated key
+    tags: [admin]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/KeyIdPath'
+    responses:
+      '200':
+        description: Key cut over
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/ApiKeyResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/keys/{id}/revoke:
+  post:
+    operationId: revokeApiKey
+    summary: Revoke an API key
+    tags: [admin]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/KeyIdPath'
+    responses:
+      '200':
+        description: Key revoked
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/ApiKeyResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/keys/{keyId}/merchants:
+  post:
+    operationId: createMerchant
+    summary: Create a merchant for an API key
+    tags: [admin]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/KeyIdMerchantsPath'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/CreateMerchantRequest'
+    responses:
+      '201':
+        description: Merchant created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/MerchantResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+  get:
+    operationId: listMerchants
+    summary: List merchants for an API key
+    tags: [admin]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/KeyIdMerchantsPath'
+    responses:
+      '200':
+        description: Merchants
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/MerchantListResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/merchants/{id}/disable:
+  post:
+    operationId: disableMerchant
+    summary: Disable a merchant
+    tags: [admin]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/MerchantIdPath'
+    responses:
+      '200':
+        description: Merchant disabled
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/MerchantResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/webhooks:
+  get:
+    operationId: listWebhookEndpoints
+    summary: List webhook endpoints
+    tags: [admin, webhooks]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/WebhookApiKeyIdQuery'
+      - $ref: '../components/parameters.yaml#/WebhookMerchantIdQuery'
+    responses:
+      '200':
+        description: Webhook endpoints
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/WebhookEndpointListResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+  post:
+    operationId: registerWebhookEndpoint
+    summary: Register a webhook endpoint
+    tags: [admin, webhooks]
+    security:
+      - AdminToken: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/RegisterWebhookEndpointRequest'
+    responses:
+      '201':
+        description: Endpoint registered
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/WebhookEndpointResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/webhooks/deliveries:
+  get:
+    operationId: listWebhookDeliveries
+    summary: List webhook deliveries
+    tags: [admin, webhooks]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/DeliveryStatusQuery'
+      - $ref: '../components/parameters.yaml#/DeliveryEndpointIdQuery'
+      - $ref: '../components/parameters.yaml#/DeliveryEventIdQuery'
+      - $ref: '../components/parameters.yaml#/DeliveryLimitQuery'
+    responses:
+      '200':
+        description: Deliveries
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/WebhookDeliveryListResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/webhooks/dlq:
+  get:
+    operationId: listWebhookDlq
+    summary: List dead-letter webhook deliveries
+    tags: [admin, webhooks]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/DeliveryLimitQuery'
+    responses:
+      '200':
+        description: Dead-letter deliveries
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/WebhookDeliveryListResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/webhooks/deliveries/{id}/retry:
+  post:
+    operationId: retryWebhookDelivery
+    summary: Requeue a webhook delivery
+    tags: [admin, webhooks]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/DeliveryIdPath'
+    responses:
+      '200':
+        description: Delivery requeued
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/WebhookDeliveryResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/webhooks/{id}:
+  get:
+    operationId: getWebhookEndpoint
+    summary: Get a webhook endpoint
+    tags: [admin, webhooks]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/WebhookEndpointIdPath'
+    responses:
+      '200':
+        description: Webhook endpoint
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/WebhookEndpointResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+  delete:
+    operationId: deleteWebhookEndpoint
+    summary: Delete a webhook endpoint
+    tags: [admin, webhooks]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/WebhookEndpointIdPath'
+    responses:
+      '204':
+        description: Endpoint deleted
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/webhooks/{id}/verify:
+  post:
+    operationId: verifyWebhookEndpoint
+    summary: Verify a webhook endpoint
+    tags: [admin, webhooks]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/WebhookEndpointIdPath'
+    responses:
+      '200':
+        description: Verification result
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/WebhookVerifyResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/webhooks/{id}/enable:
+  post:
+    operationId: enableWebhookEndpoint
+    summary: Enable a webhook endpoint
+    tags: [admin, webhooks]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/WebhookEndpointIdPath'
+    responses:
+      '200':
+        description: Endpoint enabled
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/WebhookEndpointResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/webhooks/{id}/disable:
+  post:
+    operationId: disableWebhookEndpoint
+    summary: Disable a webhook endpoint
+    tags: [admin, webhooks]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/WebhookEndpointIdPath'
+    responses:
+      '200':
+        description: Endpoint disabled
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/WebhookEndpointResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
