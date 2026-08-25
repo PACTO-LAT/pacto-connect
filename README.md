@@ -32,6 +32,16 @@ npm run check      # Biome lint + format check
 npm run type-check
 ```
 
+### OpenAPI client types
+
+Gateway REST shapes are defined in [`services/connect-gateway/openapi/`](services/connect-gateway/openapi/). Regenerate SDK types after spec changes:
+
+```bash
+npm run generate:openapi
+```
+
+Commit the updated [`packages/connect-core/src/generated/openapi.ts`](packages/connect-core/src/generated/openapi.ts) alongside spec edits.
+
 ## Packages
 
 | Package | Description |

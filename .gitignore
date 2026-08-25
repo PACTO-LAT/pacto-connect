@@ -11,3 +11,4 @@ out/
 apps/docs/public/examples/react/
 apps/docs/public/examples/static/
 apps/docs/public/examples/marketplace/
+services/connect-gateway/openapi/gateway.bundled.yaml
