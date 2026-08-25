@@ -20,7 +20,7 @@ npm install @pacto-connect/react
 
 # Class: CheckoutFlowController
 
-Defined in: packages/connect-core/dist/index.d.ts:308
+Defined in: packages/connect-core/dist/index.d.ts:368
 
 ## Constructors
 
@@ -30,7 +30,7 @@ Defined in: packages/connect-core/dist/index.d.ts:308
 new CheckoutFlowController(options): CheckoutFlowController;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:317
+Defined in: packages/connect-core/dist/index.d.ts:377
 
 #### Parameters
 
@@ -50,7 +50,7 @@ Defined in: packages/connect-core/dist/index.d.ts:317
 confirmDeposit(): Promise<void>;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:322
+Defined in: packages/connect-core/dist/index.d.ts:382
 
 #### Returns
 
@@ -64,7 +64,7 @@ Defined in: packages/connect-core/dist/index.d.ts:322
 destroy(): void;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:320
+Defined in: packages/connect-core/dist/index.d.ts:380
 
 #### Returns
 
@@ -78,7 +78,7 @@ Defined in: packages/connect-core/dist/index.d.ts:320
 forceTestDispute(reason?): Promise<void>;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:326
+Defined in: packages/connect-core/dist/index.d.ts:386
 
 #### Parameters
 
@@ -98,7 +98,7 @@ Defined in: packages/connect-core/dist/index.d.ts:326
 forceTestRelease(): Promise<void>;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:325
+Defined in: packages/connect-core/dist/index.d.ts:385
 
 #### Returns
 
@@ -112,7 +112,7 @@ Defined in: packages/connect-core/dist/index.d.ts:325
 forceTestTimeout(): Promise<void>;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:327
+Defined in: packages/connect-core/dist/index.d.ts:387
 
 #### Returns
 
@@ -126,7 +126,7 @@ Defined in: packages/connect-core/dist/index.d.ts:327
 getState(): CheckoutFlowState;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:318
+Defined in: packages/connect-core/dist/index.d.ts:378
 
 #### Returns
 
@@ -140,7 +140,7 @@ Defined in: packages/connect-core/dist/index.d.ts:318
 retry(): void;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:324
+Defined in: packages/connect-core/dist/index.d.ts:384
 
 #### Returns
 
@@ -154,7 +154,7 @@ Defined in: packages/connect-core/dist/index.d.ts:324
 selectListing(listing): Promise<void>;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:321
+Defined in: packages/connect-core/dist/index.d.ts:381
 
 #### Parameters
 
@@ -174,7 +174,7 @@ Defined in: packages/connect-core/dist/index.d.ts:321
 start(): Promise<void>;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:319
+Defined in: packages/connect-core/dist/index.d.ts:379
 
 #### Returns
 
@@ -191,7 +191,7 @@ submitReceipt(
 receipt?): Promise<void>;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:323
+Defined in: packages/connect-core/dist/index.d.ts:383
 
 #### Parameters
 
@@ -210,7 +210,7 @@ Defined in: packages/connect-core/dist/index.d.ts:323
 
 # Class: PactoApiError
 
-Defined in: packages/connect-core/dist/index.d.ts:52
+Defined in: packages/connect-core/dist/index.d.ts:57
 
 ## Extends
 
@@ -227,7 +227,7 @@ new PactoApiError(
    options?): PactoApiError;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:53
+Defined in: packages/connect-core/dist/index.d.ts:58
 
 #### Parameters
 
@@ -250,13 +250,13 @@ Defined in: packages/connect-core/dist/index.d.ts:53
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
 | <a id="cause"></a> `cause?` | `public` | `unknown` | - | [`PactoError`](#class.pactoerror).[`cause`](#cause) | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
-| <a id="code"></a> `code` | `readonly` | \| `"PACTO_AUTH"` \| `"PACTO_RATE_LIMIT"` \| `"PACTO_UPSTREAM"` \| `"PACTO_VALIDATION"` \| `"PACTO_SESSION"` \| `"PACTO_ESCROW"` \| `"PACTO_NETWORK"` \| `"PACTO_INTERNAL"` \| `"PACTO_UNKNOWN"` | - | [`PactoError`](#class.pactoerror).[`code`](#code) | packages/connect-core/dist/index.d.ts:34 |
-| <a id="detailcode"></a> `detailCode` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`detailCode`](#detailcode) | packages/connect-core/dist/index.d.ts:35 |
+| <a id="code"></a> `code` | `readonly` | \| `"PACTO_AUTH"` \| `"PACTO_RATE_LIMIT"` \| `"PACTO_UPSTREAM"` \| `"PACTO_VALIDATION"` \| `"PACTO_SESSION"` \| `"PACTO_ESCROW"` \| `"PACTO_NETWORK"` \| `"PACTO_INTERNAL"` \| `"PACTO_UNKNOWN"` | - | [`PactoError`](#class.pactoerror).[`code`](#code) | packages/connect-core/dist/index.d.ts:39 |
+| <a id="detailcode"></a> `detailCode` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`detailCode`](#detailcode) | packages/connect-core/dist/index.d.ts:40 |
 | <a id="message"></a> `message` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`message`](#message) | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
 | <a id="name"></a> `name` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`name`](#name) | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
-| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`requestId`](#requestid) | packages/connect-core/dist/index.d.ts:36 |
+| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`requestId`](#requestid) | packages/connect-core/dist/index.d.ts:41 |
 | <a id="stack"></a> `stack?` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`stack`](#stack) | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
-| <a id="type"></a> `type` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`type`](#type) | packages/connect-core/dist/index.d.ts:33 |
+| <a id="type"></a> `type` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`type`](#type) | packages/connect-core/dist/index.d.ts:38 |
 | <a id="stacktracelimit"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | [`PactoError`](#class.pactoerror).[`stackTraceLimit`](#stacktracelimit) | node\_modules/@types/node/globals.d.ts:68 |
 
 ## Methods
@@ -362,7 +362,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 # Class: PactoAuthError
 
-Defined in: packages/connect-core/dist/index.d.ts:42
+Defined in: packages/connect-core/dist/index.d.ts:47
 
 ## Extends
 
@@ -379,7 +379,7 @@ new PactoAuthError(
    options?): PactoAuthError;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:43
+Defined in: packages/connect-core/dist/index.d.ts:48
 
 #### Parameters
 
@@ -402,13 +402,13 @@ Defined in: packages/connect-core/dist/index.d.ts:43
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
 | <a id="cause"></a> `cause?` | `public` | `unknown` | - | [`PactoError`](#class.pactoerror).[`cause`](#cause) | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
-| <a id="code"></a> `code` | `readonly` | \| `"PACTO_AUTH"` \| `"PACTO_RATE_LIMIT"` \| `"PACTO_UPSTREAM"` \| `"PACTO_VALIDATION"` \| `"PACTO_SESSION"` \| `"PACTO_ESCROW"` \| `"PACTO_NETWORK"` \| `"PACTO_INTERNAL"` \| `"PACTO_UNKNOWN"` | - | [`PactoError`](#class.pactoerror).[`code`](#code) | packages/connect-core/dist/index.d.ts:34 |
-| <a id="detailcode"></a> `detailCode` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`detailCode`](#detailcode) | packages/connect-core/dist/index.d.ts:35 |
+| <a id="code"></a> `code` | `readonly` | \| `"PACTO_AUTH"` \| `"PACTO_RATE_LIMIT"` \| `"PACTO_UPSTREAM"` \| `"PACTO_VALIDATION"` \| `"PACTO_SESSION"` \| `"PACTO_ESCROW"` \| `"PACTO_NETWORK"` \| `"PACTO_INTERNAL"` \| `"PACTO_UNKNOWN"` | - | [`PactoError`](#class.pactoerror).[`code`](#code) | packages/connect-core/dist/index.d.ts:39 |
+| <a id="detailcode"></a> `detailCode` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`detailCode`](#detailcode) | packages/connect-core/dist/index.d.ts:40 |
 | <a id="message"></a> `message` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`message`](#message) | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
 | <a id="name"></a> `name` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`name`](#name) | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
-| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`requestId`](#requestid) | packages/connect-core/dist/index.d.ts:36 |
+| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`requestId`](#requestid) | packages/connect-core/dist/index.d.ts:41 |
 | <a id="stack"></a> `stack?` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`stack`](#stack) | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
-| <a id="type"></a> `type` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`type`](#type) | packages/connect-core/dist/index.d.ts:33 |
+| <a id="type"></a> `type` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`type`](#type) | packages/connect-core/dist/index.d.ts:38 |
 | <a id="stacktracelimit"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | [`PactoError`](#class.pactoerror).[`stackTraceLimit`](#stacktracelimit) | node\_modules/@types/node/globals.d.ts:68 |
 
 ## Methods
@@ -514,7 +514,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 # Class: PactoError
 
-Defined in: packages/connect-core/dist/index.d.ts:32
+Defined in: packages/connect-core/dist/index.d.ts:37
 
 ## Extends
 
@@ -541,7 +541,7 @@ new PactoError(
    options?): PactoError;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:37
+Defined in: packages/connect-core/dist/index.d.ts:42
 
 #### Parameters
 
@@ -568,13 +568,13 @@ Error.constructor
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
 | <a id="cause"></a> `cause?` | `public` | `unknown` | - | `Error.cause` | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
-| <a id="code"></a> `code` | `readonly` | \| `"PACTO_AUTH"` \| `"PACTO_RATE_LIMIT"` \| `"PACTO_UPSTREAM"` \| `"PACTO_VALIDATION"` \| `"PACTO_SESSION"` \| `"PACTO_ESCROW"` \| `"PACTO_NETWORK"` \| `"PACTO_INTERNAL"` \| `"PACTO_UNKNOWN"` | - | - | packages/connect-core/dist/index.d.ts:34 |
-| <a id="detailcode"></a> `detailCode` | `readonly` | `string` | - | - | packages/connect-core/dist/index.d.ts:35 |
+| <a id="code"></a> `code` | `readonly` | \| `"PACTO_AUTH"` \| `"PACTO_RATE_LIMIT"` \| `"PACTO_UPSTREAM"` \| `"PACTO_VALIDATION"` \| `"PACTO_SESSION"` \| `"PACTO_ESCROW"` \| `"PACTO_NETWORK"` \| `"PACTO_INTERNAL"` \| `"PACTO_UNKNOWN"` | - | - | packages/connect-core/dist/index.d.ts:39 |
+| <a id="detailcode"></a> `detailCode` | `readonly` | `string` | - | - | packages/connect-core/dist/index.d.ts:40 |
 | <a id="message"></a> `message` | `public` | `string` | - | `Error.message` | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
 | <a id="name"></a> `name` | `public` | `string` | - | `Error.name` | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
-| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | - | packages/connect-core/dist/index.d.ts:36 |
+| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | - | packages/connect-core/dist/index.d.ts:41 |
 | <a id="stack"></a> `stack?` | `public` | `string` | - | `Error.stack` | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
-| <a id="type"></a> `type` | `readonly` | `string` | - | - | packages/connect-core/dist/index.d.ts:33 |
+| <a id="type"></a> `type` | `readonly` | `string` | - | - | packages/connect-core/dist/index.d.ts:38 |
 | <a id="stacktracelimit"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | `Error.stackTraceLimit` | node\_modules/@types/node/globals.d.ts:68 |
 
 ## Methods
@@ -684,7 +684,7 @@ Error.prepareStackTrace
 
 # Class: PactoEscrowError
 
-Defined in: packages/connect-core/dist/index.d.ts:49
+Defined in: packages/connect-core/dist/index.d.ts:54
 
 ## Extends
 
@@ -701,7 +701,7 @@ new PactoEscrowError(
    options?): PactoEscrowError;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:50
+Defined in: packages/connect-core/dist/index.d.ts:55
 
 #### Parameters
 
@@ -724,13 +724,13 @@ Defined in: packages/connect-core/dist/index.d.ts:50
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
 | <a id="cause"></a> `cause?` | `public` | `unknown` | - | [`PactoError`](#class.pactoerror).[`cause`](#cause) | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
-| <a id="code"></a> `code` | `readonly` | \| `"PACTO_AUTH"` \| `"PACTO_RATE_LIMIT"` \| `"PACTO_UPSTREAM"` \| `"PACTO_VALIDATION"` \| `"PACTO_SESSION"` \| `"PACTO_ESCROW"` \| `"PACTO_NETWORK"` \| `"PACTO_INTERNAL"` \| `"PACTO_UNKNOWN"` | - | [`PactoError`](#class.pactoerror).[`code`](#code) | packages/connect-core/dist/index.d.ts:34 |
-| <a id="detailcode"></a> `detailCode` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`detailCode`](#detailcode) | packages/connect-core/dist/index.d.ts:35 |
+| <a id="code"></a> `code` | `readonly` | \| `"PACTO_AUTH"` \| `"PACTO_RATE_LIMIT"` \| `"PACTO_UPSTREAM"` \| `"PACTO_VALIDATION"` \| `"PACTO_SESSION"` \| `"PACTO_ESCROW"` \| `"PACTO_NETWORK"` \| `"PACTO_INTERNAL"` \| `"PACTO_UNKNOWN"` | - | [`PactoError`](#class.pactoerror).[`code`](#code) | packages/connect-core/dist/index.d.ts:39 |
+| <a id="detailcode"></a> `detailCode` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`detailCode`](#detailcode) | packages/connect-core/dist/index.d.ts:40 |
 | <a id="message"></a> `message` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`message`](#message) | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
 | <a id="name"></a> `name` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`name`](#name) | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
-| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`requestId`](#requestid) | packages/connect-core/dist/index.d.ts:36 |
+| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`requestId`](#requestid) | packages/connect-core/dist/index.d.ts:41 |
 | <a id="stack"></a> `stack?` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`stack`](#stack) | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
-| <a id="type"></a> `type` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`type`](#type) | packages/connect-core/dist/index.d.ts:33 |
+| <a id="type"></a> `type` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`type`](#type) | packages/connect-core/dist/index.d.ts:38 |
 | <a id="stacktracelimit"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | [`PactoError`](#class.pactoerror).[`stackTraceLimit`](#stacktracelimit) | node\_modules/@types/node/globals.d.ts:68 |
 
 ## Methods
@@ -836,7 +836,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 # Class: PactoRateLimitError
 
-Defined in: packages/connect-core/dist/index.d.ts:45
+Defined in: packages/connect-core/dist/index.d.ts:50
 
 ## Extends
 
@@ -854,7 +854,7 @@ new PactoRateLimitError(
    options?): PactoRateLimitError;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:47
+Defined in: packages/connect-core/dist/index.d.ts:52
 
 #### Parameters
 
@@ -878,14 +878,14 @@ Defined in: packages/connect-core/dist/index.d.ts:47
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
 | <a id="cause"></a> `cause?` | `public` | `unknown` | - | [`PactoError`](#class.pactoerror).[`cause`](#cause) | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
-| <a id="code"></a> `code` | `readonly` | \| `"PACTO_AUTH"` \| `"PACTO_RATE_LIMIT"` \| `"PACTO_UPSTREAM"` \| `"PACTO_VALIDATION"` \| `"PACTO_SESSION"` \| `"PACTO_ESCROW"` \| `"PACTO_NETWORK"` \| `"PACTO_INTERNAL"` \| `"PACTO_UNKNOWN"` | - | [`PactoError`](#class.pactoerror).[`code`](#code) | packages/connect-core/dist/index.d.ts:34 |
-| <a id="detailcode"></a> `detailCode` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`detailCode`](#detailcode) | packages/connect-core/dist/index.d.ts:35 |
+| <a id="code"></a> `code` | `readonly` | \| `"PACTO_AUTH"` \| `"PACTO_RATE_LIMIT"` \| `"PACTO_UPSTREAM"` \| `"PACTO_VALIDATION"` \| `"PACTO_SESSION"` \| `"PACTO_ESCROW"` \| `"PACTO_NETWORK"` \| `"PACTO_INTERNAL"` \| `"PACTO_UNKNOWN"` | - | [`PactoError`](#class.pactoerror).[`code`](#code) | packages/connect-core/dist/index.d.ts:39 |
+| <a id="detailcode"></a> `detailCode` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`detailCode`](#detailcode) | packages/connect-core/dist/index.d.ts:40 |
 | <a id="message"></a> `message` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`message`](#message) | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
 | <a id="name"></a> `name` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`name`](#name) | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
-| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`requestId`](#requestid) | packages/connect-core/dist/index.d.ts:36 |
-| <a id="retryafter"></a> `retryAfter?` | `readonly` | `number` | - | - | packages/connect-core/dist/index.d.ts:46 |
+| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`requestId`](#requestid) | packages/connect-core/dist/index.d.ts:41 |
+| <a id="retryafter"></a> `retryAfter?` | `readonly` | `number` | - | - | packages/connect-core/dist/index.d.ts:51 |
 | <a id="stack"></a> `stack?` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`stack`](#stack) | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
-| <a id="type"></a> `type` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`type`](#type) | packages/connect-core/dist/index.d.ts:33 |
+| <a id="type"></a> `type` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`type`](#type) | packages/connect-core/dist/index.d.ts:38 |
 | <a id="stacktracelimit"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | [`PactoError`](#class.pactoerror).[`stackTraceLimit`](#stacktracelimit) | node\_modules/@types/node/globals.d.ts:68 |
 
 ## Methods
@@ -991,7 +991,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 # Class: PactoSession
 
-Defined in: packages/connect-core/dist/index.d.ts:259
+Defined in: packages/connect-core/dist/index.d.ts:318
 
 ## Constructors
 
@@ -1001,7 +1001,7 @@ Defined in: packages/connect-core/dist/index.d.ts:259
 new PactoSession(client, data): PactoSession;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:266
+Defined in: packages/connect-core/dist/index.d.ts:325
 
 #### Parameters
 
@@ -1018,10 +1018,10 @@ Defined in: packages/connect-core/dist/index.d.ts:266
 
 | Property | Modifier | Type | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="clientsecret"></a> `clientSecret` | `readonly` | `string` | packages/connect-core/dist/index.d.ts:262 |
-| <a id="expiresat"></a> `expiresAt` | `readonly` | `Date` | packages/connect-core/dist/index.d.ts:263 |
-| <a id="mode"></a> `mode` | `readonly` | [`CheckoutMode`](#typealias.checkoutmode) | packages/connect-core/dist/index.d.ts:264 |
-| <a id="sessionid"></a> `sessionId` | `readonly` | `string` | packages/connect-core/dist/index.d.ts:261 |
+| <a id="clientsecret"></a> `clientSecret` | `readonly` | `string` | packages/connect-core/dist/index.d.ts:321 |
+| <a id="expiresat"></a> `expiresAt` | `readonly` | `Date` | packages/connect-core/dist/index.d.ts:322 |
+| <a id="mode"></a> `mode` | `readonly` | [`CheckoutMode`](#typealias.checkoutmode) | packages/connect-core/dist/index.d.ts:323 |
+| <a id="sessionid"></a> `sessionId` | `readonly` | `string` | packages/connect-core/dist/index.d.ts:320 |
 
 ## Methods
 
@@ -1031,7 +1031,7 @@ Defined in: packages/connect-core/dist/index.d.ts:266
 closeEvents(): void;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:271
+Defined in: packages/connect-core/dist/index.d.ts:330
 
 #### Returns
 
@@ -1045,7 +1045,7 @@ Defined in: packages/connect-core/dist/index.d.ts:271
 isExpired(): boolean;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:267
+Defined in: packages/connect-core/dist/index.d.ts:326
 
 #### Returns
 
@@ -1059,13 +1059,13 @@ Defined in: packages/connect-core/dist/index.d.ts:267
 off(event, handler): void;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:270
+Defined in: packages/connect-core/dist/index.d.ts:329
 
 #### Parameters
 
 | Parameter | Type |
 | ------ | ------ |
-| `event` | `"disputed"` \| `"escrow.funded"` \| `"fiat.reported"` \| `"released"` |
+| `event` | \| `"disputed"` \| `"refunded"` \| `"escrow.funded"` \| `"fiat.reported"` \| `"released"` \| `"cancelled"` \| `"dispute.resolved"` |
 | `handler` | [`EscrowEventHandler`](#typealias.escroweventhandler) |
 
 #### Returns
@@ -1083,13 +1083,13 @@ on(
    options?): void;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:269
+Defined in: packages/connect-core/dist/index.d.ts:328
 
 #### Parameters
 
 | Parameter | Type |
 | ------ | ------ |
-| `event` | `"disputed"` \| `"escrow.funded"` \| `"fiat.reported"` \| `"released"` |
+| `event` | \| `"disputed"` \| `"refunded"` \| `"escrow.funded"` \| `"fiat.reported"` \| `"released"` \| `"cancelled"` \| `"dispute.resolved"` |
 | `handler` | [`EscrowEventHandler`](#typealias.escroweventhandler) |
 | `options?` | [`EscrowSubscribeOptions`](#interface.escrowsubscribeoptions) |
 
@@ -1105,7 +1105,7 @@ Defined in: packages/connect-core/dist/index.d.ts:269
 refresh(): Promise<PactoSession>;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:268
+Defined in: packages/connect-core/dist/index.d.ts:327
 
 #### Returns
 
@@ -1116,7 +1116,7 @@ Defined in: packages/connect-core/dist/index.d.ts:268
 
 # Class: PactoSessionError
 
-Defined in: packages/connect-core/dist/index.d.ts:39
+Defined in: packages/connect-core/dist/index.d.ts:44
 
 ## Extends
 
@@ -1133,7 +1133,7 @@ new PactoSessionError(
    options?): PactoSessionError;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:40
+Defined in: packages/connect-core/dist/index.d.ts:45
 
 #### Parameters
 
@@ -1156,13 +1156,13 @@ Defined in: packages/connect-core/dist/index.d.ts:40
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
 | <a id="cause"></a> `cause?` | `public` | `unknown` | - | [`PactoError`](#class.pactoerror).[`cause`](#cause) | node\_modules/typescript/lib/lib.es2022.error.d.ts:26 |
-| <a id="code"></a> `code` | `readonly` | \| `"PACTO_AUTH"` \| `"PACTO_RATE_LIMIT"` \| `"PACTO_UPSTREAM"` \| `"PACTO_VALIDATION"` \| `"PACTO_SESSION"` \| `"PACTO_ESCROW"` \| `"PACTO_NETWORK"` \| `"PACTO_INTERNAL"` \| `"PACTO_UNKNOWN"` | - | [`PactoError`](#class.pactoerror).[`code`](#code) | packages/connect-core/dist/index.d.ts:34 |
-| <a id="detailcode"></a> `detailCode` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`detailCode`](#detailcode) | packages/connect-core/dist/index.d.ts:35 |
+| <a id="code"></a> `code` | `readonly` | \| `"PACTO_AUTH"` \| `"PACTO_RATE_LIMIT"` \| `"PACTO_UPSTREAM"` \| `"PACTO_VALIDATION"` \| `"PACTO_SESSION"` \| `"PACTO_ESCROW"` \| `"PACTO_NETWORK"` \| `"PACTO_INTERNAL"` \| `"PACTO_UNKNOWN"` | - | [`PactoError`](#class.pactoerror).[`code`](#code) | packages/connect-core/dist/index.d.ts:39 |
+| <a id="detailcode"></a> `detailCode` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`detailCode`](#detailcode) | packages/connect-core/dist/index.d.ts:40 |
 | <a id="message"></a> `message` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`message`](#message) | node\_modules/typescript/lib/lib.es5.d.ts:1077 |
 | <a id="name"></a> `name` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`name`](#name) | node\_modules/typescript/lib/lib.es5.d.ts:1076 |
-| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`requestId`](#requestid) | packages/connect-core/dist/index.d.ts:36 |
+| <a id="requestid"></a> `requestId?` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`requestId`](#requestid) | packages/connect-core/dist/index.d.ts:41 |
 | <a id="stack"></a> `stack?` | `public` | `string` | - | [`PactoError`](#class.pactoerror).[`stack`](#stack) | node\_modules/typescript/lib/lib.es5.d.ts:1078 |
-| <a id="type"></a> `type` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`type`](#type) | packages/connect-core/dist/index.d.ts:33 |
+| <a id="type"></a> `type` | `readonly` | `string` | - | [`PactoError`](#class.pactoerror).[`type`](#type) | packages/connect-core/dist/index.d.ts:38 |
 | <a id="stacktracelimit"></a> `stackTraceLimit` | `static` | `number` | The `Error.stackTraceLimit` property specifies the number of stack frames collected by a stack trace (whether generated by `new Error().stack` or `Error.captureStackTrace(obj)`). The default value is `10` but may be set to any valid JavaScript number. Changes will affect any stack trace captured _after_ the value has been changed. If set to a non-number value, or set to a negative number, stack traces will not capture any frames. | [`PactoError`](#class.pactoerror).[`stackTraceLimit`](#stacktracelimit) | node\_modules/@types/node/globals.d.ts:68 |
 
 ## Methods
@@ -1272,7 +1272,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 function PactoCheckout(props): Element | null;
 ```
 
-Defined in: [packages/connect-react/src/PactoCheckout.tsx:50](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L50)
+Defined in: [packages/connect-react/src/PactoCheckout.tsx:51](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L51)
 
 ## Parameters
 
@@ -1293,7 +1293,7 @@ Defined in: [packages/connect-react/src/PactoCheckout.tsx:50](https://github.com
 function buildCheckoutStylesheet(): string;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:433
+Defined in: packages/connect-core/dist/index.d.ts:496
 
 The default checkout stylesheet, tokenized. Every themeable value is written
 as `var(--pacto-*, <default>)` where the default comes from DEFAULT_THEME, so
@@ -1337,7 +1337,7 @@ skip this by passing `injectStyles={false}` to `<PactoCheckout/>`.
 function isPactoErrorCode(value): value is "PACTO_AUTH" | "PACTO_RATE_LIMIT" | "PACTO_UPSTREAM" | "PACTO_VALIDATION" | "PACTO_SESSION" | "PACTO_ESCROW" | "PACTO_NETWORK" | "PACTO_INTERNAL" | "PACTO_UNKNOWN";
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:19
+Defined in: packages/connect-core/dist/index.d.ts:24
 
 ## Parameters
 
@@ -1358,7 +1358,7 @@ value is "PACTO\_AUTH" \| "PACTO\_RATE\_LIMIT" \| "PACTO\_UPSTREAM" \| "PACTO\_V
 function resolveMessages(locale?, overrides?): PactoMessages;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:482
+Defined in: packages/connect-core/dist/index.d.ts:547
 
 Resolve a locale to its message set, deep-merged with optional overrides.
 Unknown locales fall back to English. Pass a full `PactoMessages` shape via
@@ -1384,7 +1384,7 @@ Unknown locales fall back to English. Pass a full `PactoMessages` shape via
 function themeToCssVars(theme?): Record<string, string>;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:427
+Defined in: packages/connect-core/dist/index.d.ts:490
 
 Convert a (partial) theme into a sparse map of CSS custom properties. Only
 tokens that are explicitly provided are emitted; everything else falls
@@ -1409,7 +1409,7 @@ through to the stylesheet's built-in fallbacks.
 function useCheckoutFlow(options): UseCheckoutFlowResult;
 ```
 
-Defined in: [packages/connect-react/src/hooks/useCheckoutFlow.ts:58](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L58)
+Defined in: [packages/connect-react/src/hooks/useCheckoutFlow.ts:59](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L59)
 
 ## Parameters
 
@@ -1426,105 +1426,108 @@ Defined in: [packages/connect-react/src/hooks/useCheckoutFlow.ts:58](https://git
 
 # Interface: CheckoutFlowOptions
 
-Defined in: packages/connect-core/dist/index.d.ts:295
+Defined in: packages/connect-core/dist/index.d.ts:354
 
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="gatewayurl"></a> `gatewayUrl?` | `string` | - | packages/connect-core/dist/index.d.ts:297 |
-| <a id="listingid"></a> `listingId?` | `string` | - | packages/connect-core/dist/index.d.ts:298 |
-| <a id="mode"></a> `mode?` | [`CheckoutMode`](#typealias.checkoutmode) | - | packages/connect-core/dist/index.d.ts:299 |
-| <a id="onchange"></a> `onChange?` | (`state`) => `void` | - | packages/connect-core/dist/index.d.ts:303 |
-| <a id="oncomplete"></a> `onComplete?` | (`escrow`) => `void` | - | packages/connect-core/dist/index.d.ts:304 |
-| <a id="ondispute"></a> `onDispute?` | (`escrow`) => `void` | - | packages/connect-core/dist/index.d.ts:305 |
-| <a id="onerror"></a> `onError?` | (`error`) => `void` | - | packages/connect-core/dist/index.d.ts:306 |
-| <a id="publishablekey"></a> `publishableKey` | `string` | - | packages/connect-core/dist/index.d.ts:296 |
-| <a id="session"></a> `session?` | [`PactoSessionData`](#interface.pactosessiondata) | Pre-created session; skips POST /v1/session when provided. | packages/connect-core/dist/index.d.ts:302 |
-| <a id="testmode"></a> `testMode?` | `boolean` | - | packages/connect-core/dist/index.d.ts:300 |
+| <a id="gatewayurl"></a> `gatewayUrl?` | `string` | - | packages/connect-core/dist/index.d.ts:356 |
+| <a id="listingid"></a> `listingId?` | `string` | - | packages/connect-core/dist/index.d.ts:357 |
+| <a id="mode"></a> `mode?` | [`CheckoutMode`](#typealias.checkoutmode) | - | packages/connect-core/dist/index.d.ts:358 |
+| <a id="onchange"></a> `onChange?` | (`state`) => `void` | - | packages/connect-core/dist/index.d.ts:362 |
+| <a id="oncomplete"></a> `onComplete?` | (`escrow`) => `void` | - | packages/connect-core/dist/index.d.ts:363 |
+| <a id="ondispute"></a> `onDispute?` | (`escrow`) => `void` | - | packages/connect-core/dist/index.d.ts:364 |
+| <a id="onerror"></a> `onError?` | (`error`) => `void` | - | packages/connect-core/dist/index.d.ts:366 |
+| <a id="onrefund"></a> `onRefund?` | (`escrow`) => `void` | - | packages/connect-core/dist/index.d.ts:365 |
+| <a id="publishablekey"></a> `publishableKey` | `string` | - | packages/connect-core/dist/index.d.ts:355 |
+| <a id="session"></a> `session?` | [`PactoSessionData`](#interface.pactosessiondata) | Pre-created session; skips POST /v1/session when provided. | packages/connect-core/dist/index.d.ts:361 |
+| <a id="testmode"></a> `testMode?` | `boolean` | - | packages/connect-core/dist/index.d.ts:359 |
 
 
 ---
 
 # Interface: CheckoutFlowState
 
-Defined in: packages/connect-core/dist/index.d.ts:284
+Defined in: packages/connect-core/dist/index.d.ts:343
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="error"></a> `error` | `Error` \| `null` | packages/connect-core/dist/index.d.ts:291 |
-| <a id="escrow"></a> `escrow` | [`Escrow`](#interface.escrow) \| `null` | packages/connect-core/dist/index.d.ts:289 |
-| <a id="listings"></a> `listings` | [`Listing`](#interface.listing)[] | packages/connect-core/dist/index.d.ts:287 |
-| <a id="milestones"></a> `milestones` | [`EscrowEvent`](#interface.escrowevent)[] | packages/connect-core/dist/index.d.ts:292 |
-| <a id="quote"></a> `quote` | [`Quote`](#interface.quote) \| `null` | packages/connect-core/dist/index.d.ts:290 |
-| <a id="selectedlisting"></a> `selectedListing` | [`Listing`](#interface.listing) \| `null` | packages/connect-core/dist/index.d.ts:288 |
-| <a id="sessionid"></a> `sessionId` | `string` \| `null` | packages/connect-core/dist/index.d.ts:286 |
-| <a id="step"></a> `step` | [`CheckoutStep`](#typealias.checkoutstep) | packages/connect-core/dist/index.d.ts:285 |
-| <a id="testmode"></a> `testMode` | `boolean` | packages/connect-core/dist/index.d.ts:293 |
+| <a id="error"></a> `error` | `Error` \| `null` | packages/connect-core/dist/index.d.ts:350 |
+| <a id="escrow"></a> `escrow` | [`Escrow`](#interface.escrow) \| `null` | packages/connect-core/dist/index.d.ts:348 |
+| <a id="listings"></a> `listings` | [`Listing`](#interface.listing)[] | packages/connect-core/dist/index.d.ts:346 |
+| <a id="milestones"></a> `milestones` | [`EscrowEvent`](#interface.escrowevent)[] | packages/connect-core/dist/index.d.ts:351 |
+| <a id="quote"></a> `quote` | [`Quote`](#interface.quote) \| `null` | packages/connect-core/dist/index.d.ts:349 |
+| <a id="selectedlisting"></a> `selectedListing` | [`Listing`](#interface.listing) \| `null` | packages/connect-core/dist/index.d.ts:347 |
+| <a id="sessionid"></a> `sessionId` | `string` \| `null` | packages/connect-core/dist/index.d.ts:345 |
+| <a id="step"></a> `step` | [`CheckoutStep`](#typealias.checkoutstep) | packages/connect-core/dist/index.d.ts:344 |
+| <a id="testmode"></a> `testMode` | `boolean` | packages/connect-core/dist/index.d.ts:352 |
 
 
 ---
 
 # Interface: CreateEscrowParams
 
-Defined in: packages/connect-core/dist/index.d.ts:99
+Defined in: packages/connect-core/dist/index.d.ts:106
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="quoteid"></a> `quoteId` | `string` | packages/connect-core/dist/index.d.ts:100 |
+| <a id="quoteid"></a> `quoteId` | `string` | packages/connect-core/dist/index.d.ts:107 |
 
 
 ---
 
 # Interface: CreateQuoteParams
 
-Defined in: packages/connect-core/dist/index.d.ts:78
+Defined in: packages/connect-core/dist/index.d.ts:83
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="amount"></a> `amount` | `string` | packages/connect-core/dist/index.d.ts:81 |
-| <a id="asset"></a> `asset` | `string` | packages/connect-core/dist/index.d.ts:80 |
-| <a id="listingid"></a> `listingId?` | `string` | packages/connect-core/dist/index.d.ts:79 |
-| <a id="price"></a> `price` | `string` | packages/connect-core/dist/index.d.ts:82 |
-| <a id="side"></a> `side` | `"buy"` \| `"sell"` | packages/connect-core/dist/index.d.ts:83 |
+| <a id="amount"></a> `amount` | `string` | packages/connect-core/dist/index.d.ts:86 |
+| <a id="asset"></a> `asset` | `string` | packages/connect-core/dist/index.d.ts:85 |
+| <a id="listingid"></a> `listingId?` | `string` | packages/connect-core/dist/index.d.ts:84 |
+| <a id="price"></a> `price` | `string` | packages/connect-core/dist/index.d.ts:87 |
+| <a id="side"></a> `side` | `"buy"` \| `"sell"` | packages/connect-core/dist/index.d.ts:88 |
 
 
 ---
 
 # Interface: DepositParams
 
-Defined in: packages/connect-core/dist/index.d.ts:102
+Defined in: packages/connect-core/dist/index.d.ts:109
 
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="testmode"></a> `testMode?` | `boolean` | When true, simulates on-chain deposit in Gateway test mode. | packages/connect-core/dist/index.d.ts:104 |
+| <a id="testmode"></a> `testMode?` | `boolean` | When true, simulates on-chain deposit in Gateway test mode. | packages/connect-core/dist/index.d.ts:111 |
 
 
 ---
 
 # Interface: Escrow
 
-Defined in: packages/connect-core/dist/index.d.ts:85
+Defined in: packages/connect-core/dist/index.d.ts:90
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="amount"></a> `amount` | `string` | packages/connect-core/dist/index.d.ts:89 |
-| <a id="asset"></a> `asset` | `string` | packages/connect-core/dist/index.d.ts:90 |
-| <a id="createdat"></a> `createdAt` | `string` | packages/connect-core/dist/index.d.ts:91 |
-| <a id="id"></a> `id` | `string` | packages/connect-core/dist/index.d.ts:86 |
-| <a id="quoteid"></a> `quoteId` | `string` | packages/connect-core/dist/index.d.ts:87 |
-| <a id="status"></a> `status` | [`EscrowStatus`](#typealias.escrowstatus) | packages/connect-core/dist/index.d.ts:88 |
-| <a id="updatedat"></a> `updatedAt` | `string` | packages/connect-core/dist/index.d.ts:92 |
+| <a id="amount"></a> `amount` | `string` | packages/connect-core/dist/index.d.ts:94 |
+| <a id="asset"></a> `asset` | `string` | packages/connect-core/dist/index.d.ts:95 |
+| <a id="createdat"></a> `createdAt` | `string` | packages/connect-core/dist/index.d.ts:98 |
+| <a id="id"></a> `id` | `string` | packages/connect-core/dist/index.d.ts:91 |
+| <a id="quoteid"></a> `quoteId` | `string` | packages/connect-core/dist/index.d.ts:92 |
+| <a id="refundedamount"></a> `refundedAmount?` | `string` | packages/connect-core/dist/index.d.ts:96 |
+| <a id="remainingamount"></a> `remainingAmount?` | `string` | packages/connect-core/dist/index.d.ts:97 |
+| <a id="status"></a> `status` | [`EscrowStatus`](#typealias.escrowstatus) | packages/connect-core/dist/index.d.ts:93 |
+| <a id="updatedat"></a> `updatedAt` | `string` | packages/connect-core/dist/index.d.ts:99 |
 
 
 ---
@@ -1538,89 +1541,90 @@ Defined in: packages/connect-core/dist/index.d.ts:5
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
 | <a id="cursor"></a> `cursor` | `string` | packages/connect-core/dist/index.d.ts:6 |
+| <a id="data"></a> `data?` | `Record`\<`string`, `unknown`\> | packages/connect-core/dist/index.d.ts:11 |
 | <a id="escrowid"></a> `escrowId` | `string` | packages/connect-core/dist/index.d.ts:8 |
 | <a id="milestone"></a> `milestone` | [`EscrowMilestone`](#typealias.escrowmilestone) | packages/connect-core/dist/index.d.ts:9 |
 | <a id="occurredat"></a> `occurredAt` | `string` | packages/connect-core/dist/index.d.ts:10 |
-| <a id="type"></a> `type` | `"disputed"` \| `"escrow.funded"` \| `"fiat.reported"` \| `"released"` | packages/connect-core/dist/index.d.ts:7 |
+| <a id="type"></a> `type` | \| `"disputed"` \| `"refunded"` \| `"escrow.funded"` \| `"fiat.reported"` \| `"released"` \| `"cancelled"` \| `"dispute.resolved"` | packages/connect-core/dist/index.d.ts:7 |
 
 
 ---
 
 # Interface: EscrowStatusResponse
 
-Defined in: packages/connect-core/dist/index.d.ts:94
+Defined in: packages/connect-core/dist/index.d.ts:101
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="id"></a> `id` | `string` | packages/connect-core/dist/index.d.ts:95 |
-| <a id="status"></a> `status` | [`EscrowStatus`](#typealias.escrowstatus) | packages/connect-core/dist/index.d.ts:96 |
-| <a id="updatedat"></a> `updatedAt` | `string` | packages/connect-core/dist/index.d.ts:97 |
+| <a id="id"></a> `id` | `string` | packages/connect-core/dist/index.d.ts:102 |
+| <a id="status"></a> `status` | [`EscrowStatus`](#typealias.escrowstatus) | packages/connect-core/dist/index.d.ts:103 |
+| <a id="updatedat"></a> `updatedAt` | `string` | packages/connect-core/dist/index.d.ts:104 |
 
 
 ---
 
 # Interface: EscrowSubscribeOptions
 
-Defined in: packages/connect-core/dist/index.d.ts:13
+Defined in: packages/connect-core/dist/index.d.ts:14
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="escrowid"></a> `escrowId?` | `string` | packages/connect-core/dist/index.d.ts:14 |
+| <a id="escrowid"></a> `escrowId?` | `string` | packages/connect-core/dist/index.d.ts:15 |
 
 
 ---
 
 # Interface: FiatReceiptParams
 
-Defined in: packages/connect-core/dist/index.d.ts:107
+Defined in: packages/connect-core/dist/index.d.ts:114
 
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="method"></a> `method` | [`FiatPaymentMethod`](#typealias.fiatpaymentmethod) | - | packages/connect-core/dist/index.d.ts:108 |
-| <a id="receipt"></a> `receipt?` | `string` | Base64-encoded receipt image or document. | packages/connect-core/dist/index.d.ts:111 |
-| <a id="reference"></a> `reference` | `string` | - | packages/connect-core/dist/index.d.ts:109 |
+| <a id="method"></a> `method` | [`FiatPaymentMethod`](#typealias.fiatpaymentmethod) | - | packages/connect-core/dist/index.d.ts:115 |
+| <a id="receipt"></a> `receipt?` | `string` | Base64-encoded receipt image or document. | packages/connect-core/dist/index.d.ts:118 |
+| <a id="reference"></a> `reference` | `string` | - | packages/connect-core/dist/index.d.ts:116 |
 
 
 ---
 
 # Interface: Listing
 
-Defined in: packages/connect-core/dist/index.d.ts:59
+Defined in: packages/connect-core/dist/index.d.ts:64
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="amount"></a> `amount` | `string` | packages/connect-core/dist/index.d.ts:62 |
-| <a id="asset"></a> `asset` | `string` | packages/connect-core/dist/index.d.ts:61 |
-| <a id="createdat"></a> `createdAt` | `string` | packages/connect-core/dist/index.d.ts:66 |
-| <a id="id"></a> `id` | `string` | packages/connect-core/dist/index.d.ts:60 |
-| <a id="price"></a> `price` | `string` | packages/connect-core/dist/index.d.ts:63 |
-| <a id="side"></a> `side` | `"buy"` \| `"sell"` | packages/connect-core/dist/index.d.ts:64 |
-| <a id="status"></a> `status` | `string` | packages/connect-core/dist/index.d.ts:65 |
+| <a id="amount"></a> `amount` | `string` | packages/connect-core/dist/index.d.ts:67 |
+| <a id="asset"></a> `asset` | `string` | packages/connect-core/dist/index.d.ts:66 |
+| <a id="createdat"></a> `createdAt` | `string` | packages/connect-core/dist/index.d.ts:71 |
+| <a id="id"></a> `id` | `string` | packages/connect-core/dist/index.d.ts:65 |
+| <a id="price"></a> `price` | `string` | packages/connect-core/dist/index.d.ts:68 |
+| <a id="side"></a> `side` | `"buy"` \| `"sell"` | packages/connect-core/dist/index.d.ts:69 |
+| <a id="status"></a> `status` | `string` | packages/connect-core/dist/index.d.ts:70 |
 
 
 ---
 
 # Interface: PactoApiClient
 
-Defined in: packages/connect-core/dist/index.d.ts:203
+Defined in: packages/connect-core/dist/index.d.ts:262
 
 ## Properties
 
 | Property | Modifier | Type | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="escrows"></a> `escrows` | `readonly` | `EscrowsResource` | packages/connect-core/dist/index.d.ts:206 |
-| <a id="listings"></a> `listings` | `readonly` | `ListingsResource` | packages/connect-core/dist/index.d.ts:204 |
-| <a id="quotes"></a> `quotes` | `readonly` | `QuotesResource` | packages/connect-core/dist/index.d.ts:205 |
-| <a id="subscriptions"></a> `subscriptions` | `readonly` | `SubscriptionsResource` | packages/connect-core/dist/index.d.ts:207 |
-| <a id="test"></a> `test` | `readonly` | `TestModeResource` | packages/connect-core/dist/index.d.ts:208 |
+| <a id="escrows"></a> `escrows` | `readonly` | `EscrowsResource` | packages/connect-core/dist/index.d.ts:265 |
+| <a id="listings"></a> `listings` | `readonly` | `ListingsResource` | packages/connect-core/dist/index.d.ts:263 |
+| <a id="quotes"></a> `quotes` | `readonly` | `QuotesResource` | packages/connect-core/dist/index.d.ts:264 |
+| <a id="subscriptions"></a> `subscriptions` | `readonly` | `SubscriptionsResource` | packages/connect-core/dist/index.d.ts:266 |
+| <a id="test"></a> `test` | `readonly` | `TestModeResource` | packages/connect-core/dist/index.d.ts:267 |
 
 
 ---
@@ -1634,35 +1638,36 @@ Defined in: [packages/connect-react/src/PactoCheckout.tsx:26](https://github.com
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
 | <a id="gatewayurl"></a> `gatewayUrl?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:28](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L28) |
-| <a id="injectstyles"></a> `injectStyles?` | `boolean` | Inject the default stylesheet (default `true`). Set `false` to self-style. | [packages/connect-react/src/PactoCheckout.tsx:47](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L47) |
+| <a id="injectstyles"></a> `injectStyles?` | `boolean` | Inject the default stylesheet (default `true`). Set `false` to self-style. | [packages/connect-react/src/PactoCheckout.tsx:48](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L48) |
 | <a id="listingid"></a> `listingId?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:29](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L29) |
-| <a id="locale"></a> `locale?` | [`PactoLocale`](#typealias.pactolocale) | Widget copy locale (default `en`). | [packages/connect-react/src/PactoCheckout.tsx:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L38) |
-| <a id="logoalt"></a> `logoAlt?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:45](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L45) |
-| <a id="logourl"></a> `logoUrl?` | `string` | Brand logo shown in the checkout header. | [packages/connect-react/src/PactoCheckout.tsx:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L44) |
-| <a id="messages"></a> `messages?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoMessages`](#interface.pactomessages)\> | Per-string copy overrides / additional locale. | [packages/connect-react/src/PactoCheckout.tsx:40](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L40) |
+| <a id="locale"></a> `locale?` | [`PactoLocale`](#typealias.pactolocale) | Widget copy locale (default `en`). | [packages/connect-react/src/PactoCheckout.tsx:39](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L39) |
+| <a id="logoalt"></a> `logoAlt?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:46](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L46) |
+| <a id="logourl"></a> `logoUrl?` | `string` | Brand logo shown in the checkout header. | [packages/connect-react/src/PactoCheckout.tsx:45](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L45) |
+| <a id="messages"></a> `messages?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoMessages`](#interface.pactomessages)\> | Per-string copy overrides / additional locale. | [packages/connect-react/src/PactoCheckout.tsx:41](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L41) |
 | <a id="mode"></a> `mode?` | `"buy"` \| `"sell"` | - | [packages/connect-react/src/PactoCheckout.tsx:30](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L30) |
 | <a id="onclose"></a> `onClose` | () => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:33](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L33) |
 | <a id="oncomplete"></a> `onComplete?` | (`escrow`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:34](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L34) |
 | <a id="ondispute"></a> `onDispute?` | (`escrow`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L35) |
-| <a id="onerror"></a> `onError?` | (`error`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L36) |
+| <a id="onerror"></a> `onError?` | (`error`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L37) |
+| <a id="onrefund"></a> `onRefund?` | (`escrow`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L36) |
 | <a id="open"></a> `open` | `boolean` | - | [packages/connect-react/src/PactoCheckout.tsx:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L32) |
 | <a id="publishablekey"></a> `publishableKey` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:27](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L27) |
 | <a id="testmode"></a> `testMode?` | `boolean` | - | [packages/connect-react/src/PactoCheckout.tsx:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L31) |
-| <a id="theme"></a> `theme?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoTheme`](#interface.pactotheme)\> | Design tokens applied as `--pacto-*` CSS variables. | [packages/connect-react/src/PactoCheckout.tsx:42](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L42) |
+| <a id="theme"></a> `theme?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoTheme`](#interface.pactotheme)\> | Design tokens applied as `--pacto-*` CSS variables. | [packages/connect-react/src/PactoCheckout.tsx:43](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L43) |
 
 
 ---
 
 # Interface: PactoClient
 
-Defined in: packages/connect-core/dist/index.d.ts:243
+Defined in: packages/connect-core/dist/index.d.ts:302
 
 ## Properties
 
 | Property | Modifier | Type | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="gatewayurl"></a> `gatewayUrl` | `readonly` | `string` | packages/connect-core/dist/index.d.ts:245 |
-| <a id="publishablekey"></a> `publishableKey` | `readonly` | `string` | packages/connect-core/dist/index.d.ts:244 |
+| <a id="gatewayurl"></a> `gatewayUrl` | `readonly` | `string` | packages/connect-core/dist/index.d.ts:304 |
+| <a id="publishablekey"></a> `publishableKey` | `readonly` | `string` | packages/connect-core/dist/index.d.ts:303 |
 
 ## Methods
 
@@ -1672,7 +1677,7 @@ Defined in: packages/connect-core/dist/index.d.ts:243
 api(session): PactoApiClient;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:248
+Defined in: packages/connect-core/dist/index.d.ts:307
 
 #### Parameters
 
@@ -1692,7 +1697,7 @@ Defined in: packages/connect-core/dist/index.d.ts:248
 createCheckoutSession(params): Promise<PactoSession>;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:246
+Defined in: packages/connect-core/dist/index.d.ts:305
 
 #### Parameters
 
@@ -1712,7 +1717,7 @@ Defined in: packages/connect-core/dist/index.d.ts:246
 resumeCheckoutSession(data): PactoSession;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:247
+Defined in: packages/connect-core/dist/index.d.ts:306
 
 #### Parameters
 
@@ -1729,91 +1734,92 @@ Defined in: packages/connect-core/dist/index.d.ts:247
 
 # Interface: PactoErrorOptions
 
-Defined in: packages/connect-core/dist/index.d.ts:29
+Defined in: packages/connect-core/dist/index.d.ts:34
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="requestid"></a> `requestId?` | `string` | packages/connect-core/dist/index.d.ts:30 |
+| <a id="requestid"></a> `requestId?` | `string` | packages/connect-core/dist/index.d.ts:35 |
 
 
 ---
 
 # Interface: PactoInitOptions
 
-Defined in: packages/connect-core/dist/index.d.ts:216
+Defined in: packages/connect-core/dist/index.d.ts:275
 
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="basedelayms"></a> `baseDelayMs?` | `number` | Base delay in milliseconds for exponential backoff. | packages/connect-core/dist/index.d.ts:226 |
-| <a id="gatewayurl"></a> `gatewayUrl?` | `string` | Gateway base URL. Defaults to the hosted Pacto Connect gateway. | packages/connect-core/dist/index.d.ts:220 |
-| <a id="maxreconnectattempts"></a> `maxReconnectAttempts?` | `number` | Maximum reconnect attempts for escrow event streams. | packages/connect-core/dist/index.d.ts:228 |
-| <a id="maxretries"></a> `maxRetries?` | `number` | Maximum retry attempts for transient failures. | packages/connect-core/dist/index.d.ts:224 |
-| <a id="origin"></a> `origin?` | `string` | Origin header for non-browser environments. | packages/connect-core/dist/index.d.ts:222 |
-| <a id="publishablekey"></a> `publishableKey` | `string` | Publishable key issued by the Connect Gateway (pk_live_* / pk_test_*). | packages/connect-core/dist/index.d.ts:218 |
+| <a id="basedelayms"></a> `baseDelayMs?` | `number` | Base delay in milliseconds for exponential backoff. | packages/connect-core/dist/index.d.ts:285 |
+| <a id="gatewayurl"></a> `gatewayUrl?` | `string` | Gateway base URL. Defaults to the hosted Pacto Connect gateway. | packages/connect-core/dist/index.d.ts:279 |
+| <a id="maxreconnectattempts"></a> `maxReconnectAttempts?` | `number` | Maximum reconnect attempts for escrow event streams. | packages/connect-core/dist/index.d.ts:287 |
+| <a id="maxretries"></a> `maxRetries?` | `number` | Maximum retry attempts for transient failures. | packages/connect-core/dist/index.d.ts:283 |
+| <a id="origin"></a> `origin?` | `string` | Origin header for non-browser environments. | packages/connect-core/dist/index.d.ts:281 |
+| <a id="publishablekey"></a> `publishableKey` | `string` | Publishable key issued by the Connect Gateway (pk_live_* / pk_test_*). | packages/connect-core/dist/index.d.ts:277 |
 
 
 ---
 
 # Interface: PactoMessages
 
-Defined in: packages/connect-core/dist/index.d.ts:443
+Defined in: packages/connect-core/dist/index.d.ts:506
 
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="actions"></a> `actions` | \&#123; `close`: `string`; `closeAria`: `string`; `confirmDeposit`: `string`; `forceDispute`: `string`; `forceRelease`: `string`; `forceTimeout`: `string`; `retry`: `string`; `submitReceipt`: `string`; \&#125; | - | packages/connect-core/dist/index.d.ts:446 |
-| `actions.close` | `string` | - | packages/connect-core/dist/index.d.ts:447 |
-| `actions.closeAria` | `string` | - | packages/connect-core/dist/index.d.ts:448 |
-| `actions.confirmDeposit` | `string` | - | packages/connect-core/dist/index.d.ts:450 |
-| `actions.forceDispute` | `string` | - | packages/connect-core/dist/index.d.ts:453 |
-| `actions.forceRelease` | `string` | - | packages/connect-core/dist/index.d.ts:452 |
-| `actions.forceTimeout` | `string` | - | packages/connect-core/dist/index.d.ts:454 |
-| `actions.retry` | `string` | - | packages/connect-core/dist/index.d.ts:449 |
-| `actions.submitReceipt` | `string` | - | packages/connect-core/dist/index.d.ts:451 |
-| <a id="labels"></a> `labels` | \&#123; `availableListings`: `string`; `depositInstruction`: `string`; `disputed`: `string`; `escrowMilestones`: `string`; `genericError`: `string`; `loading`: `string`; `paymentMethod`: `string`; `reference`: `string`; `referenceAria`: `string`; `simulatorControls`: `string`; `success`: `string`; `testBanner`: `string`; `waiting`: `string`; \&#125; | - | packages/connect-core/dist/index.d.ts:456 |
-| `labels.availableListings` | `string` | - | packages/connect-core/dist/index.d.ts:460 |
-| `labels.depositInstruction` | `string` | Placeholders: &#123;amount&#125; &#123;asset&#125; | packages/connect-core/dist/index.d.ts:468 |
-| `labels.disputed` | `string` | Placeholder: &#123;escrowId&#125; | packages/connect-core/dist/index.d.ts:472 |
-| `labels.escrowMilestones` | `string` | - | packages/connect-core/dist/index.d.ts:461 |
-| `labels.genericError` | `string` | - | packages/connect-core/dist/index.d.ts:466 |
-| `labels.loading` | `string` | - | packages/connect-core/dist/index.d.ts:463 |
-| `labels.paymentMethod` | `string` | - | packages/connect-core/dist/index.d.ts:457 |
-| `labels.reference` | `string` | - | packages/connect-core/dist/index.d.ts:458 |
-| `labels.referenceAria` | `string` | - | packages/connect-core/dist/index.d.ts:459 |
-| `labels.simulatorControls` | `string` | - | packages/connect-core/dist/index.d.ts:462 |
-| `labels.success` | `string` | Placeholder: &#123;escrowId&#125; | packages/connect-core/dist/index.d.ts:470 |
-| `labels.testBanner` | `string` | - | packages/connect-core/dist/index.d.ts:465 |
-| `labels.waiting` | `string` | - | packages/connect-core/dist/index.d.ts:464 |
-| <a id="milestones"></a> `milestones` | `Record`\<[`EscrowEventName`](#typealias.escroweventname), `string`\> | - | packages/connect-core/dist/index.d.ts:445 |
-| <a id="steps"></a> `steps` | `Record`\<[`CheckoutStep`](#typealias.checkoutstep), `string`\> | - | packages/connect-core/dist/index.d.ts:444 |
+| <a id="actions"></a> `actions` | \&#123; `close`: `string`; `closeAria`: `string`; `confirmDeposit`: `string`; `forceDispute`: `string`; `forceRelease`: `string`; `forceTimeout`: `string`; `retry`: `string`; `submitReceipt`: `string`; \&#125; | - | packages/connect-core/dist/index.d.ts:509 |
+| `actions.close` | `string` | - | packages/connect-core/dist/index.d.ts:510 |
+| `actions.closeAria` | `string` | - | packages/connect-core/dist/index.d.ts:511 |
+| `actions.confirmDeposit` | `string` | - | packages/connect-core/dist/index.d.ts:513 |
+| `actions.forceDispute` | `string` | - | packages/connect-core/dist/index.d.ts:516 |
+| `actions.forceRelease` | `string` | - | packages/connect-core/dist/index.d.ts:515 |
+| `actions.forceTimeout` | `string` | - | packages/connect-core/dist/index.d.ts:517 |
+| `actions.retry` | `string` | - | packages/connect-core/dist/index.d.ts:512 |
+| `actions.submitReceipt` | `string` | - | packages/connect-core/dist/index.d.ts:514 |
+| <a id="labels"></a> `labels` | \&#123; `availableListings`: `string`; `depositInstruction`: `string`; `disputed`: `string`; `escrowMilestones`: `string`; `genericError`: `string`; `loading`: `string`; `paymentMethod`: `string`; `reference`: `string`; `referenceAria`: `string`; `refunded`: `string`; `simulatorControls`: `string`; `success`: `string`; `testBanner`: `string`; `waiting`: `string`; \&#125; | - | packages/connect-core/dist/index.d.ts:519 |
+| `labels.availableListings` | `string` | - | packages/connect-core/dist/index.d.ts:523 |
+| `labels.depositInstruction` | `string` | Placeholders: &#123;amount&#125; &#123;asset&#125; | packages/connect-core/dist/index.d.ts:531 |
+| `labels.disputed` | `string` | Placeholder: &#123;escrowId&#125; | packages/connect-core/dist/index.d.ts:535 |
+| `labels.escrowMilestones` | `string` | - | packages/connect-core/dist/index.d.ts:524 |
+| `labels.genericError` | `string` | - | packages/connect-core/dist/index.d.ts:529 |
+| `labels.loading` | `string` | - | packages/connect-core/dist/index.d.ts:526 |
+| `labels.paymentMethod` | `string` | - | packages/connect-core/dist/index.d.ts:520 |
+| `labels.reference` | `string` | - | packages/connect-core/dist/index.d.ts:521 |
+| `labels.referenceAria` | `string` | - | packages/connect-core/dist/index.d.ts:522 |
+| `labels.refunded` | `string` | Placeholder: &#123;escrowId&#125; | packages/connect-core/dist/index.d.ts:537 |
+| `labels.simulatorControls` | `string` | - | packages/connect-core/dist/index.d.ts:525 |
+| `labels.success` | `string` | Placeholder: &#123;escrowId&#125; | packages/connect-core/dist/index.d.ts:533 |
+| `labels.testBanner` | `string` | - | packages/connect-core/dist/index.d.ts:528 |
+| `labels.waiting` | `string` | - | packages/connect-core/dist/index.d.ts:527 |
+| <a id="milestones"></a> `milestones` | `Record`\<[`EscrowEventName`](#typealias.escroweventname), `string`\> | - | packages/connect-core/dist/index.d.ts:508 |
+| <a id="steps"></a> `steps` | `Record`\<[`CheckoutStep`](#typealias.checkoutstep), `string`\> | - | packages/connect-core/dist/index.d.ts:507 |
 
 
 ---
 
 # Interface: PactoSessionData
 
-Defined in: packages/connect-core/dist/index.d.ts:237
+Defined in: packages/connect-core/dist/index.d.ts:296
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="clientsecret"></a> `clientSecret` | `string` | packages/connect-core/dist/index.d.ts:239 |
-| <a id="expiresat"></a> `expiresAt` | `Date` | packages/connect-core/dist/index.d.ts:240 |
-| <a id="mode"></a> `mode` | [`CheckoutMode`](#typealias.checkoutmode) | packages/connect-core/dist/index.d.ts:241 |
-| <a id="sessionid"></a> `sessionId` | `string` | packages/connect-core/dist/index.d.ts:238 |
+| <a id="clientsecret"></a> `clientSecret` | `string` | packages/connect-core/dist/index.d.ts:298 |
+| <a id="expiresat"></a> `expiresAt` | `Date` | packages/connect-core/dist/index.d.ts:299 |
+| <a id="mode"></a> `mode` | [`CheckoutMode`](#typealias.checkoutmode) | packages/connect-core/dist/index.d.ts:300 |
+| <a id="sessionid"></a> `sessionId` | `string` | packages/connect-core/dist/index.d.ts:297 |
 
 
 ---
 
 # Interface: PactoTheme
 
-Defined in: packages/connect-core/dist/index.d.ts:398
+Defined in: packages/connect-core/dist/index.d.ts:461
 
 White-label theming for the checkout widget.
 
@@ -1827,41 +1833,41 @@ vars) or by setting the CSS variables directly in their own stylesheet.
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="colors"></a> `colors` | \&#123; `border`: `string`; `danger`: `string`; `mutedText`: `string`; `overlay`: `string`; `primary`: `string`; `primaryText`: `string`; `surface`: `string`; `text`: `string`; \&#125; | packages/connect-core/dist/index.d.ts:399 |
-| `colors.border` | `string` | packages/connect-core/dist/index.d.ts:405 |
-| `colors.danger` | `string` | packages/connect-core/dist/index.d.ts:407 |
-| `colors.mutedText` | `string` | packages/connect-core/dist/index.d.ts:404 |
-| `colors.overlay` | `string` | packages/connect-core/dist/index.d.ts:406 |
-| `colors.primary` | `string` | packages/connect-core/dist/index.d.ts:400 |
-| `colors.primaryText` | `string` | packages/connect-core/dist/index.d.ts:401 |
-| `colors.surface` | `string` | packages/connect-core/dist/index.d.ts:402 |
-| `colors.text` | `string` | packages/connect-core/dist/index.d.ts:403 |
-| <a id="radius"></a> `radius` | `string` | packages/connect-core/dist/index.d.ts:414 |
-| <a id="spacing"></a> `spacing` | `string` | packages/connect-core/dist/index.d.ts:415 |
-| <a id="typography"></a> `typography` | \&#123; `fontFamily`: `string`; `fontSize`: `string`; `headingSize`: `string`; \&#125; | packages/connect-core/dist/index.d.ts:409 |
-| `typography.fontFamily` | `string` | packages/connect-core/dist/index.d.ts:410 |
-| `typography.fontSize` | `string` | packages/connect-core/dist/index.d.ts:411 |
-| `typography.headingSize` | `string` | packages/connect-core/dist/index.d.ts:412 |
+| <a id="colors"></a> `colors` | \&#123; `border`: `string`; `danger`: `string`; `mutedText`: `string`; `overlay`: `string`; `primary`: `string`; `primaryText`: `string`; `surface`: `string`; `text`: `string`; \&#125; | packages/connect-core/dist/index.d.ts:462 |
+| `colors.border` | `string` | packages/connect-core/dist/index.d.ts:468 |
+| `colors.danger` | `string` | packages/connect-core/dist/index.d.ts:470 |
+| `colors.mutedText` | `string` | packages/connect-core/dist/index.d.ts:467 |
+| `colors.overlay` | `string` | packages/connect-core/dist/index.d.ts:469 |
+| `colors.primary` | `string` | packages/connect-core/dist/index.d.ts:463 |
+| `colors.primaryText` | `string` | packages/connect-core/dist/index.d.ts:464 |
+| `colors.surface` | `string` | packages/connect-core/dist/index.d.ts:465 |
+| `colors.text` | `string` | packages/connect-core/dist/index.d.ts:466 |
+| <a id="radius"></a> `radius` | `string` | packages/connect-core/dist/index.d.ts:477 |
+| <a id="spacing"></a> `spacing` | `string` | packages/connect-core/dist/index.d.ts:478 |
+| <a id="typography"></a> `typography` | \&#123; `fontFamily`: `string`; `fontSize`: `string`; `headingSize`: `string`; \&#125; | packages/connect-core/dist/index.d.ts:472 |
+| `typography.fontFamily` | `string` | packages/connect-core/dist/index.d.ts:473 |
+| `typography.fontSize` | `string` | packages/connect-core/dist/index.d.ts:474 |
+| `typography.headingSize` | `string` | packages/connect-core/dist/index.d.ts:475 |
 
 
 ---
 
 # Interface: Quote
 
-Defined in: packages/connect-core/dist/index.d.ts:68
+Defined in: packages/connect-core/dist/index.d.ts:73
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="amount"></a> `amount` | `string` | packages/connect-core/dist/index.d.ts:72 |
-| <a id="asset"></a> `asset` | `string` | packages/connect-core/dist/index.d.ts:71 |
-| <a id="createdat"></a> `createdAt` | `string` | packages/connect-core/dist/index.d.ts:76 |
-| <a id="expiresat"></a> `expiresAt` | `string` | packages/connect-core/dist/index.d.ts:75 |
-| <a id="id"></a> `id` | `string` | packages/connect-core/dist/index.d.ts:69 |
-| <a id="listingid"></a> `listingId?` | `string` | packages/connect-core/dist/index.d.ts:70 |
-| <a id="price"></a> `price` | `string` | packages/connect-core/dist/index.d.ts:73 |
-| <a id="side"></a> `side` | `"buy"` \| `"sell"` | packages/connect-core/dist/index.d.ts:74 |
+| <a id="amount"></a> `amount` | `string` | packages/connect-core/dist/index.d.ts:77 |
+| <a id="asset"></a> `asset` | `string` | packages/connect-core/dist/index.d.ts:76 |
+| <a id="createdat"></a> `createdAt` | `string` | packages/connect-core/dist/index.d.ts:81 |
+| <a id="expiresat"></a> `expiresAt` | `string` | packages/connect-core/dist/index.d.ts:80 |
+| <a id="id"></a> `id` | `string` | packages/connect-core/dist/index.d.ts:74 |
+| <a id="listingid"></a> `listingId?` | `string` | packages/connect-core/dist/index.d.ts:75 |
+| <a id="price"></a> `price` | `string` | packages/connect-core/dist/index.d.ts:78 |
+| <a id="side"></a> `side` | `"buy"` \| `"sell"` | packages/connect-core/dist/index.d.ts:79 |
 
 
 ---
@@ -1880,7 +1886,8 @@ Defined in: [packages/connect-react/src/hooks/useCheckoutFlow.ts:12](https://git
 | <a id="mode"></a> `mode?` | `"buy"` \| `"sell"` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:16](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L16) |
 | <a id="oncomplete"></a> `onComplete?` | (`escrow`) => `void` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:19](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L19) |
 | <a id="ondispute"></a> `onDispute?` | (`escrow`) => `void` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L20) |
-| <a id="onerror"></a> `onError?` | (`error`) => `void` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:21](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L21) |
+| <a id="onerror"></a> `onError?` | (`error`) => `void` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:22](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L22) |
+| <a id="onrefund"></a> `onRefund?` | (`escrow`) => `void` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:21](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L21) |
 | <a id="publishablekey"></a> `publishableKey` | `string` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:13](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L13) |
 | <a id="testmode"></a> `testMode?` | `boolean` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:17](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L17) |
 
@@ -1889,25 +1896,25 @@ Defined in: [packages/connect-react/src/hooks/useCheckoutFlow.ts:12](https://git
 
 # Interface: UseCheckoutFlowResult
 
-Defined in: [packages/connect-react/src/hooks/useCheckoutFlow.ts:30](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L30)
+Defined in: [packages/connect-react/src/hooks/useCheckoutFlow.ts:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L31)
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="confirmdeposit"></a> `confirmDeposit` | () => `Promise`\<`void`\> | [packages/connect-react/src/hooks/useCheckoutFlow.ts:41](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L41) |
-| <a id="controls"></a> `controls` | `UseCheckoutFlowControls` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:39](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L39) |
-| <a id="error"></a> `error` | `Error` \| `null` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L36) |
-| <a id="escrow"></a> `escrow` | [`Escrow`](#interface.escrow) \| `null` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:34](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L34) |
-| <a id="listings"></a> `listings` | [`Listing`](#interface.listing)[] | [packages/connect-react/src/hooks/useCheckoutFlow.ts:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L32) |
-| <a id="milestones"></a> `milestones` | [`EscrowEvent`](#interface.escrowevent)[] | [packages/connect-react/src/hooks/useCheckoutFlow.ts:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L37) |
-| <a id="quote"></a> `quote` | [`Quote`](#interface.quote) \| `null` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L35) |
-| <a id="retry"></a> `retry` | () => `void` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:43](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L43) |
-| <a id="selectedlisting"></a> `selectedListing` | [`Listing`](#interface.listing) \| `null` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:33](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L33) |
-| <a id="selectlisting"></a> `selectListing` | (`listing`) => `Promise`\<`void`\> | [packages/connect-react/src/hooks/useCheckoutFlow.ts:40](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L40) |
-| <a id="step"></a> `step` | [`CheckoutStep`](#typealias.checkoutstep) | [packages/connect-react/src/hooks/useCheckoutFlow.ts:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L31) |
-| <a id="submitreceipt"></a> `submitReceipt` | (`method`, `reference`, `receipt?`) => `Promise`\<`void`\> | [packages/connect-react/src/hooks/useCheckoutFlow.ts:42](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L42) |
-| <a id="testmode"></a> `testMode` | `boolean` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L38) |
+| <a id="confirmdeposit"></a> `confirmDeposit` | () => `Promise`\<`void`\> | [packages/connect-react/src/hooks/useCheckoutFlow.ts:42](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L42) |
+| <a id="controls"></a> `controls` | `UseCheckoutFlowControls` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:40](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L40) |
+| <a id="error"></a> `error` | `Error` \| `null` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L37) |
+| <a id="escrow"></a> `escrow` | [`Escrow`](#interface.escrow) \| `null` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L35) |
+| <a id="listings"></a> `listings` | [`Listing`](#interface.listing)[] | [packages/connect-react/src/hooks/useCheckoutFlow.ts:33](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L33) |
+| <a id="milestones"></a> `milestones` | [`EscrowEvent`](#interface.escrowevent)[] | [packages/connect-react/src/hooks/useCheckoutFlow.ts:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L38) |
+| <a id="quote"></a> `quote` | [`Quote`](#interface.quote) \| `null` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L36) |
+| <a id="retry"></a> `retry` | () => `void` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L44) |
+| <a id="selectedlisting"></a> `selectedListing` | [`Listing`](#interface.listing) \| `null` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:34](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L34) |
+| <a id="selectlisting"></a> `selectListing` | (`listing`) => `Promise`\<`void`\> | [packages/connect-react/src/hooks/useCheckoutFlow.ts:41](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L41) |
+| <a id="step"></a> `step` | [`CheckoutStep`](#typealias.checkoutstep) | [packages/connect-react/src/hooks/useCheckoutFlow.ts:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L32) |
+| <a id="submitreceipt"></a> `submitReceipt` | (`method`, `reference`, `receipt?`) => `Promise`\<`void`\> | [packages/connect-react/src/hooks/useCheckoutFlow.ts:43](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L43) |
+| <a id="testmode"></a> `testMode` | `boolean` | [packages/connect-react/src/hooks/useCheckoutFlow.ts:39](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/hooks/useCheckoutFlow.ts#L39) |
 
 
 ---
@@ -1918,7 +1925,7 @@ Defined in: [packages/connect-react/src/hooks/useCheckoutFlow.ts:30](https://git
 type CheckoutMode = "buy" | "sell";
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:215
+Defined in: packages/connect-core/dist/index.d.ts:274
 
 Pacto client bootstrap — extracted from index for use by checkout-flow without circular imports.
 
@@ -1936,10 +1943,11 @@ type CheckoutStep =
   | "tracking"
   | "success"
   | "disputed"
+  | "refunded"
   | "error";
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:283
+Defined in: packages/connect-core/dist/index.d.ts:342
 
 
 ---
@@ -1958,7 +1966,7 @@ type CreateCheckoutSessionParams =
 };
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:230
+Defined in: packages/connect-core/dist/index.d.ts:289
 
 
 ---
@@ -1969,7 +1977,7 @@ Defined in: packages/connect-core/dist/index.d.ts:230
 type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] };
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:417
+Defined in: packages/connect-core/dist/index.d.ts:480
 
 ## Type Parameters
 
@@ -1986,7 +1994,7 @@ Defined in: packages/connect-core/dist/index.d.ts:417
 type EscrowEventHandler = (event) => void;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:12
+Defined in: packages/connect-core/dist/index.d.ts:13
 
 ## Parameters
 
@@ -2015,7 +2023,14 @@ Defined in: packages/connect-core/dist/index.d.ts:2
 # Type Alias: EscrowMilestone
 
 ```ts
-type EscrowMilestone = "funded" | "fiat_reported" | "released" | "disputed";
+type EscrowMilestone = 
+  | "funded"
+  | "fiat_reported"
+  | "released"
+  | "disputed"
+  | "cancelled"
+  | "refunded"
+  | "dispute_resolved";
 ```
 
 Defined in: packages/connect-core/dist/index.d.ts:4
@@ -2028,10 +2043,17 @@ Maps to Pacto P2P `escrow_milestones` lifecycle states.
 # Type Alias: EscrowStatus
 
 ```ts
-type EscrowStatus = "pending" | "active" | "funded" | "released" | "cancelled" | "disputed";
+type EscrowStatus = 
+  | "pending"
+  | "active"
+  | "funded"
+  | "released"
+  | "cancelled"
+  | "disputed"
+  | "refunded";
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:58
+Defined in: packages/connect-core/dist/index.d.ts:63
 
 
 ---
@@ -2042,7 +2064,7 @@ Defined in: packages/connect-core/dist/index.d.ts:58
 type FiatPaymentMethod = "SINPE" | "SPEI";
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:106
+Defined in: packages/connect-core/dist/index.d.ts:113
 
 
 ---
@@ -2053,7 +2075,7 @@ Defined in: packages/connect-core/dist/index.d.ts:106
 type PactoErrorCode = typeof PACTO_ERROR_CODES[number];
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:18
+Defined in: packages/connect-core/dist/index.d.ts:23
 
 
 ---
@@ -2064,7 +2086,7 @@ Defined in: packages/connect-core/dist/index.d.ts:18
 type PactoLocale = "en" | "es";
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:442
+Defined in: packages/connect-core/dist/index.d.ts:505
 
 Localized copy for the checkout widget. The `en` dictionary is the canonical
 set and must match the strings the widgets historically hardcoded. Merchants
@@ -2080,7 +2102,7 @@ pick a locale via `resolveMessages(locale)` and can patch individual strings
 const DEFAULT_THEME: PactoTheme;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:421
+Defined in: packages/connect-core/dist/index.d.ts:484
 
 
 ---
@@ -2088,7 +2110,7 @@ Defined in: packages/connect-core/dist/index.d.ts:421
 # Variable: ESCROW\_EVENT\_NAMES
 
 ```ts
-const ESCROW_EVENT_NAMES: readonly ["escrow.funded", "fiat.reported", "released", "disputed"];
+const ESCROW_EVENT_NAMES: readonly ["escrow.funded", "fiat.reported", "released", "disputed", "cancelled", "refunded", "dispute.resolved"];
 ```
 
 Defined in: packages/connect-core/dist/index.d.ts:1
@@ -2102,7 +2124,7 @@ Defined in: packages/connect-core/dist/index.d.ts:1
 const PACTO_ERROR_CODES: readonly ["PACTO_AUTH", "PACTO_RATE_LIMIT", "PACTO_UPSTREAM", "PACTO_VALIDATION", "PACTO_SESSION", "PACTO_ESCROW", "PACTO_NETWORK", "PACTO_INTERNAL", "PACTO_UNKNOWN"];
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:17
+Defined in: packages/connect-core/dist/index.d.ts:18
 
 
 ---
@@ -2115,13 +2137,13 @@ const Pacto: {
 };
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:279
+Defined in: packages/connect-core/dist/index.d.ts:338
 
 ## Type Declaration
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-init"></a> `init` | *typeof* `init` | packages/connect-core/dist/index.d.ts:280 |
+| <a id="property-init"></a> `init` | *typeof* `init` | packages/connect-core/dist/index.d.ts:339 |
 
 
 ---
