@@ -313,4 +313,16 @@ describe('http request', () => {
       ),
     ).rejects.toBeInstanceOf(PactoAuthError);
   });
+
+  it('uses a custom fetch implementation when provided', async () => {
+    const customFetch = vi.fn().mockResolvedValue(mockFetchResponse(200, { listings: [] }) as Response);
+
+    await request(
+      { gatewayUrl, publishableKey, clientSecret, sleep, fetch: customFetch },
+      { method: 'GET', path: '/v1/listings' },
+    );
+
+    expect(customFetch).toHaveBeenCalledTimes(1);
+    expect(fetch).not.toHaveBeenCalled();
+  });
 });

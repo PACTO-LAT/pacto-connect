@@ -70,6 +70,7 @@ export {
   type PactoErrorOptions,
   PactoEscrowError,
   PactoRateLimitError,
+  PactoSecurityError,
   PactoSessionError,
 } from './errors.js';
 export {
@@ -135,9 +136,12 @@ export {
   generateRequestId,
   isEscrowDetailCode,
   isPactoErrorCode,
+  isSecurityDetailCode,
   PACTO_ERROR_CODES,
   type PactoErrorCode,
   REQUEST_ID_HEADER,
+  SECURITY_DETAIL_CODES,
+  type SecurityDetailCode,
 } from './taxonomy.js';
 export {
   buildCheckoutStylesheet,

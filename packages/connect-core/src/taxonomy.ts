@@ -6,9 +6,31 @@ export const PACTO_ERROR_CODES = [
   'PACTO_SESSION',
   'PACTO_ESCROW',
   'PACTO_NETWORK',
+  'PACTO_SECURITY',
   'PACTO_INTERNAL',
   'PACTO_UNKNOWN',
 ] as const;
+
+/** Client-side security control detail codes surfaced on PactoSecurityError.detailCode */
+export const SECURITY_DETAIL_CODES = [
+  'link_state_missing',
+  'link_state_invalid',
+  'link_state_replayed',
+  'link_state_malformed',
+  'bridge_origin_rejected',
+  'pin_mismatch',
+  'pin_stale',
+  'biometric_cancelled',
+  'biometric_unavailable',
+  'biometric_not_enrolled',
+  'device_integrity_blocked',
+] as const;
+
+export type SecurityDetailCode = (typeof SECURITY_DETAIL_CODES)[number];
+
+export function isSecurityDetailCode(value: unknown): value is SecurityDetailCode {
+  return typeof value === 'string' && (SECURITY_DETAIL_CODES as readonly string[]).includes(value);
+}
 
 /** Gateway escrow_error detail codes surfaced on PactoEscrowError.detailCode */
 export const ESCROW_DETAIL_CODES = [

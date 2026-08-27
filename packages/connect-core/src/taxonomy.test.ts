@@ -5,7 +5,9 @@ import {
   generateRequestId,
   isEscrowDetailCode,
   isPactoErrorCode,
+  isSecurityDetailCode,
   PACTO_ERROR_CODES,
+  SECURITY_DETAIL_CODES,
 } from './taxonomy.js';
 
 describe('isPactoErrorCode', () => {
@@ -53,6 +55,14 @@ describe('classifyGatewayError', () => {
     expect(ESCROW_DETAIL_CODES).toContain('refund_exceeds_balance');
     expect(isEscrowDetailCode('escrow_not_found')).toBe(true);
     expect(isEscrowDetailCode('unknown')).toBe(false);
+  });
+
+  it('exports security detail codes for SDK consumers', () => {
+    expect(PACTO_ERROR_CODES).toContain('PACTO_SECURITY');
+    expect(SECURITY_DETAIL_CODES).toContain('pin_mismatch');
+    expect(SECURITY_DETAIL_CODES).toContain('link_state_replayed');
+    expect(isSecurityDetailCode('biometric_cancelled')).toBe(true);
+    expect(isSecurityDetailCode('unknown')).toBe(false);
   });
 
   it('maps not_implemented and 501-504 to PACTO_UPSTREAM', () => {
