@@ -3,9 +3,11 @@ import {
   type Escrow,
   isOriginAllowed,
   isPactoBridgeEnvelope,
+  isPactoErrorCode,
   PACTO_BRIDGE_SOURCE,
   PACTO_BRIDGE_VERSION,
   type PactoBridgeMessage,
+  PactoError,
 } from '@pacto-connect/core';
 
 /**
@@ -25,6 +27,8 @@ export interface BuildCheckoutUrlOptions {
   testMode?: boolean;
   /** App deep-link the hosted page should return to after an external payment step. */
   returnUrl?: string;
+  /** One-time link state appended to returnUrl when both are set. */
+  linkState?: string;
   params?: Record<string, string>;
 }
 
@@ -50,7 +54,11 @@ export function buildCheckoutUrl(options: BuildCheckoutUrlOptions): string {
     searchParams.set('testMode', 'true');
   }
   if (options.returnUrl) {
-    searchParams.set('returnUrl', options.returnUrl);
+    const returnUrl =
+      options.linkState != null
+        ? appendReturnUrlState(options.returnUrl, options.linkState)
+        : options.returnUrl;
+    searchParams.set('returnUrl', returnUrl);
   }
   // The hosted page's bridge (`PactoCheckoutElement`) posts messages to
   // `window.postMessage(envelope, parentOrigin)`. A WebView has no real
@@ -63,6 +71,12 @@ export function buildCheckoutUrl(options: BuildCheckoutUrlOptions): string {
     searchParams.set(key, value);
   }
 
+  return url.toString();
+}
+
+function appendReturnUrlState(returnUrl: string, state: string): string {
+  const url = new URL(returnUrl);
+  url.searchParams.set('state', state);
   return url.toString();
 }
 
@@ -113,13 +127,36 @@ export function buildCheckoutStorageSeedScript(storageKey: string, raw: string):
 }
 
 export function buildCheckoutStorageSyncScript(): string {
-  return `(function(){try{var key=null;var value=null;for(var i=0;i<sessionStorage.length;i++){var k=sessionStorage.key(i);if(k&&k.indexOf('pacto:checkout:')===0){key=k;value=sessionStorage.getItem(k);break;}}if(key&&value&&window.ReactNativeWebView){window.ReactNativeWebView.postMessage(JSON.stringify({source:${JSON.stringify(CHECKOUT_STORAGE_SYNC_SOURCE)},payload:{key:key,value:value}}));}}catch(e){}})();true;`;
+  return `(function(){try{var key=null;var value=null;for(var i=0;i<sessionStorage.length;i++){var k=sessionStorage.key(i);if(k&&k.indexOf('pacto:checkout:')===0){key=k;value=sessionStorage.getItem(k);break;}}if(key&&value&&window.ReactNativeWebView){window.ReactNativeWebView.postMessage(JSON.stringify({source:${JSON.stringify(CHECKOUT_STORAGE_SYNC_SOURCE)},origin:window.location.origin,payload:{key:key,value:value}}));}}catch(e){}})();true;`;
 }
 
-export function parseCheckoutStorageSyncMessage(raw: string): CheckoutStorageSyncPayload | null {
+export function parseCheckoutStorageSyncMessage(
+  raw: string,
+  currentUrl: string,
+  expectedOrigin: string,
+): CheckoutStorageSyncPayload | null {
+  let origin: string;
   try {
-    const parsed = JSON.parse(raw) as { source?: string; payload?: CheckoutStorageSyncPayload };
+    origin = new URL(currentUrl).origin;
+  } catch {
+    return null;
+  }
+
+  if (!isOriginAllowed(origin, [expectedOrigin])) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as {
+      source?: string;
+      origin?: string;
+      payload?: CheckoutStorageSyncPayload;
+    };
     if (parsed.source !== CHECKOUT_STORAGE_SYNC_SOURCE) {
+      return null;
+    }
+
+    if (parsed.origin && parsed.origin !== expectedOrigin) {
       return null;
     }
 
@@ -200,9 +237,22 @@ export function dispatchBridgeMessage(
     case 'checkout:dispute':
       callbacks.onDispute?.(message.payload.escrow);
       break;
-    case 'checkout:error':
-      callbacks.onError?.(new Error(message.payload.message));
+    case 'checkout:error': {
+      const payload = message.payload as {
+        message: string;
+        pactoCode?: string;
+        detailCode?: string;
+      };
+      const pactoCode = isPactoErrorCode(payload.pactoCode) ? payload.pactoCode : 'PACTO_UNKNOWN';
+      if (payload.detailCode) {
+        callbacks.onError?.(
+          new PactoError('checkout_error', pactoCode, payload.detailCode, payload.message),
+        );
+        break;
+      }
+      callbacks.onError?.(new Error(payload.message));
       break;
+    }
     case 'checkout:close':
       callbacks.onClose?.();
       break;

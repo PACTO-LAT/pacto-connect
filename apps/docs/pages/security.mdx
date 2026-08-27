@@ -116,6 +116,140 @@ the origin validation that `mountFrame()` does via `postMessage` is done differe
   `expiresAt` — pass `onSessionRefresh` to persist the rotated
   `clientSecret` if you resume tracking after the app restarts.
 
+The package also ships a coherent set of **checkout security controls** for
+the mobile surface. They share a single threat model
+(`packages/connect-react-native/THREAT-MODEL.md` in the repo) — each control
+traces to a documented attack path and is covered by threat-model tests.
+
+### Secure session storage
+
+Session credentials (`clientSecret`, `sessionId`, expiry) are persisted in
+**iOS Keychain / Android Keystore** via the optional `react-native-keychain`
+peer dependency. `PactoCheckoutSheet` defaults to
+`createDefaultSecureSessionStore()`; pass `secureSessionStore` to override
+(for example an in-memory store in tests).
+
+```tsx
+import {
+  PactoCheckoutSheet,
+  createDefaultSecureSessionStore,
+} from '@pacto-connect/react-native';
+
+<PactoCheckoutSheet
+  secureSessionStore={createDefaultSecureSessionStore()}
+  // ...
+/>
+```
+
+Credentials are cleared on terminal checkout outcomes (`complete`, `dispute`,
+`error`, `close`).
+
+### Deep-link state binding
+
+Return URLs carry a one-time `state` query param issued when the sheet opens.
+`usePactoDeepLink` verifies and consumes that state before surfacing return
+params, blocking foreign or replayed deep links. Pass the same
+`linkStateStore` and checkout `scope` you use in the sheet:
+
+```tsx
+import { buildCheckoutSnapshotScope } from '@pacto-connect/core';
+import {
+  createLinkStateStore,
+  usePactoDeepLink,
+} from '@pacto-connect/react-native';
+
+const linkStateStore = createLinkStateStore();
+const scope = buildCheckoutSnapshotScope({
+  publishableKey: 'pk_test_…',
+  mode: 'buy',
+});
+
+usePactoDeepLink({
+  scheme: 'myapp://checkout-return',
+  linkStateStore,
+  scope,
+  onReturn: (result) => { /* resume checkout */ },
+  onError: (error) => { /* PactoSecurityError: link_state_* */ },
+});
+```
+
+`PactoCheckoutSheet` appends the state to `returnUrl` automatically when both
+are set.
+
+### Certificate pinning
+
+Gateway traffic from native hooks (`usePactoEscrowEvents`, session refresh)
+can be pinned with the optional `react-native-ssl-pinning` peer. Configure
+**current** and **next** SPKI SHA-256 hashes so server cert rotation does not
+require a simultaneous app release:
+
+```tsx
+import {
+  PactoCheckoutSheet,
+  resolveCheckoutGatewayFetch,
+} from '@pacto-connect/react-native';
+
+const pinning = {
+  host: 'connect.pacto.example',
+  pins: ['current-spki-hash', 'next-spki-hash'],
+};
+
+<PactoCheckoutSheet pinning={pinning} /* … */ />
+
+const escrow = usePactoEscrowEvents({
+  fetch: resolveCheckoutGatewayFetch({ pinning }),
+  // …
+});
+```
+
+When every configured pin mismatches, traffic **fails closed** with
+`PactoSecurityError` detail code `pin_stale`. Set `pinning.enabled: false`
+explicitly to opt out — never as a silent fallback.
+
+### Device integrity
+
+On sheet open, the SDK probes root/jailbreak/debugger signals via the optional
+`jail-monkey` peer. Default policy is **`warn`** (not block) so MDM-managed and
+development devices are not hard-stopped. Choose `proceed`, `warn`, or `block`:
+
+```tsx
+<PactoCheckoutSheet
+  integrityPolicy="warn"
+  onIntegrityWarning={(signals) => {
+    analytics.track('checkout_integrity_warning', { signals });
+  }}
+  onError={(error) => {
+    // block policy throws PactoSecurityError device_integrity_blocked
+  }}
+/>
+```
+
+### User presence gate
+
+Deposit commits can require native biometric confirmation. The SDK injects a
+fetch gate into the WebView — no hosted checkout changes required. Uses the
+optional `react-native-biometrics` peer:
+
+```tsx
+<PactoCheckoutSheet
+  userPresence={{
+    enabled: true,
+    promptMessage: 'Confirm your payment',
+    fallback: 'device-credential',
+  }}
+/>
+```
+
+Cancellation returns the user to the deposit step without committing payment.
+Set `userPresence.enabled: false` to disable the gate entirely.
+
+### Security errors
+
+Security failures surface as `PactoSecurityError` from `@pacto-connect/core`
+with stable `detailCode` values (`link_state_replayed`, `pin_mismatch`,
+`biometric_cancelled`, etc.). Handle them in `onError` on the sheet and in
+`usePactoDeepLink`'s `onError` callback.
+
 ### Universal links
 
 `returnUrl` accepts either a custom scheme (`pacto-example://checkout-return`,

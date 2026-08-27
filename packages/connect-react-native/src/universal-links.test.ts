@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { buildAndroidAssetLinks, buildAppleAppSiteAssociation } from './universal-links.js';
+import {
+  appendLinkState,
+  buildAndroidAssetLinks,
+  buildAppleAppSiteAssociation,
+} from './universal-links.js';
 
 describe('buildAppleAppSiteAssociation', () => {
   it('builds a single applinks detail entry with the default path pattern', () => {
@@ -28,6 +32,14 @@ describe('buildAppleAppSiteAssociation', () => {
 
   it('throws without an appId', () => {
     expect(() => buildAppleAppSiteAssociation({ appId: '' })).toThrow(/appId/);
+  });
+});
+
+describe('appendLinkState', () => {
+  it('appends state to a return URL', () => {
+    expect(appendLinkState('https://myapp.example/pacto-return', 'state-token')).toBe(
+      'https://myapp.example/pacto-return?state=state-token',
+    );
   });
 });
 

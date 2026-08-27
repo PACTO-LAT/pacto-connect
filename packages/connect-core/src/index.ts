@@ -73,6 +73,7 @@ export {
   PactoSecurityError,
   PactoSessionError,
 } from './errors.js';
+export type { FetchLike } from './http.js';
 export {
   ESCROW_EVENT_NAMES,
   type EscrowEvent,

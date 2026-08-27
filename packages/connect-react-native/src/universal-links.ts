@@ -84,3 +84,10 @@ export function buildAndroidAssetLinks(options: AndroidAssetLinksOptions): Andro
     },
   ];
 }
+
+/** Appends a one-time link state parameter to a checkout return URL. */
+export function appendLinkState(returnUrl: string, state: string): string {
+  const url = new URL(returnUrl);
+  url.searchParams.set('state', state);
+  return url.toString();
+}

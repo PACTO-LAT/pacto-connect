@@ -29,6 +29,8 @@ export interface UsePactoEscrowEventsOptions {
    * `PactoSession.refresh()` before the next poll/reconnect. Default 30000ms.
    */
   sessionRefreshMarginMs?: number;
+  /** Custom fetch implementation (e.g. certificate-pinned fetch). */
+  fetch?: import('@pacto-connect/core').FetchLike;
   onEvent?: (event: EscrowEvent) => void;
   /**
    * Called after the hook transparently rotates to a refreshed session
@@ -140,6 +142,7 @@ export function usePactoEscrowEvents(
     const client = Pacto.init({
       publishableKey: options.publishableKey,
       gatewayUrl: options.gatewayUrl,
+      fetch: options.fetch,
     });
 
     let currentSession: PactoSession = client.resumeCheckoutSession({
@@ -296,6 +299,7 @@ export function usePactoEscrowEvents(
     options.transport,
     options.pollIntervalMs,
     options.sessionRefreshMarginMs,
+    options.fetch,
   ]);
 
   return { milestones, status, transport, error };

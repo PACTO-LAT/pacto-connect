@@ -7,5 +7,13 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  external: ['react', 'react-native', 'react-native-webview'],
+  external: [
+    'react',
+    'react-native',
+    'react-native-webview',
+    'react-native-keychain',
+    'react-native-biometrics',
+    'jail-monkey',
+    'react-native-ssl-pinning',
+  ],
 });

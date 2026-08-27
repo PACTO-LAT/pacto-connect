@@ -167,14 +167,30 @@ describe('checkout storage bridge helpers', () => {
     const payload = parseCheckoutStorageSyncMessage(
       JSON.stringify({
         source: 'pacto-connect-rn-sync',
+        origin: 'https://checkout.pacto.example',
         payload: { key: 'pacto:checkout:pk', value: '{"step":"deposit"}' },
       }),
+      'https://checkout.pacto.example/embed',
+      'https://checkout.pacto.example',
     );
 
     expect(payload).toEqual({
       key: 'pacto:checkout:pk',
       value: '{"step":"deposit"}',
     });
+  });
+
+  it('rejects storage sync from a foreign origin', () => {
+    const payload = parseCheckoutStorageSyncMessage(
+      JSON.stringify({
+        source: 'pacto-connect-rn-sync',
+        origin: 'https://evil.example',
+        payload: { key: 'pacto:checkout:pk', value: '{}' },
+      }),
+      'https://checkout.pacto.example/embed',
+      'https://checkout.pacto.example',
+    );
+    expect(payload).toBeNull();
   });
 });
 

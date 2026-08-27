@@ -1,17 +1,33 @@
-import type { Escrow } from '@pacto-connect/core';
 import {
+  buildCheckoutSnapshotScope,
+  type Escrow,
+  type PactoSecurityError,
+} from '@pacto-connect/core';
+import {
+  createLinkStateStore,
+  createMemorySecureSessionStore,
   PactoCheckoutSheet,
+  resolveCheckoutGatewayFetch,
   usePactoDeepLink,
   usePactoEscrowEvents,
 } from '@pacto-connect/react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 // The merchant app only ever needs a publishableKey (pk_test_*/pk_live_*) —
 // never a secret key. This one is the Connect Gateway's shared test key.
 const PUBLISHABLE_KEY = 'pk_test_example';
 const CHECKOUT_URL = 'https://connect.pacto.example/checkout';
+const GATEWAY_HOST = 'connect.pacto.example';
+
+// Replace with your gateway's current + next SPKI SHA-256 base64 hashes.
+// See the Security guide's certificate-pinning section.
+const GATEWAY_PINNING = {
+  host: GATEWAY_HOST,
+  pins: ['REPLACE_WITH_CURRENT_SPKI_HASH', 'REPLACE_WITH_NEXT_SPKI_HASH'],
+};
+
 // Matches `app.json`'s `expo.scheme`. Used both as the checkout's `returnUrl`
 // and as the scheme `usePactoDeepLink` listens for. A custom scheme needs no
 // server-side setup. `app.json` also declares `associatedDomains` /
@@ -22,20 +38,48 @@ const CHECKOUT_URL = 'https://connect.pacto.example/checkout';
 // `buildAndroidAssetLinks`, and the Security guide's Universal links section).
 const RETURN_URL = 'pacto-example://checkout-return';
 
+function isSecurityError(error: Error): error is PactoSecurityError {
+  return error.name === 'PactoSecurityError' && 'detailCode' in error;
+}
+
 export default function App() {
   const [checkoutVisible, setCheckoutVisible] = useState(false);
   const [lastEscrow, setLastEscrow] = useState<Escrow | null>(null);
   const [lastStep, setLastStep] = useState<string | null>(null);
   const [returnEvent, setReturnEvent] = useState<string | null>(null);
+  const [integrityWarning, setIntegrityWarning] = useState<string | null>(null);
+
+  const linkStateStore = useMemo(() => createLinkStateStore(), []);
+  const checkoutScope = useMemo(
+    () =>
+      buildCheckoutSnapshotScope({
+        publishableKey: PUBLISHABLE_KEY,
+        mode: 'buy',
+      }),
+    [],
+  );
+
+  // In-memory secure store keeps Expo Go usable without native Keychain.
+  // Production apps should omit `secureSessionStore` to use Keychain/Keystore
+  // (requires `react-native-keychain` linked via `npx expo prebuild`).
+  const secureSessionStore = useMemo(() => createMemorySecureSessionStore(), []);
+
+  const gatewayFetch = useMemo(() => resolveCheckoutGatewayFetch({ pinning: GATEWAY_PINNING }), []);
 
   // Covers the case where a fiat rail needs to redirect out to a bank app or
   // browser mid-checkout, and the OS relaunches this app via the return link
   // instead of routing back through the still-open WebView.
   usePactoDeepLink({
     scheme: RETURN_URL,
+    linkStateStore,
+    scope: checkoutScope,
     onReturn: (result) => {
       setReturnEvent(JSON.stringify(result));
       setCheckoutVisible(true);
+    },
+    onError: (error) => {
+      const detail = isSecurityError(error) ? error.detailCode : error.message;
+      console.warn('[pacto-connect deep link]', detail);
     },
   });
 
@@ -51,6 +95,7 @@ export default function App() {
     expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
     mode: 'buy',
     escrowId: 'escrow_example',
+    fetch: gatewayFetch,
     enabled: false,
   });
 
@@ -68,6 +113,7 @@ export default function App() {
         </Text>
       )}
       {returnEvent && <Text style={styles.status}>Deep-link return: {returnEvent}</Text>}
+      {integrityWarning && <Text style={styles.status}>Integrity warning: {integrityWarning}</Text>}
       <Text style={styles.status}>Escrow hook transport: {escrowTracking.transport ?? 'idle'}</Text>
 
       <PactoCheckoutSheet
@@ -77,6 +123,16 @@ export default function App() {
         mode="buy"
         testMode
         returnUrl={RETURN_URL}
+        linkStateStore={linkStateStore}
+        secureSessionStore={secureSessionStore}
+        pinning={GATEWAY_PINNING}
+        integrityPolicy="warn"
+        onIntegrityWarning={(signals) => setIntegrityWarning(signals.join(', '))}
+        userPresence={{
+          enabled: true,
+          fallback: 'allow',
+          promptMessage: 'Confirm your payment',
+        }}
         onRequestClose={() => setCheckoutVisible(false)}
         onStep={(step) => setLastStep(step)}
         onComplete={(escrow) => {
@@ -84,7 +140,10 @@ export default function App() {
           setCheckoutVisible(false);
         }}
         onDispute={(escrow) => setLastEscrow(escrow)}
-        onError={(error) => console.warn('[pacto-connect]', error.message)}
+        onError={(error) => {
+          const detail = isSecurityError(error) ? error.detailCode : error.message;
+          console.warn('[pacto-connect checkout]', detail);
+        }}
       />
     </SafeAreaView>
   );
