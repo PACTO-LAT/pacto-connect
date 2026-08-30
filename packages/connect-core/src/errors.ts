@@ -90,6 +90,13 @@ export class PactoApiError extends PactoError {
   }
 }
 
+export class PactoSecurityError extends PactoError {
+  constructor(detailCode: string, message: string, options?: PactoErrorOptions) {
+    super('security_error', 'PACTO_SECURITY', detailCode, message, options);
+    this.name = 'PactoSecurityError';
+  }
+}
+
 function parseRetryAfter(headers: Headers): number | undefined {
   const value = headers.get('Retry-After');
   if (!value) {

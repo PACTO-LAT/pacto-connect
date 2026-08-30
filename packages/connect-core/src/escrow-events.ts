@@ -1,4 +1,4 @@
-import { PUBLISHABLE_KEY_HEADER } from './http.js';
+import { type FetchLike, PUBLISHABLE_KEY_HEADER } from './http.js';
 import { readSseStream, type SseMessage } from './sse.js';
 
 export const ESCROW_EVENT_NAMES = [
@@ -46,6 +46,7 @@ export interface SessionConnectionConfig {
   baseDelayMs?: number;
   maxReconnectAttempts?: number;
   sleep?: (ms: number) => Promise<void>;
+  fetch?: FetchLike;
 }
 
 const MILESTONE_BY_EVENT: Record<EscrowEventName, EscrowMilestone> = {
@@ -219,7 +220,8 @@ export class EscrowEventSubscriber {
       headers.Origin = this.config.origin;
     }
 
-    const response = await fetch(url.toString(), { method: 'GET', headers });
+    const fetchFn = this.config.fetch ?? fetch;
+    const response = await fetchFn(url.toString(), { method: 'GET', headers });
 
     if (!response.ok || !response.body) {
       throw new Error(`Escrow event stream failed with status ${response.status}`);

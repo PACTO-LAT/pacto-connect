@@ -3,8 +3,15 @@ import type {
   CheckoutStep,
   CheckoutStorageAdapter,
   Escrow,
+  FetchLike,
+  PactoError,
 } from '@pacto-connect/core';
-import { type CheckoutSnapshot, serializeCheckoutSnapshot } from '@pacto-connect/core';
+import {
+  type CheckoutSnapshot,
+  parseCheckoutSnapshot,
+  serializeCheckoutSnapshot,
+  snapshotMatchesScope,
+} from '@pacto-connect/core';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, Modal, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import WebView, { type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview';
@@ -13,8 +20,32 @@ import {
   checkoutStorageKey,
   createDefaultReactNativeCheckoutStorage,
   isCheckoutSnapshotExpired,
-  parseCheckoutSnapshot,
 } from './checkout-storage.js';
+import type { PinSet } from './security/cert-pinning.js';
+import { createPinnedFetch } from './security/cert-pinning.js';
+import {
+  createJailMonkeyIntegrityProbe,
+  DEFAULT_INTEGRITY_POLICY,
+  evaluateDeviceIntegrity,
+  type IntegrityPolicy,
+  type IntegrityProbe,
+} from './security/device-integrity.js';
+import type { LinkStateStore } from './security/link-state.js';
+import { createLinkStateStore } from './security/link-state.js';
+import {
+  createDefaultSecureSessionStore,
+  createMemorySecureSessionStore,
+  type SecureSessionStoreAdapter,
+} from './security/secure-session-store.js';
+import {
+  buildUserPresenceAbortScript,
+  buildUserPresenceContinuationScript,
+  createBiometricsUserPresenceAdapter,
+  parseUserPresenceRequest,
+  USER_PRESENCE_GATE_SCRIPT,
+  type UserPresenceAdapter,
+  type UserPresenceOptions,
+} from './security/user-presence.js';
 import {
   BRIDGE_SHIM_SCRIPT,
   buildCheckoutStorageSeedScript,
@@ -37,6 +68,16 @@ export interface PactoCheckoutSheetProps {
   mode?: CheckoutMode;
   testMode?: boolean;
   storage?: CheckoutStorageAdapter;
+  secureSessionStore?: SecureSessionStoreAdapter;
+  linkStateStore?: LinkStateStore;
+  /** Certificate pin set for gateway traffic from native escrow hooks. */
+  pinning?: PinSet;
+  /** Custom fetch for gateway traffic (defaults to pinned fetch when pinning is set). */
+  fetch?: FetchLike;
+  integrityPolicy?: IntegrityPolicy;
+  integrityProbe?: IntegrityProbe;
+  userPresence?: UserPresenceOptions;
+  userPresenceAdapter?: UserPresenceAdapter;
   /**
    * App deep-link (custom scheme or universal link) the hosted page should
    * navigate to after an external payment step. Pair with `usePactoDeepLink`
@@ -49,7 +90,8 @@ export interface PactoCheckoutSheetProps {
   onStep?: (step: CheckoutStep) => void;
   onComplete?: (escrow: Escrow) => void;
   onDispute?: (escrow: Escrow) => void;
-  onError?: (error: Error) => void;
+  onError?: (error: PactoError | Error) => void;
+  onIntegrityWarning?: (signals: string[]) => void;
 }
 
 const styles = StyleSheet.create({
@@ -73,15 +115,22 @@ const styles = StyleSheet.create({
  * ever passed to or bundled into the app.
  */
 export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
-  // `react-native-webview`'s published root `index.d.ts` types `WebView` as a
-  // class generic over its props (`class WebView<P = undefined> extends
-  // Component<WebViewProps & P>`); left uninstantiated, `P` defaults to
-  // `undefined` and `WebViewProps & undefined` is unusable. Instantiating it
-  // explicitly works around the upstream declaration, independent of the ref.
   const webViewRef = useRef<WebView<object>>(null);
   const storage = useMemo(
     () => props.storage ?? createDefaultReactNativeCheckoutStorage(),
     [props.storage],
+  );
+  const secureSessionStore = useMemo(
+    () => props.secureSessionStore ?? createDefaultSecureSessionStore(),
+    [props.secureSessionStore],
+  );
+  const linkStateStore = useMemo(
+    () => props.linkStateStore ?? createLinkStateStore(),
+    [props.linkStateStore],
+  );
+  const userPresenceAdapter = useMemo(
+    () => props.userPresenceAdapter ?? createBiometricsUserPresenceAdapter(),
+    [props.userPresenceAdapter],
   );
 
   const snapshotScope = useMemo(
@@ -96,14 +145,25 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
 
   const storageKey = useMemo(() => checkoutStorageKey(snapshotScope), [snapshotScope]);
   const [resumedSnapshot, setResumedSnapshot] = useState<CheckoutSnapshot | null>(null);
+  const [linkState, setLinkState] = useState<string | null>(null);
+  const integrityCheckedRef = useRef(false);
 
   useEffect(() => {
     if (!props.visible) {
       setResumedSnapshot(null);
+      setLinkState(null);
+      integrityCheckedRef.current = false;
       return;
     }
 
     let cancelled = false;
+
+    void (async () => {
+      const state = await linkStateStore.issue(snapshotScope, props.sessionId);
+      if (!cancelled) {
+        setLinkState(state);
+      }
+    })();
 
     void Promise.resolve(storage.getItem(storageKey)).then((raw) => {
       if (cancelled) {
@@ -116,8 +176,13 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
       }
 
       const snapshot = parseCheckoutSnapshot(raw);
-      if (!snapshot || isCheckoutSnapshotExpired(snapshot, Date.now())) {
+      if (
+        !snapshot ||
+        !snapshotMatchesScope(snapshot, snapshotScope) ||
+        isCheckoutSnapshotExpired(snapshot, Date.now())
+      ) {
         void Promise.resolve(storage.removeItem(storageKey));
+        void secureSessionStore.clearSession(snapshotScope);
         setResumedSnapshot(null);
         return;
       }
@@ -128,7 +193,43 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
     return () => {
       cancelled = true;
     };
-  }, [props.visible, storage, storageKey]);
+  }, [
+    props.visible,
+    storage,
+    storageKey,
+    snapshotScope,
+    linkStateStore,
+    props.sessionId,
+    secureSessionStore,
+  ]);
+
+  useEffect(() => {
+    if (!props.visible || integrityCheckedRef.current) {
+      return;
+    }
+
+    integrityCheckedRef.current = true;
+    const probe = props.integrityProbe ?? createJailMonkeyIntegrityProbe();
+    const policy = props.integrityPolicy ?? DEFAULT_INTEGRITY_POLICY;
+
+    void evaluateDeviceIntegrity(probe, policy)
+      .then((result) => {
+        if (result.recommendation === 'warn' && result.signals.length > 0) {
+          props.onIntegrityWarning?.(result.signals);
+        }
+      })
+      .catch((error) => {
+        if (error instanceof Error) {
+          props.onError?.(error);
+        }
+      });
+  }, [
+    props.visible,
+    props.integrityPolicy,
+    props.integrityProbe,
+    props.onIntegrityWarning,
+    props.onError,
+  ]);
 
   const uri = useMemo(
     () =>
@@ -140,6 +241,7 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
         mode: props.mode,
         testMode: props.testMode,
         returnUrl: props.returnUrl,
+        linkState: linkState ?? undefined,
       }),
     [
       props.checkoutUrl,
@@ -149,23 +251,42 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
       props.mode,
       props.testMode,
       props.returnUrl,
+      linkState,
       resumedSnapshot?.sessionId,
     ],
   );
 
-  const injectedBeforeLoad = useMemo(() => {
-    if (!resumedSnapshot) {
-      return BRIDGE_SHIM_SCRIPT;
-    }
+  const userPresenceEnabled = props.userPresence?.enabled !== false;
 
-    return `${buildCheckoutStorageSeedScript(storageKey, serializeCheckoutSnapshot(resumedSnapshot))}${BRIDGE_SHIM_SCRIPT}`;
-  }, [resumedSnapshot, storageKey]);
+  const injectedBeforeLoad = useMemo(() => {
+    const scripts = [BRIDGE_SHIM_SCRIPT];
+    if (userPresenceEnabled) {
+      scripts.unshift(USER_PRESENCE_GATE_SCRIPT);
+    }
+    if (resumedSnapshot) {
+      scripts.unshift(
+        buildCheckoutStorageSeedScript(storageKey, serializeCheckoutSnapshot(resumedSnapshot)),
+      );
+    }
+    return scripts.join('');
+  }, [resumedSnapshot, storageKey, userPresenceEnabled]);
 
   const expectedOrigin = useMemo(() => checkoutOrigin(props.checkoutUrl), [props.checkoutUrl]);
+
+  const clearSessionMaterial = useCallback(() => {
+    void secureSessionStore.clearSession(snapshotScope);
+  }, [secureSessionStore, snapshotScope]);
 
   const syncHostedStorage = useCallback(() => {
     webViewRef.current?.injectJavaScript(buildCheckoutStorageSyncScript());
   }, []);
+
+  const persistSessionFromSnapshot = useCallback(
+    (snapshot: CheckoutSnapshot) => {
+      void secureSessionStore.saveSession(snapshotScope, snapshot.session);
+    },
+    [secureSessionStore, snapshotScope],
+  );
 
   const persistSyncedSnapshot = useCallback(
     (payload: { key: string; value: string }) => {
@@ -173,24 +294,65 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
         return;
       }
 
+      const snapshot = parseCheckoutSnapshot(payload.value);
+      if (!snapshot || !snapshotMatchesScope(snapshot, snapshotScope)) {
+        return;
+      }
+
       void Promise.resolve(storage.setItem(storageKey, payload.value));
+      persistSessionFromSnapshot(snapshot);
     },
-    [storage, storageKey],
+    [storage, storageKey, snapshotScope, persistSessionFromSnapshot],
+  );
+
+  const handleUserPresenceRequest = useCallback(
+    async (request: NonNullable<ReturnType<typeof parseUserPresenceRequest>>) => {
+      const result = await userPresenceAdapter.requestPresence({
+        ...props.userPresence,
+        enabled: userPresenceEnabled,
+      });
+
+      if (result.success) {
+        webViewRef.current?.injectJavaScript(
+          buildUserPresenceContinuationScript(request.requestId),
+        );
+        return;
+      }
+
+      webViewRef.current?.injectJavaScript(buildUserPresenceAbortScript(request.requestId));
+
+      if (result.cancelled) {
+        return;
+      }
+
+      if (result.error) {
+        props.onError?.(result.error);
+      }
+    },
+    [props.userPresence, props.onError, userPresenceAdapter, userPresenceEnabled],
   );
 
   const handleClose = useCallback(() => {
-    // Mirrors `mountFrame().close()`: ask the embedded checkout to close
-    // rather than just tearing down the WebView, so it can run its own
-    // teardown (e.g. releasing the escrow event subscription) first.
     webViewRef.current?.injectJavaScript(
       buildInboundBridgeScript({ type: 'checkout:close', payload: {} }),
     );
+    clearSessionMaterial();
     props.onRequestClose();
-  }, [props.onRequestClose]);
+  }, [clearSessionMaterial, props.onRequestClose]);
 
   const handleMessage = useCallback(
     (event: WebViewMessageEvent) => {
-      const storageSync = parseCheckoutStorageSyncMessage(event.nativeEvent.data);
+      const presenceRequest = parseUserPresenceRequest(event.nativeEvent.data);
+      if (presenceRequest) {
+        void handleUserPresenceRequest(presenceRequest);
+        return;
+      }
+
+      const storageSync = parseCheckoutStorageSyncMessage(
+        event.nativeEvent.data,
+        event.nativeEvent.url,
+        expectedOrigin,
+      );
       if (storageSync) {
         persistSyncedSnapshot(storageSync);
         return;
@@ -216,16 +378,28 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
         },
         onComplete: (escrow) => {
           void Promise.resolve(storage.removeItem(storageKey));
+          clearSessionMaterial();
           props.onComplete?.(escrow);
         },
-        onDispute: props.onDispute,
-        onError: props.onError,
-        onClose: props.onRequestClose,
+        onDispute: (escrow) => {
+          void Promise.resolve(storage.removeItem(storageKey));
+          clearSessionMaterial();
+          props.onDispute?.(escrow);
+        },
+        onError: (error) => {
+          clearSessionMaterial();
+          props.onError?.(error);
+        },
+        onClose: () => {
+          clearSessionMaterial();
+          props.onRequestClose();
+        },
       });
     },
     [
       expectedOrigin,
       persistSyncedSnapshot,
+      handleUserPresenceRequest,
       props.onReady,
       props.onStep,
       props.onComplete,
@@ -235,6 +409,7 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
       storage,
       storageKey,
       syncHostedStorage,
+      clearSessionMaterial,
     ],
   );
 
@@ -244,7 +419,7 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
       try {
         origin = new URL(request.url).origin;
       } catch {
-        return true;
+        return false;
       }
 
       if (origin === expectedOrigin) {
@@ -252,14 +427,9 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
       }
 
       if (props.returnUrl && request.url.startsWith(props.returnUrl)) {
-        // The OS-level deep link (handled by `usePactoDeepLink` in the host
-        // app) is the source of truth for the return — don't let the
-        // captive WebView also try to navigate to an app-only scheme.
         return false;
       }
 
-      // Anything else (a bank/3-D Secure redirect) leaves the origin-locked
-      // checkout WebView and opens in the system browser instead.
       Linking.openURL(request.url).catch(() => {});
       return false;
     },
@@ -291,9 +461,31 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
           onMessage={handleMessage}
           onShouldStartLoadWithRequest={handleShouldStartLoad}
           injectedJavaScriptBeforeContentLoaded={injectedBeforeLoad}
+          originWhitelist={[expectedOrigin]}
+          allowFileAccess={false}
+          allowUniversalAccessFromFileURLs={false}
+          allowFileAccessFromFileURLs={false}
+          setSupportMultipleWindows={false}
+          javaScriptCanOpenWindowsAutomatically={false}
+          sharedCookiesEnabled={false}
+          thirdPartyCookiesEnabled={false}
           startInLoadingState
         />
       </SafeAreaView>
     </Modal>
   );
+}
+
+// Expose gateway fetch for escrow hook consumers wiring the same checkout session.
+export function resolveCheckoutGatewayFetch(props: {
+  fetch?: FetchLike;
+  pinning?: PinSet;
+}): FetchLike | undefined {
+  if (props.fetch) {
+    return props.fetch;
+  }
+  if (props.pinning) {
+    return createPinnedFetch(props.pinning);
+  }
+  return undefined;
 }

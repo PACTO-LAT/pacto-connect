@@ -5,8 +5,10 @@ import {
   serializeCheckoutSnapshot,
 } from '@pacto-connect/core';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PactoCheckoutSheet } from './PactoCheckoutSheet.js';
+import { createMockIntegrityProbe } from './security/device-integrity.js';
 import type { TestHandlers } from './test/react-native-webview-mock.js';
 
 afterEach(() => {
@@ -14,6 +16,15 @@ afterEach(() => {
 });
 
 const CHECKOUT_URL = 'https://checkout.pacto.example/embed';
+
+const defaultSecurityProps = {
+  userPresence: { enabled: false as const },
+  integrityProbe: createMockIntegrityProbe({}),
+};
+
+function renderCheckoutSheet(props: React.ComponentProps<typeof PactoCheckoutSheet>) {
+  return render(<PactoCheckoutSheet {...defaultSecurityProps} {...props} />);
+}
 
 function envelope(message: unknown): string {
   return JSON.stringify({ v: 1, source: 'pacto-connect', message });
@@ -37,27 +48,23 @@ function getWebViewNode(): HTMLElement {
 
 describe('PactoCheckoutSheet', () => {
   it('renders nothing when not visible', () => {
-    render(
-      <PactoCheckoutSheet
-        visible={false}
-        checkoutUrl={CHECKOUT_URL}
-        publishableKey="pk_test_123"
-        onRequestClose={() => {}}
-      />,
-    );
+    renderCheckoutSheet({
+      visible: false,
+      checkoutUrl: CHECKOUT_URL,
+      publishableKey: 'pk_test_123',
+      onRequestClose: () => {},
+    });
     expect(document.querySelector('[data-rn-component="Modal"]')).toBeNull();
   });
 
   it('builds the WebView source URL with publishableKey and same-origin parentOrigin', () => {
-    render(
-      <PactoCheckoutSheet
-        visible
-        checkoutUrl={CHECKOUT_URL}
-        publishableKey="pk_test_123"
-        mode="buy"
-        onRequestClose={() => {}}
-      />,
-    );
+    renderCheckoutSheet({
+      visible: true,
+      checkoutUrl: CHECKOUT_URL,
+      publishableKey: 'pk_test_123',
+      mode: 'buy',
+      onRequestClose: () => {},
+    });
 
     const uri = getWebViewNode().getAttribute('data-uri');
     expect(uri).toBeTruthy();
@@ -68,14 +75,12 @@ describe('PactoCheckoutSheet', () => {
   });
 
   it('injects the bridge shim before content loads', () => {
-    render(
-      <PactoCheckoutSheet
-        visible
-        checkoutUrl={CHECKOUT_URL}
-        publishableKey="pk_test_123"
-        onRequestClose={() => {}}
-      />,
-    );
+    renderCheckoutSheet({
+      visible: true,
+      checkoutUrl: CHECKOUT_URL,
+      publishableKey: 'pk_test_123',
+      onRequestClose: () => {},
+    });
     expect(getWebViewNode().getAttribute('data-injected-before-load')).toContain(
       '__pactoConnectRNBridgeInstalled',
     );
@@ -83,15 +88,13 @@ describe('PactoCheckoutSheet', () => {
 
   it('routes a checkout:ready message from the WebView to onReady', () => {
     const onReady = vi.fn();
-    render(
-      <PactoCheckoutSheet
-        visible
-        checkoutUrl={CHECKOUT_URL}
-        publishableKey="pk_test_123"
-        onReady={onReady}
-        onRequestClose={() => {}}
-      />,
-    );
+    renderCheckoutSheet({
+      visible: true,
+      checkoutUrl: CHECKOUT_URL,
+      publishableKey: 'pk_test_123',
+      onReady,
+      onRequestClose: () => {},
+    });
 
     getWebViewHandlers().onMessage?.({
       nativeEvent: {
@@ -108,17 +111,15 @@ describe('PactoCheckoutSheet', () => {
     const onDispute = vi.fn();
     const onError = vi.fn();
     const onRequestClose = vi.fn();
-    render(
-      <PactoCheckoutSheet
-        visible
-        checkoutUrl={CHECKOUT_URL}
-        publishableKey="pk_test_123"
-        onComplete={onComplete}
-        onDispute={onDispute}
-        onError={onError}
-        onRequestClose={onRequestClose}
-      />,
-    );
+    renderCheckoutSheet({
+      visible: true,
+      checkoutUrl: CHECKOUT_URL,
+      publishableKey: 'pk_test_123',
+      onComplete,
+      onDispute,
+      onError,
+      onRequestClose,
+    });
 
     const handlers = getWebViewHandlers();
     const escrow = { id: 'escrow_1', status: 'released' };
@@ -155,15 +156,13 @@ describe('PactoCheckoutSheet', () => {
 
   it('ignores a message whose reported URL origin does not match the checkout origin', () => {
     const onReady = vi.fn();
-    render(
-      <PactoCheckoutSheet
-        visible
-        checkoutUrl={CHECKOUT_URL}
-        publishableKey="pk_test_123"
-        onReady={onReady}
-        onRequestClose={() => {}}
-      />,
-    );
+    renderCheckoutSheet({
+      visible: true,
+      checkoutUrl: CHECKOUT_URL,
+      publishableKey: 'pk_test_123',
+      onReady,
+      onRequestClose: () => {},
+    });
 
     getWebViewHandlers().onMessage?.({
       nativeEvent: {
@@ -177,28 +176,24 @@ describe('PactoCheckoutSheet', () => {
 
   it('close button posts checkout:close into the WebView and calls onRequestClose', () => {
     const onRequestClose = vi.fn();
-    render(
-      <PactoCheckoutSheet
-        visible
-        checkoutUrl={CHECKOUT_URL}
-        publishableKey="pk_test_123"
-        onRequestClose={onRequestClose}
-      />,
-    );
+    renderCheckoutSheet({
+      visible: true,
+      checkoutUrl: CHECKOUT_URL,
+      publishableKey: 'pk_test_123',
+      onRequestClose,
+    });
 
     fireEvent.click(screen.getByLabelText('Close checkout'));
     expect(onRequestClose).toHaveBeenCalledTimes(1);
   });
 
   it('allows navigation within the checkout origin', () => {
-    render(
-      <PactoCheckoutSheet
-        visible
-        checkoutUrl={CHECKOUT_URL}
-        publishableKey="pk_test_123"
-        onRequestClose={() => {}}
-      />,
-    );
+    renderCheckoutSheet({
+      visible: true,
+      checkoutUrl: CHECKOUT_URL,
+      publishableKey: 'pk_test_123',
+      onRequestClose: () => {},
+    });
 
     const allowed = getWebViewHandlers().onShouldStartLoadWithRequest?.({
       url: `${CHECKOUT_URL}?step=deposit`,
@@ -207,15 +202,13 @@ describe('PactoCheckoutSheet', () => {
   });
 
   it('blocks navigation to the app returnUrl scheme (handled by the OS deep link instead)', () => {
-    render(
-      <PactoCheckoutSheet
-        visible
-        checkoutUrl={CHECKOUT_URL}
-        publishableKey="pk_test_123"
-        returnUrl="pacto-example://checkout-return"
-        onRequestClose={() => {}}
-      />,
-    );
+    renderCheckoutSheet({
+      visible: true,
+      checkoutUrl: CHECKOUT_URL,
+      publishableKey: 'pk_test_123',
+      returnUrl: 'pacto-example://checkout-return',
+      onRequestClose: () => {},
+    });
 
     const allowed = getWebViewHandlers().onShouldStartLoadWithRequest?.({
       url: 'pacto-example://checkout-return?status=released',
@@ -224,14 +217,12 @@ describe('PactoCheckoutSheet', () => {
   });
 
   it('blocks and hands off external (e.g. bank redirect) navigation to the system browser', () => {
-    render(
-      <PactoCheckoutSheet
-        visible
-        checkoutUrl={CHECKOUT_URL}
-        publishableKey="pk_test_123"
-        onRequestClose={() => {}}
-      />,
-    );
+    renderCheckoutSheet({
+      visible: true,
+      checkoutUrl: CHECKOUT_URL,
+      publishableKey: 'pk_test_123',
+      onRequestClose: () => {},
+    });
 
     const allowed = getWebViewHandlers().onShouldStartLoadWithRequest?.({
       url: 'https://bank.example/3ds-challenge',
@@ -240,14 +231,12 @@ describe('PactoCheckoutSheet', () => {
   });
 
   it('never receives a secret/sk_ key — only publishableKey is a required prop', () => {
-    render(
-      <PactoCheckoutSheet
-        visible
-        checkoutUrl={CHECKOUT_URL}
-        publishableKey="pk_live_abc123"
-        onRequestClose={() => {}}
-      />,
-    );
+    renderCheckoutSheet({
+      visible: true,
+      checkoutUrl: CHECKOUT_URL,
+      publishableKey: 'pk_live_abc123',
+      onRequestClose: () => {},
+    });
     expect(getWebViewNode().getAttribute('data-uri')).not.toContain('sk_');
   });
 
@@ -296,16 +285,14 @@ describe('PactoCheckoutSheet', () => {
       }),
     );
 
-    const { unmount } = render(
-      <PactoCheckoutSheet
-        visible
-        checkoutUrl={CHECKOUT_URL}
-        publishableKey="pk_test_123"
-        listingId="lst_1"
-        storage={storage}
-        onRequestClose={() => {}}
-      />,
-    );
+    const { unmount } = renderCheckoutSheet({
+      visible: true,
+      checkoutUrl: CHECKOUT_URL,
+      publishableKey: 'pk_test_123',
+      listingId: 'lst_1',
+      storage,
+      onRequestClose: () => {},
+    });
 
     await waitFor(() => {
       const injected = getWebViewNode().getAttribute('data-injected-before-load');
@@ -318,16 +305,14 @@ describe('PactoCheckoutSheet', () => {
 
     unmount();
 
-    render(
-      <PactoCheckoutSheet
-        visible
-        checkoutUrl={CHECKOUT_URL}
-        publishableKey="pk_test_123"
-        listingId="lst_1"
-        storage={storage}
-        onRequestClose={() => {}}
-      />,
-    );
+    renderCheckoutSheet({
+      visible: true,
+      checkoutUrl: CHECKOUT_URL,
+      publishableKey: 'pk_test_123',
+      listingId: 'lst_1',
+      storage,
+      onRequestClose: () => {},
+    });
 
     await waitFor(() => {
       expect(getWebViewNode().getAttribute('data-injected-before-load')).toContain(key);
