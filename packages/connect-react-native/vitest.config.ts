@@ -39,10 +39,7 @@ export default defineConfig({
         rootDir,
         'packages/connect-react-native/src/test/react-native-biometrics-mock.ts',
       ),
-      'jail-monkey': resolve(
-        rootDir,
-        'packages/connect-react-native/src/test/jail-monkey-mock.ts',
-      ),
+      'jail-monkey': resolve(rootDir, 'packages/connect-react-native/src/test/jail-monkey-mock.ts'),
       'react-native-ssl-pinning': resolve(
         rootDir,
         'packages/connect-react-native/src/test/react-native-ssl-pinning-mock.ts',

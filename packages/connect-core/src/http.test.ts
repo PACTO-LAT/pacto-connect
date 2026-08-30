@@ -315,7 +315,9 @@ describe('http request', () => {
   });
 
   it('uses a custom fetch implementation when provided', async () => {
-    const customFetch = vi.fn().mockResolvedValue(mockFetchResponse(200, { listings: [] }) as Response);
+    const customFetch = vi
+      .fn()
+      .mockResolvedValue(mockFetchResponse(200, { listings: [] }) as Response);
 
     await request(
       { gatewayUrl, publishableKey, clientSecret, sleep, fetch: customFetch },

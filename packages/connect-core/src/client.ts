@@ -10,7 +10,7 @@ import {
   EscrowEventSubscriber,
   type EscrowSubscribeOptions,
 } from './escrow-events.js';
-import { PUBLISHABLE_KEY_HEADER, type FetchLike } from './http.js';
+import { type FetchLike, PUBLISHABLE_KEY_HEADER } from './http.js';
 import { createApiClient, type PactoApiClient } from './resources.js';
 
 export type { CheckoutMode } from './api-types.js';

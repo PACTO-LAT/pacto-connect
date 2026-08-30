@@ -1,4 +1,4 @@
-import { PUBLISHABLE_KEY_HEADER, type FetchLike } from './http.js';
+import { type FetchLike, PUBLISHABLE_KEY_HEADER } from './http.js';
 import { readSseStream, type SseMessage } from './sse.js';
 
 export const ESCROW_EVENT_NAMES = [

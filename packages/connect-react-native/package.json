@@ -35,10 +35,18 @@
     "react-native-ssl-pinning": ">=1"
   },
   "peerDependenciesMeta": {
-    "react-native-keychain": { "optional": true },
-    "react-native-biometrics": { "optional": true },
-    "jail-monkey": { "optional": true },
-    "react-native-ssl-pinning": { "optional": true }
+    "react-native-keychain": {
+      "optional": true
+    },
+    "react-native-biometrics": {
+      "optional": true
+    },
+    "jail-monkey": {
+      "optional": true
+    },
+    "react-native-ssl-pinning": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@pacto-connect/core": "*"
