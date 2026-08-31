@@ -149,15 +149,15 @@ text. Size the logo with your own CSS:
 
 ## Localization
 
-Supported locales out of the box: `en` (default) and `es`. Set `locale` the
-same way in either integration:
+Supported locales out of the box: `en` (default), `es`, and `pt`. Set `locale`
+the same way in either integration:
 
 <Tabs items={['React', 'Web component']}>
 
 <Tabs.Tab>
 
 ```tsx
-<PactoCheckout publishableKey="pk_test_..." open onClose={() => {}} locale="es" />
+<PactoCheckout publishableKey="pk_test_..." open onClose={() => {}} locale="pt" />
 ```
 
 </Tabs.Tab>
@@ -165,18 +165,38 @@ same way in either integration:
 <Tabs.Tab>
 
 ```js
-pacto.mount('#checkout-root', { publishableKey: 'pk_test_...', locale: 'es' })
+pacto.mount('#checkout-root', { publishableKey: 'pk_test_...', locale: 'pt' })
 ```
 
 or as an attribute on the custom element directly:
 
 ```html
-<pacto-checkout publishable-key="pk_test_..." locale="es" open></pacto-checkout>
+<pacto-checkout publishable-key="pk_test_..." locale="pt" open></pacto-checkout>
 ```
 
 </Tabs.Tab>
 
 </Tabs>
+
+### Deriving the locale from the payment rail
+
+If you don't know the buyer's locale up front, pass `railRegion` (the
+ISO-3166 region of the fiat rail you're routing them through, e.g. `BR` for
+Pix/SINPE-style Brazilian rails). It's only consulted when `locale` is absent:
+
+```tsx
+<PactoCheckout publishableKey="pk_test_..." open onClose={() => {}} railRegion="BR" />
+```
+
+```js
+pacto.mount('#checkout-root', { publishableKey: 'pk_test_...', railRegion: 'BR' })
+```
+
+Resolution order is fixed: explicit `locale` wins, then `railRegion` (mapped
+through the built-in region table — `BR` → `pt`, `CR`/`MX` → `es`), then
+`en`. Amounts and dates in the widget are formatted for the resolved locale
+via `Intl`, so a Brazilian buyer sees `1.234,50` rather than the `1,234.50`
+an `en` locale would render.
 
 ### Overriding individual strings
 

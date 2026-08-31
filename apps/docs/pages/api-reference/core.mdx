@@ -1232,6 +1232,25 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 
 ---
 
+# Function: assertCatalogueParity()
+
+```ts
+function assertCatalogueParity(): void;
+```
+
+Defined in: packages/connect-core/src/i18n/parity.ts:23
+
+Throws when a bundled catalogue's key set drifts from the canonical (`en`)
+shape. Called at module initialization so a missing translation fails the
+build/boot instead of surfacing as a blank string in production.
+
+## Returns
+
+`void`
+
+
+---
+
 # Function: buildCheckoutStylesheet()
 
 ```ts
@@ -1301,13 +1320,115 @@ Framework-agnostic SDK core for Pacto Connect.
 
 ---
 
+# Function: formatAssetAmount()
+
+```ts
+function formatAssetAmount(value, locale): string;
+```
+
+Defined in: packages/connect-core/src/i18n/format.ts:13
+
+Locale-aware decimal formatting (grouping + decimal separator) for
+quantities that are not ISO-4217 currencies, e.g. a listing or escrow's
+crypto asset amount (`USDC`, `XLM`, …), which `formatCurrency` rejects.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `value` | `number` |
+| `locale` | [`PactoLocale`](#typealias.pactolocale) |
+
+## Returns
+
+`string`
+
+
+---
+
+# Function: formatCurrency()
+
+```ts
+function formatCurrency(
+   value, 
+   currency, 
+   locale): string;
+```
+
+Defined in: packages/connect-core/src/i18n/format.ts:4
+
+Format a monetary amount per locale (grouping, decimal separator, symbol placement). Requires an ISO-4217 code.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `value` | `number` |
+| `currency` | `string` |
+| `locale` | [`PactoLocale`](#typealias.pactolocale) |
+
+## Returns
+
+`string`
+
+
+---
+
+# Function: formatDate()
+
+```ts
+function formatDate(value, locale): string;
+```
+
+Defined in: packages/connect-core/src/i18n/format.ts:20
+
+Format a date/timestamp per locale.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `value` | `string` \| `number` \| `Date` |
+| `locale` | [`PactoLocale`](#typealias.pactolocale) |
+
+## Returns
+
+`string`
+
+
+---
+
+# Function: formatGender()
+
+```ts
+function formatGender(gender, forms): string;
+```
+
+Defined in: packages/connect-core/src/i18n/format.ts:48
+
+Select a gender-specific message form.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `gender` | [`Gender`](#typealias.gender) |
+| `forms` | `Record`\<[`Gender`](#typealias.gender), `string`\> |
+
+## Returns
+
+`string`
+
+
+---
+
 # Function: formatMessage()
 
 ```ts
 function formatMessage(template, params): string;
 ```
 
-Defined in: [packages/connect-core/src/i18n.ts:175](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L175)
+Defined in: packages/connect-core/src/i18n/messages.ts:5
 
 Replace `{name}` placeholders in `template` with values from `params`.
 
@@ -1317,6 +1438,37 @@ Replace `{name}` placeholders in `template` with values from `params`.
 | ------ | ------ |
 | `template` | `string` |
 | `params` | `Record`\<`string`, `string`\> |
+
+## Returns
+
+`string`
+
+
+---
+
+# Function: formatPlural()
+
+```ts
+function formatPlural(
+   locale, 
+   count, 
+   forms): string;
+```
+
+Defined in: packages/connect-core/src/i18n/format.ts:36
+
+Resolve a count to its plural category via `Intl.PluralRules` and interpolate
+`{count}` into the matching form. Replaces ad-hoc string concatenation
+(`count + ' item' + (count === 1 ? '' : 's')`), which does not generalize to
+Spanish/Portuguese plural rules or to a `zero` form.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `locale` | [`PactoLocale`](#typealias.pactolocale) |
+| `count` | `number` |
+| `forms` | [`PluralForms`](#interface.pluralforms) |
 
 ## Returns
 
@@ -1441,13 +1593,75 @@ Defined in: [packages/connect-core/src/keys.ts:5](https://github.com/PACTO-LAT/p
 
 ---
 
+# Function: resolveKeyedMessage()
+
+```ts
+function resolveKeyedMessage(
+   messages, 
+   section, 
+   key, 
+   locale): string;
+```
+
+Defined in: packages/connect-core/src/i18n/messages.ts:31
+
+Resolve a message from a dynamically-keyed catalogue section (e.g.
+`messages.steps[step]`), for keys whose validity can only be known at
+runtime (a step or milestone name coming from a live checkout/escrow state).
+
+In development a missing key throws immediately, so a drifted catalogue is
+caught before it ships. In production it falls back to the English copy (or
+to the raw key, if even `en` lacks it) so a merchant's checkout never
+renders a blank string or crashes.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `messages` | [`PactoMessages`](#interface.pactomessages) |
+| `section` | `KeyedSection` |
+| `key` | `string` |
+| `locale` | [`PactoLocale`](#typealias.pactolocale) |
+
+## Returns
+
+`string`
+
+
+---
+
+# Function: resolveLocale()
+
+```ts
+function resolveLocale(input?): PactoLocale;
+```
+
+Defined in: packages/connect-core/src/i18n/resolve.ts:31
+
+Deterministic locale fallback chain: explicit host locale, then the rail's
+region, then English. A host locale like `pt-BR` is matched on its base
+subtag; an unresolvable region or locale falls through to `en`.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `input?` | \| `string` \| [`LocaleResolutionOptions`](#interface.localeresolutionoptions) |
+
+## Returns
+
+[`PactoLocale`](#typealias.pactolocale)
+
+
+---
+
 # Function: resolveMessages()
 
 ```ts
 function resolveMessages(locale?, overrides?): PactoMessages;
 ```
 
-Defined in: [packages/connect-core/src/i18n.ts:163](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L163)
+Defined in: packages/connect-core/src/i18n/resolve.ts:45
 
 Resolve a locale to its message set, deep-merged with optional overrides.
 Unknown locales fall back to English. Pass a full `PactoMessages` shape via
@@ -1457,7 +1671,7 @@ Unknown locales fall back to English. Pass a full `PactoMessages` shape via
 
 | Parameter | Type |
 | ------ | ------ |
-| `locale?` | `string` |
+| `locale?` | \| `string` \| [`LocaleResolutionOptions`](#interface.localeresolutionoptions) |
 | `overrides?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoMessages`](#interface.pactomessages)\> |
 
 ## Returns
@@ -1803,6 +2017,20 @@ Defined in: [packages/connect-core/src/resources.ts:5](https://github.com/PACTO-
 
 ---
 
+# Interface: LocaleResolutionOptions
+
+Defined in: packages/connect-core/src/i18n/types.ts:9
+
+## Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="locale"></a> `locale?` | `string` | Explicit host preference; takes precedence over the payment rail. | packages/connect-core/src/i18n/types.ts:11 |
+| <a id="railregion"></a> `railRegion?` | `string` | ISO-3166 region supplied by the selected payment rail. | packages/connect-core/src/i18n/types.ts:13 |
+
+
+---
+
 # Interface: PactoApiClient
 
 Defined in: [packages/connect-core/src/resources.ts:128](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/resources.ts#L128)
@@ -1960,37 +2188,37 @@ Defined in: [packages/connect-core/src/client.ts:17](https://github.com/PACTO-LA
 
 # Interface: PactoMessages
 
-Defined in: [packages/connect-core/src/i18n.ts:14](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L14)
+Defined in: packages/connect-core/src/i18n/types.ts:16
 
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="actions"></a> `actions` | \&#123; `close`: `string`; `closeAria`: `string`; `confirmDeposit`: `string`; `forceDispute`: `string`; `forceRelease`: `string`; `forceTimeout`: `string`; `retry`: `string`; `submitReceipt`: `string`; \&#125; | - | [packages/connect-core/src/i18n.ts:17](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L17) |
-| `actions.close` | `string` | - | [packages/connect-core/src/i18n.ts:18](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L18) |
-| `actions.closeAria` | `string` | - | [packages/connect-core/src/i18n.ts:19](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L19) |
-| `actions.confirmDeposit` | `string` | - | [packages/connect-core/src/i18n.ts:21](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L21) |
-| `actions.forceDispute` | `string` | - | [packages/connect-core/src/i18n.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L24) |
-| `actions.forceRelease` | `string` | - | [packages/connect-core/src/i18n.ts:23](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L23) |
-| `actions.forceTimeout` | `string` | - | [packages/connect-core/src/i18n.ts:25](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L25) |
-| `actions.retry` | `string` | - | [packages/connect-core/src/i18n.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L20) |
-| `actions.submitReceipt` | `string` | - | [packages/connect-core/src/i18n.ts:22](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L22) |
-| <a id="labels"></a> `labels` | \&#123; `availableListings`: `string`; `depositInstruction`: `string`; `disputed`: `string`; `escrowMilestones`: `string`; `genericError`: `string`; `loading`: `string`; `paymentMethod`: `string`; `reference`: `string`; `referenceAria`: `string`; `simulatorControls`: `string`; `success`: `string`; `testBanner`: `string`; `waiting`: `string`; \&#125; | - | [packages/connect-core/src/i18n.ts:27](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L27) |
-| `labels.availableListings` | `string` | - | [packages/connect-core/src/i18n.ts:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L31) |
-| `labels.depositInstruction` | `string` | Placeholders: &#123;amount&#125; &#123;asset&#125; | [packages/connect-core/src/i18n.ts:39](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L39) |
-| `labels.disputed` | `string` | Placeholder: &#123;escrowId&#125; | [packages/connect-core/src/i18n.ts:43](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L43) |
-| `labels.escrowMilestones` | `string` | - | [packages/connect-core/src/i18n.ts:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L32) |
-| `labels.genericError` | `string` | - | [packages/connect-core/src/i18n.ts:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L37) |
-| `labels.loading` | `string` | - | [packages/connect-core/src/i18n.ts:34](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L34) |
-| `labels.paymentMethod` | `string` | - | [packages/connect-core/src/i18n.ts:28](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L28) |
-| `labels.reference` | `string` | - | [packages/connect-core/src/i18n.ts:29](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L29) |
-| `labels.referenceAria` | `string` | - | [packages/connect-core/src/i18n.ts:30](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L30) |
-| `labels.simulatorControls` | `string` | - | [packages/connect-core/src/i18n.ts:33](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L33) |
-| `labels.success` | `string` | Placeholder: &#123;escrowId&#125; | [packages/connect-core/src/i18n.ts:41](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L41) |
-| `labels.testBanner` | `string` | - | [packages/connect-core/src/i18n.ts:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L36) |
-| `labels.waiting` | `string` | - | [packages/connect-core/src/i18n.ts:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L35) |
-| <a id="milestones"></a> `milestones` | `Record`\<[`EscrowEventName`](#typealias.escroweventname), `string`\> | - | [packages/connect-core/src/i18n.ts:16](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L16) |
-| <a id="steps"></a> `steps` | `Record`\<[`CheckoutStep`](#typealias.checkoutstep), `string`\> | - | [packages/connect-core/src/i18n.ts:15](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L15) |
+| <a id="actions"></a> `actions` | \&#123; `close`: `string`; `closeAria`: `string`; `confirmDeposit`: `string`; `forceDispute`: `string`; `forceRelease`: `string`; `forceTimeout`: `string`; `retry`: `string`; `submitReceipt`: `string`; \&#125; | - | packages/connect-core/src/i18n/types.ts:19 |
+| `actions.close` | `string` | - | packages/connect-core/src/i18n/types.ts:20 |
+| `actions.closeAria` | `string` | - | packages/connect-core/src/i18n/types.ts:21 |
+| `actions.confirmDeposit` | `string` | - | packages/connect-core/src/i18n/types.ts:23 |
+| `actions.forceDispute` | `string` | - | packages/connect-core/src/i18n/types.ts:26 |
+| `actions.forceRelease` | `string` | - | packages/connect-core/src/i18n/types.ts:25 |
+| `actions.forceTimeout` | `string` | - | packages/connect-core/src/i18n/types.ts:27 |
+| `actions.retry` | `string` | - | packages/connect-core/src/i18n/types.ts:22 |
+| `actions.submitReceipt` | `string` | - | packages/connect-core/src/i18n/types.ts:24 |
+| <a id="labels"></a> `labels` | \&#123; `availableListings`: `string`; `depositInstruction`: `string`; `disputed`: `string`; `escrowMilestones`: `string`; `genericError`: `string`; `loading`: `string`; `paymentMethod`: `string`; `reference`: `string`; `referenceAria`: `string`; `simulatorControls`: `string`; `success`: `string`; `testBanner`: `string`; `waiting`: `string`; \&#125; | - | packages/connect-core/src/i18n/types.ts:29 |
+| `labels.availableListings` | `string` | - | packages/connect-core/src/i18n/types.ts:33 |
+| `labels.depositInstruction` | `string` | Placeholders: &#123;amount&#125; &#123;asset&#125; | packages/connect-core/src/i18n/types.ts:41 |
+| `labels.disputed` | `string` | Placeholder: &#123;escrowId&#125; | packages/connect-core/src/i18n/types.ts:45 |
+| `labels.escrowMilestones` | `string` | - | packages/connect-core/src/i18n/types.ts:34 |
+| `labels.genericError` | `string` | - | packages/connect-core/src/i18n/types.ts:39 |
+| `labels.loading` | `string` | - | packages/connect-core/src/i18n/types.ts:36 |
+| `labels.paymentMethod` | `string` | - | packages/connect-core/src/i18n/types.ts:30 |
+| `labels.reference` | `string` | - | packages/connect-core/src/i18n/types.ts:31 |
+| `labels.referenceAria` | `string` | - | packages/connect-core/src/i18n/types.ts:32 |
+| `labels.simulatorControls` | `string` | - | packages/connect-core/src/i18n/types.ts:35 |
+| `labels.success` | `string` | Placeholder: &#123;escrowId&#125; | packages/connect-core/src/i18n/types.ts:43 |
+| `labels.testBanner` | `string` | - | packages/connect-core/src/i18n/types.ts:38 |
+| `labels.waiting` | `string` | - | packages/connect-core/src/i18n/types.ts:37 |
+| <a id="milestones"></a> `milestones` | `Record`\<[`EscrowEventName`](#typealias.escroweventname), `string`\> | - | packages/connect-core/src/i18n/types.ts:18 |
+| <a id="steps"></a> `steps` | `Record`\<[`CheckoutStep`](#typealias.checkoutstep), `string`\> | - | packages/connect-core/src/i18n/types.ts:17 |
 
 
 ---
@@ -2042,6 +2270,21 @@ vars) or by setting the CSS variables directly in their own stylesheet.
 | `typography.fontFamily` | `string` | [packages/connect-core/src/theme.ts:23](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L23) |
 | `typography.fontSize` | `string` | [packages/connect-core/src/theme.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L24) |
 | `typography.headingSize` | `string` | [packages/connect-core/src/theme.ts:25](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L25) |
+
+
+---
+
+# Interface: PluralForms
+
+Defined in: packages/connect-core/src/i18n/format.ts:24
+
+## Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="one"></a> `one` | `string` | packages/connect-core/src/i18n/format.ts:26 |
+| <a id="other"></a> `other` | `string` | packages/connect-core/src/i18n/format.ts:27 |
+| <a id="zero"></a> `zero?` | `string` | packages/connect-core/src/i18n/format.ts:25 |
 
 
 ---
@@ -2199,6 +2442,17 @@ Defined in: [packages/connect-core/src/resources.ts:59](https://github.com/PACTO
 
 ---
 
+# Type Alias: Gender
+
+```ts
+type Gender = "female" | "male" | "other";
+```
+
+Defined in: packages/connect-core/src/i18n/format.ts:45
+
+
+---
+
 # Type Alias: PactoBridgeEventType
 
 ```ts
@@ -2244,10 +2498,23 @@ Framework-agnostic SDK core for Pacto Connect.
 # Type Alias: PactoLocale
 
 ```ts
-type PactoLocale = "en" | "es";
+type PactoLocale = "en" | "es" | "pt";
 ```
 
-Defined in: [packages/connect-core/src/i18n.ts:12](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L12)
+Defined in: packages/connect-core/src/i18n/types.ts:4
+
+
+---
+
+# Type Alias: RailRegion
+
+```ts
+type RailRegion = "BR" | "CR" | "MX" | string;
+```
+
+Defined in: packages/connect-core/src/i18n/types.ts:7
+
+ISO-3166 region supplied by the selected payment rail (e.g. the fiat rail's country).
 
 
 ---
@@ -2351,7 +2618,7 @@ Defined in: [packages/connect-core/src/theme.ts:35](https://github.com/PACTO-LAT
 const VERSION: "0.0.0" = '0.0.0';
 ```
 
-Defined in: [packages/connect-core/src/index.ts:87](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/index.ts#L87)
+Defined in: [packages/connect-core/src/index.ts:100](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/index.ts#L100)
 
 
 ---
@@ -2362,7 +2629,9 @@ Defined in: [packages/connect-core/src/index.ts:87](https://github.com/PACTO-LAT
 const enMessages: PactoMessages;
 ```
 
-Defined in: [packages/connect-core/src/i18n.ts:47](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L47)
+Defined in: packages/connect-core/src/i18n/catalogues/en.ts:4
+
+Canonical dictionary. Every other catalogue must carry the same key set (see parity.ts).
 
 
 ---
@@ -2373,4 +2642,15 @@ Defined in: [packages/connect-core/src/i18n.ts:47](https://github.com/PACTO-LAT/
 const esMessages: PactoMessages;
 ```
 
-Defined in: [packages/connect-core/src/i18n.ts:91](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n.ts#L91)
+Defined in: packages/connect-core/src/i18n/catalogues/es.ts:3
+
+
+---
+
+# Variable: ptMessages
+
+```ts
+const ptMessages: PactoMessages;
+```
+
+Defined in: packages/connect-core/src/i18n/catalogues/pt.ts:3

@@ -1238,7 +1238,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 function PactoCheckout(props): Element | null;
 ```
 
-Defined in: [packages/connect-react/src/PactoCheckout.tsx:50](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L50)
+Defined in: [packages/connect-react/src/PactoCheckout.tsx:55](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L55)
 
 ## Parameters
 
@@ -1259,7 +1259,7 @@ Defined in: [packages/connect-react/src/PactoCheckout.tsx:50](https://github.com
 function buildCheckoutStylesheet(): string;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:414
+Defined in: packages/connect-core/dist/index.d.ts:511
 
 The default checkout stylesheet, tokenized. Every themeable value is written
 as `var(--pacto-*, <default>)` where the default comes from DEFAULT_THEME, so
@@ -1303,7 +1303,7 @@ skip this by passing `injectStyles={false}` to `<PactoCheckout/>`.
 function resolveMessages(locale?, overrides?): PactoMessages;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:463
+Defined in: packages/connect-core/dist/index.d.ts:524
 
 Resolve a locale to its message set, deep-merged with optional overrides.
 Unknown locales fall back to English. Pass a full `PactoMessages` shape via
@@ -1313,7 +1313,7 @@ Unknown locales fall back to English. Pass a full `PactoMessages` shape via
 
 | Parameter | Type |
 | ------ | ------ |
-| `locale?` | `string` |
+| `locale?` | `string` \| `LocaleResolutionOptions` |
 | `overrides?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoMessages`](#interface.pactomessages)\> |
 
 ## Returns
@@ -1329,7 +1329,7 @@ Unknown locales fall back to English. Pass a full `PactoMessages` shape via
 function themeToCssVars(theme?): Record<string, string>;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:408
+Defined in: packages/connect-core/dist/index.d.ts:505
 
 Convert a (partial) theme into a sparse map of CSS custom properties. Only
 tokens that are explicitly provided are emitted; everything else falls
@@ -1572,28 +1572,29 @@ Defined in: packages/connect-core/dist/index.d.ts:184
 
 # Interface: PactoCheckoutProps
 
-Defined in: [packages/connect-react/src/PactoCheckout.tsx:26](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L26)
+Defined in: [packages/connect-react/src/PactoCheckout.tsx:29](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L29)
 
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="gatewayurl"></a> `gatewayUrl?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:28](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L28) |
-| <a id="injectstyles"></a> `injectStyles?` | `boolean` | Inject the default stylesheet (default `true`). Set `false` to self-style. | [packages/connect-react/src/PactoCheckout.tsx:47](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L47) |
-| <a id="listingid"></a> `listingId?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:29](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L29) |
-| <a id="locale"></a> `locale?` | [`PactoLocale`](#typealias.pactolocale) | Widget copy locale (default `en`). | [packages/connect-react/src/PactoCheckout.tsx:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L38) |
-| <a id="logoalt"></a> `logoAlt?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:45](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L45) |
-| <a id="logourl"></a> `logoUrl?` | `string` | Brand logo shown in the checkout header. | [packages/connect-react/src/PactoCheckout.tsx:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L44) |
-| <a id="messages"></a> `messages?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoMessages`](#interface.pactomessages)\> | Per-string copy overrides / additional locale. | [packages/connect-react/src/PactoCheckout.tsx:40](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L40) |
-| <a id="mode"></a> `mode?` | `"buy"` \| `"sell"` | - | [packages/connect-react/src/PactoCheckout.tsx:30](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L30) |
-| <a id="onclose"></a> `onClose` | () => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:33](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L33) |
-| <a id="oncomplete"></a> `onComplete?` | (`escrow`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:34](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L34) |
-| <a id="ondispute"></a> `onDispute?` | (`escrow`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L35) |
-| <a id="onerror"></a> `onError?` | (`error`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L36) |
-| <a id="open"></a> `open` | `boolean` | - | [packages/connect-react/src/PactoCheckout.tsx:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L32) |
-| <a id="publishablekey"></a> `publishableKey` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:27](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L27) |
-| <a id="testmode"></a> `testMode?` | `boolean` | - | [packages/connect-react/src/PactoCheckout.tsx:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L31) |
-| <a id="theme"></a> `theme?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoTheme`](#interface.pactotheme)\> | Design tokens applied as `--pacto-*` CSS variables. | [packages/connect-react/src/PactoCheckout.tsx:42](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L42) |
+| <a id="gatewayurl"></a> `gatewayUrl?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L31) |
+| <a id="injectstyles"></a> `injectStyles?` | `boolean` | Inject the default stylesheet (default `true`). Set `false` to self-style. | [packages/connect-react/src/PactoCheckout.tsx:52](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L52) |
+| <a id="listingid"></a> `listingId?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L32) |
+| <a id="locale"></a> `locale?` | [`PactoLocale`](#typealias.pactolocale) | Widget copy locale (default `en`). | [packages/connect-react/src/PactoCheckout.tsx:41](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L41) |
+| <a id="logoalt"></a> `logoAlt?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:50](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L50) |
+| <a id="logourl"></a> `logoUrl?` | `string` | Brand logo shown in the checkout header. | [packages/connect-react/src/PactoCheckout.tsx:49](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L49) |
+| <a id="messages"></a> `messages?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoMessages`](#interface.pactomessages)\> | Per-string copy overrides / additional locale. | [packages/connect-react/src/PactoCheckout.tsx:45](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L45) |
+| <a id="mode"></a> `mode?` | `"buy"` \| `"sell"` | - | [packages/connect-react/src/PactoCheckout.tsx:33](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L33) |
+| <a id="onclose"></a> `onClose` | () => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L36) |
+| <a id="oncomplete"></a> `onComplete?` | (`escrow`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L37) |
+| <a id="ondispute"></a> `onDispute?` | (`escrow`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L38) |
+| <a id="onerror"></a> `onError?` | (`error`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:39](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L39) |
+| <a id="open"></a> `open` | `boolean` | - | [packages/connect-react/src/PactoCheckout.tsx:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L35) |
+| <a id="publishablekey"></a> `publishableKey` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:30](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L30) |
+| <a id="railregion"></a> `railRegion?` | `string` | Rail region used when the host does not provide a locale. | [packages/connect-react/src/PactoCheckout.tsx:43](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L43) |
+| <a id="testmode"></a> `testMode?` | `boolean` | - | [packages/connect-react/src/PactoCheckout.tsx:34](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L34) |
+| <a id="theme"></a> `theme?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoTheme`](#interface.pactotheme)\> | Design tokens applied as `--pacto-*` CSS variables. | [packages/connect-react/src/PactoCheckout.tsx:47](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L47) |
 
 
 ---
@@ -1692,37 +1693,37 @@ Defined in: packages/connect-core/dist/index.d.ts:197
 
 # Interface: PactoMessages
 
-Defined in: packages/connect-core/dist/index.d.ts:424
+Defined in: packages/connect-core/dist/index.d.ts:379
 
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="actions"></a> `actions` | \&#123; `close`: `string`; `closeAria`: `string`; `confirmDeposit`: `string`; `forceDispute`: `string`; `forceRelease`: `string`; `forceTimeout`: `string`; `retry`: `string`; `submitReceipt`: `string`; \&#125; | - | packages/connect-core/dist/index.d.ts:427 |
-| `actions.close` | `string` | - | packages/connect-core/dist/index.d.ts:428 |
-| `actions.closeAria` | `string` | - | packages/connect-core/dist/index.d.ts:429 |
-| `actions.confirmDeposit` | `string` | - | packages/connect-core/dist/index.d.ts:431 |
-| `actions.forceDispute` | `string` | - | packages/connect-core/dist/index.d.ts:434 |
-| `actions.forceRelease` | `string` | - | packages/connect-core/dist/index.d.ts:433 |
-| `actions.forceTimeout` | `string` | - | packages/connect-core/dist/index.d.ts:435 |
-| `actions.retry` | `string` | - | packages/connect-core/dist/index.d.ts:430 |
-| `actions.submitReceipt` | `string` | - | packages/connect-core/dist/index.d.ts:432 |
-| <a id="labels"></a> `labels` | \&#123; `availableListings`: `string`; `depositInstruction`: `string`; `disputed`: `string`; `escrowMilestones`: `string`; `genericError`: `string`; `loading`: `string`; `paymentMethod`: `string`; `reference`: `string`; `referenceAria`: `string`; `simulatorControls`: `string`; `success`: `string`; `testBanner`: `string`; `waiting`: `string`; \&#125; | - | packages/connect-core/dist/index.d.ts:437 |
-| `labels.availableListings` | `string` | - | packages/connect-core/dist/index.d.ts:441 |
-| `labels.depositInstruction` | `string` | Placeholders: &#123;amount&#125; &#123;asset&#125; | packages/connect-core/dist/index.d.ts:449 |
-| `labels.disputed` | `string` | Placeholder: &#123;escrowId&#125; | packages/connect-core/dist/index.d.ts:453 |
-| `labels.escrowMilestones` | `string` | - | packages/connect-core/dist/index.d.ts:442 |
-| `labels.genericError` | `string` | - | packages/connect-core/dist/index.d.ts:447 |
-| `labels.loading` | `string` | - | packages/connect-core/dist/index.d.ts:444 |
-| `labels.paymentMethod` | `string` | - | packages/connect-core/dist/index.d.ts:438 |
-| `labels.reference` | `string` | - | packages/connect-core/dist/index.d.ts:439 |
-| `labels.referenceAria` | `string` | - | packages/connect-core/dist/index.d.ts:440 |
-| `labels.simulatorControls` | `string` | - | packages/connect-core/dist/index.d.ts:443 |
-| `labels.success` | `string` | Placeholder: &#123;escrowId&#125; | packages/connect-core/dist/index.d.ts:451 |
-| `labels.testBanner` | `string` | - | packages/connect-core/dist/index.d.ts:446 |
-| `labels.waiting` | `string` | - | packages/connect-core/dist/index.d.ts:445 |
-| <a id="milestones"></a> `milestones` | `Record`\<[`EscrowEventName`](#typealias.escroweventname), `string`\> | - | packages/connect-core/dist/index.d.ts:426 |
-| <a id="steps"></a> `steps` | `Record`\<[`CheckoutStep`](#typealias.checkoutstep), `string`\> | - | packages/connect-core/dist/index.d.ts:425 |
+| <a id="actions"></a> `actions` | \&#123; `close`: `string`; `closeAria`: `string`; `confirmDeposit`: `string`; `forceDispute`: `string`; `forceRelease`: `string`; `forceTimeout`: `string`; `retry`: `string`; `submitReceipt`: `string`; \&#125; | - | packages/connect-core/dist/index.d.ts:382 |
+| `actions.close` | `string` | - | packages/connect-core/dist/index.d.ts:383 |
+| `actions.closeAria` | `string` | - | packages/connect-core/dist/index.d.ts:384 |
+| `actions.confirmDeposit` | `string` | - | packages/connect-core/dist/index.d.ts:386 |
+| `actions.forceDispute` | `string` | - | packages/connect-core/dist/index.d.ts:389 |
+| `actions.forceRelease` | `string` | - | packages/connect-core/dist/index.d.ts:388 |
+| `actions.forceTimeout` | `string` | - | packages/connect-core/dist/index.d.ts:390 |
+| `actions.retry` | `string` | - | packages/connect-core/dist/index.d.ts:385 |
+| `actions.submitReceipt` | `string` | - | packages/connect-core/dist/index.d.ts:387 |
+| <a id="labels"></a> `labels` | \&#123; `availableListings`: `string`; `depositInstruction`: `string`; `disputed`: `string`; `escrowMilestones`: `string`; `genericError`: `string`; `loading`: `string`; `paymentMethod`: `string`; `reference`: `string`; `referenceAria`: `string`; `simulatorControls`: `string`; `success`: `string`; `testBanner`: `string`; `waiting`: `string`; \&#125; | - | packages/connect-core/dist/index.d.ts:392 |
+| `labels.availableListings` | `string` | - | packages/connect-core/dist/index.d.ts:396 |
+| `labels.depositInstruction` | `string` | Placeholders: &#123;amount&#125; &#123;asset&#125; | packages/connect-core/dist/index.d.ts:404 |
+| `labels.disputed` | `string` | Placeholder: &#123;escrowId&#125; | packages/connect-core/dist/index.d.ts:408 |
+| `labels.escrowMilestones` | `string` | - | packages/connect-core/dist/index.d.ts:397 |
+| `labels.genericError` | `string` | - | packages/connect-core/dist/index.d.ts:402 |
+| `labels.loading` | `string` | - | packages/connect-core/dist/index.d.ts:399 |
+| `labels.paymentMethod` | `string` | - | packages/connect-core/dist/index.d.ts:393 |
+| `labels.reference` | `string` | - | packages/connect-core/dist/index.d.ts:394 |
+| `labels.referenceAria` | `string` | - | packages/connect-core/dist/index.d.ts:395 |
+| `labels.simulatorControls` | `string` | - | packages/connect-core/dist/index.d.ts:398 |
+| `labels.success` | `string` | Placeholder: &#123;escrowId&#125; | packages/connect-core/dist/index.d.ts:406 |
+| `labels.testBanner` | `string` | - | packages/connect-core/dist/index.d.ts:401 |
+| `labels.waiting` | `string` | - | packages/connect-core/dist/index.d.ts:400 |
+| <a id="milestones"></a> `milestones` | `Record`\<[`EscrowEventName`](#typealias.escroweventname), `string`\> | - | packages/connect-core/dist/index.d.ts:381 |
+| <a id="steps"></a> `steps` | `Record`\<[`CheckoutStep`](#typealias.checkoutstep), `string`\> | - | packages/connect-core/dist/index.d.ts:380 |
 
 
 ---
@@ -1745,7 +1746,7 @@ Defined in: packages/connect-core/dist/index.d.ts:218
 
 # Interface: PactoTheme
 
-Defined in: packages/connect-core/dist/index.d.ts:379
+Defined in: packages/connect-core/dist/index.d.ts:476
 
 White-label theming for the checkout widget.
 
@@ -1759,21 +1760,21 @@ vars) or by setting the CSS variables directly in their own stylesheet.
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="colors"></a> `colors` | \&#123; `border`: `string`; `danger`: `string`; `mutedText`: `string`; `overlay`: `string`; `primary`: `string`; `primaryText`: `string`; `surface`: `string`; `text`: `string`; \&#125; | packages/connect-core/dist/index.d.ts:380 |
-| `colors.border` | `string` | packages/connect-core/dist/index.d.ts:386 |
-| `colors.danger` | `string` | packages/connect-core/dist/index.d.ts:388 |
-| `colors.mutedText` | `string` | packages/connect-core/dist/index.d.ts:385 |
-| `colors.overlay` | `string` | packages/connect-core/dist/index.d.ts:387 |
-| `colors.primary` | `string` | packages/connect-core/dist/index.d.ts:381 |
-| `colors.primaryText` | `string` | packages/connect-core/dist/index.d.ts:382 |
-| `colors.surface` | `string` | packages/connect-core/dist/index.d.ts:383 |
-| `colors.text` | `string` | packages/connect-core/dist/index.d.ts:384 |
-| <a id="radius"></a> `radius` | `string` | packages/connect-core/dist/index.d.ts:395 |
-| <a id="spacing"></a> `spacing` | `string` | packages/connect-core/dist/index.d.ts:396 |
-| <a id="typography"></a> `typography` | \&#123; `fontFamily`: `string`; `fontSize`: `string`; `headingSize`: `string`; \&#125; | packages/connect-core/dist/index.d.ts:390 |
-| `typography.fontFamily` | `string` | packages/connect-core/dist/index.d.ts:391 |
-| `typography.fontSize` | `string` | packages/connect-core/dist/index.d.ts:392 |
-| `typography.headingSize` | `string` | packages/connect-core/dist/index.d.ts:393 |
+| <a id="colors"></a> `colors` | \&#123; `border`: `string`; `danger`: `string`; `mutedText`: `string`; `overlay`: `string`; `primary`: `string`; `primaryText`: `string`; `surface`: `string`; `text`: `string`; \&#125; | packages/connect-core/dist/index.d.ts:477 |
+| `colors.border` | `string` | packages/connect-core/dist/index.d.ts:483 |
+| `colors.danger` | `string` | packages/connect-core/dist/index.d.ts:485 |
+| `colors.mutedText` | `string` | packages/connect-core/dist/index.d.ts:482 |
+| `colors.overlay` | `string` | packages/connect-core/dist/index.d.ts:484 |
+| `colors.primary` | `string` | packages/connect-core/dist/index.d.ts:478 |
+| `colors.primaryText` | `string` | packages/connect-core/dist/index.d.ts:479 |
+| `colors.surface` | `string` | packages/connect-core/dist/index.d.ts:480 |
+| `colors.text` | `string` | packages/connect-core/dist/index.d.ts:481 |
+| <a id="radius"></a> `radius` | `string` | packages/connect-core/dist/index.d.ts:492 |
+| <a id="spacing"></a> `spacing` | `string` | packages/connect-core/dist/index.d.ts:493 |
+| <a id="typography"></a> `typography` | \&#123; `fontFamily`: `string`; `fontSize`: `string`; `headingSize`: `string`; \&#125; | packages/connect-core/dist/index.d.ts:487 |
+| `typography.fontFamily` | `string` | packages/connect-core/dist/index.d.ts:488 |
+| `typography.fontSize` | `string` | packages/connect-core/dist/index.d.ts:489 |
+| `typography.headingSize` | `string` | packages/connect-core/dist/index.d.ts:490 |
 
 
 ---
@@ -1901,7 +1902,7 @@ Defined in: packages/connect-core/dist/index.d.ts:211
 type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] };
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:398
+Defined in: packages/connect-core/dist/index.d.ts:495
 
 ## Type Parameters
 
@@ -1982,15 +1983,10 @@ Defined in: packages/connect-core/dist/index.d.ts:87
 # Type Alias: PactoLocale
 
 ```ts
-type PactoLocale = "en" | "es";
+type PactoLocale = "en" | "es" | "pt";
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:423
-
-Localized copy for the checkout widget. The `en` dictionary is the canonical
-set and must match the strings the widgets historically hardcoded. Merchants
-pick a locale via `resolveMessages(locale)` and can patch individual strings
-— or supply a whole new language — through the `overrides` argument.
+Defined in: packages/connect-core/dist/index.d.ts:370
 
 
 ---
@@ -2001,7 +1997,7 @@ pick a locale via `resolveMessages(locale)` and can patch individual strings
 const DEFAULT_THEME: PactoTheme;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:402
+Defined in: packages/connect-core/dist/index.d.ts:499
 
 
 ---
