@@ -10,7 +10,9 @@ import {
   resolveKeyedMessage,
   resolveLocale,
   resolveMessages,
+  resolveStepAnnouncement,
   themeToCssVars,
+  warnOnThemeContrastIssues,
 } from '@pacto-connect/core';
 import { useEffect, useRef, useState } from 'react';
 import { type CheckoutStep, useCheckoutFlow } from './hooks/useCheckoutFlow.js';
@@ -57,6 +59,7 @@ export interface PactoCheckoutProps {
 
 export function PactoCheckout(props: PactoCheckoutProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const flow = useCheckoutFlow({
     publishableKey: props.publishableKey,
     gatewayUrl: props.gatewayUrl,
@@ -79,18 +82,28 @@ export function PactoCheckout(props: PactoCheckoutProps) {
   const themeVars = themeToCssVars(props.theme) as React.CSSProperties;
 
   useEffect(() => {
-    if (props.open && props.injectStyles !== false) {
+    if (!props.open) {
+      return;
+    }
+    if (props.injectStyles !== false) {
       injectPactoCheckoutStyles();
     }
-  }, [props.open, props.injectStyles]);
+    // Configuration-time check: warn the integrator immediately if their theme
+    // resolves to a color pair that fails WCAG AA, naming the failing pair.
+    warnOnThemeContrastIssues(props.theme);
+  }, [props.open, props.injectStyles, props.theme]);
 
-  useFocusTrap(dialogRef, props.open, props.onClose);
+  useFocusTrap(dialogRef, props.open, props.onClose, {
+    target: headingRef,
+    key: flow.step,
+  });
 
   if (!props.open) {
     return null;
   }
 
   const titleId = 'pacto-checkout-title';
+  const stepAnnouncement = resolveStepAnnouncement(m, locale, flow.step, flow.escrow?.id);
 
   return (
     <div className="pacto-checkout-overlay" data-testid="pacto-checkout-overlay" style={themeVars}>
@@ -103,6 +116,15 @@ export function PactoCheckout(props: PactoCheckoutProps) {
         data-testid="pacto-checkout-dialog"
         tabIndex={-1}
       >
+        <div
+          className="pacto-checkout-sr-only"
+          role="status"
+          aria-live="polite"
+          data-testid="checkout-step-announcer"
+        >
+          {stepAnnouncement}
+        </div>
+
         {flow.testMode && (
           <div
             className="pacto-checkout-test-banner"
@@ -118,7 +140,9 @@ export function PactoCheckout(props: PactoCheckoutProps) {
             {props.logoUrl && (
               <img className="pacto-checkout-logo" src={props.logoUrl} alt={props.logoAlt ?? ''} />
             )}
-            <h2 id={titleId}>{resolveKeyedMessage(m, 'steps', flow.step, locale)}</h2>
+            <h2 id={titleId} ref={headingRef} tabIndex={-1}>
+              {resolveKeyedMessage(m, 'steps', flow.step, locale)}
+            </h2>
           </div>
           <button type="button" onClick={props.onClose} aria-label={m.actions.closeAria}>
             {m.actions.close}
@@ -141,7 +165,7 @@ export function PactoCheckout(props: PactoCheckoutProps) {
         )}
 
         {flow.step === 'selectListing' && (
-          <ul role="listbox" aria-label={m.labels.availableListings} data-testid="listing-list">
+          <ul aria-label={m.labels.availableListings} data-testid="listing-list">
             {flow.listings.map((listing) => (
               <li key={listing.id}>
                 <button type="button" onClick={() => flow.selectListing(listing)}>
