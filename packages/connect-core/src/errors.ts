@@ -2,6 +2,7 @@ import type { GatewayErrorBody } from './api-types.js';
 import {
   classifyGatewayError,
   isPactoErrorCode,
+  isRetryableErrorCode,
   type PactoErrorCode,
   REQUEST_ID_HEADER,
 } from './taxonomy.js';
@@ -97,6 +98,62 @@ export class PactoSecurityError extends PactoError {
   }
 }
 
+/** A single attempt exceeded the resilience policy's per-attempt timeout. */
+export class PactoTimeoutError extends PactoError {
+  constructor(detailCode: string, message: string, options?: PactoErrorOptions) {
+    super('timeout_error', 'PACTO_NETWORK', detailCode, message, options);
+    this.name = 'PactoTimeoutError';
+  }
+}
+
+/**
+ * The session-wide retry budget was exhausted before this call could
+ * succeed — surfaced instead of retrying silently forever or failing with
+ * the last transient error, so an integrator can distinguish "the gateway is
+ * degraded and we gave up" from an ordinary request failure.
+ */
+export class PactoRetryExhaustedError extends PactoError {
+  /** Total attempts made (including the initial one) before giving up. */
+  readonly attempts: number;
+
+  constructor(detailCode: string, message: string, attempts: number, options?: PactoErrorOptions) {
+    super('retry_exhausted_error', 'PACTO_NETWORK', detailCode, message, options);
+    this.name = 'PactoRetryExhaustedError';
+    this.attempts = attempts;
+  }
+}
+
+/** The resilience policy's circuit breaker is open; the request was rejected without being attempted. */
+export class PactoCircuitOpenError extends PactoError {
+  /** Milliseconds until the breaker becomes eligible for a half-open trial, if known. */
+  readonly retryAfterMs?: number;
+
+  constructor(
+    detailCode: string,
+    message: string,
+    retryAfterMs?: number,
+    options?: PactoErrorOptions,
+  ) {
+    super('circuit_open_error', 'PACTO_NETWORK', detailCode, message, options);
+    this.name = 'PactoCircuitOpenError';
+    this.retryAfterMs = retryAfterMs;
+  }
+}
+
+/**
+ * Taxonomy-driven retryability check used by every network module's
+ * resilience policy — the single place that decides whether an error
+ * represents a transient failure worth retrying. An error not recognized as
+ * a `PactoError` (e.g. a raw exception thrown by `fetch`) is treated as
+ * retryable, matching historical behavior for unclassified network failures.
+ */
+export function isRetryableError(error: unknown): boolean {
+  if (error instanceof PactoError) {
+    return isRetryableErrorCode(error.code);
+  }
+  return true;
+}
+
 function parseRetryAfter(headers: Headers): number | undefined {
   const value = headers.get('Retry-After');
   if (!value) {
@@ -149,10 +206,13 @@ export function errorFromResponse(
     return new PactoRateLimitError(detailCode, message, retryAfter, options);
   }
 
+  // An escrow-domain business-rule violation (invalid transition, refund
+  // exceeds balance, ...) is never retryable — but a 5xx on an escrow
+  // endpoint is a transport/server failure like any other, not a domain
+  // error, and must fall through to the retryable classification below.
   if (
-    context.resource === 'escrow' ||
-    context.path.includes('/escrows') ||
-    type === 'escrow_error'
+    type === 'escrow_error' ||
+    ((context.resource === 'escrow' || context.path.includes('/escrows')) && status < 500)
   ) {
     return new PactoEscrowError(detailCode, message, options);
   }
