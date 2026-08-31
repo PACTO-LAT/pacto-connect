@@ -110,6 +110,17 @@ enum PayoutRunStatus {
   finalized
 }
 
+enum RiskListType {
+  allow
+  deny
+}
+
+enum RiskDecisionOutcome {
+  allow
+  review
+  block
+}
+
 model Merchant {
   id        String         @id @default(cuid())
   apiKeyId  String
@@ -128,6 +139,9 @@ model Merchant {
   ledgerEntries    LedgerEntry[]
   payoutRuns       PayoutRun[]
   escrows          Escrow[]
+  riskSettings     MerchantRiskSettings?
+  riskListEntries  MerchantRiskListEntry[]
+  riskDecisions    RiskDecision[]
 
   @@index([apiKeyId])
   @@index([status])
@@ -188,6 +202,7 @@ model CheckoutSession {
   updatedAt        DateTime      @updatedAt
   merchantId       String?
   merchant         Merchant?     @relation(fields: [merchantId], references: [id])
+  counterpartyRef  String?
 
   @@index([apiKeyId])
   @@index([status])
@@ -436,4 +451,59 @@ model PayoutRun {
   @@unique([merchantId, periodId, asset])
   @@index([merchantId])
   @@index([periodId])
+}
+
+// Per-merchant velocity thresholds. Every field is nullable: a null value
+// means "use the platform default" (see src/risk/config.ts). Resolution is
+// merchant-first, then platform default, field by field.
+model MerchantRiskSettings {
+  id                   String   @id @default(cuid())
+  merchantId           String   @unique
+  merchant             Merchant @relation(fields: [merchantId], references: [id])
+  windowMs             Int?
+  valueThreshold       Float?
+  countThreshold       Int?
+  reviewValueThreshold Float?
+  reviewCountThreshold Int?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([merchantId])
+}
+
+// Per-merchant counterparty allow/deny lists, evaluated against the
+// counterpartyRef carried on a CheckoutSession. A counterparty may not
+// appear twice in the same list for the same merchant.
+model MerchantRiskListEntry {
+  id              String       @id @default(cuid())
+  merchantId      String
+  merchant        Merchant     @relation(fields: [merchantId], references: [id])
+  listType        RiskListType
+  counterpartyRef String
+  note            String?
+  createdAt       DateTime     @default(now())
+
+  @@unique([merchantId, listType, counterpartyRef])
+  @@index([merchantId])
+  @@index([merchantId, listType])
+}
+
+// One row per risk evaluation performed on the escrow-creation path.
+// allow/review rows count toward future velocity sums (real value moved);
+// block rows do not (no escrow was created).
+model RiskDecision {
+  id              String              @id @default(cuid())
+  merchantId      String
+  merchant        Merchant            @relation(fields: [merchantId], references: [id])
+  sessionId       String
+  counterpartyRef String?
+  amount          Float
+  asset           String
+  outcome         RiskDecisionOutcome
+  reason          String
+  requestId       String?
+  createdAt       DateTime            @default(now())
+
+  @@index([merchantId, createdAt])
+  @@index([merchantId, outcome])
 }
