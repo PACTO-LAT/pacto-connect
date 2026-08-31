@@ -102,6 +102,7 @@ export {
   resolveKeyedMessage,
   resolveLocale,
   resolveMessages,
+  resolveStepAnnouncement,
 } from './i18n/index.js';
 export { isTestMode, keyMode } from './keys.js';
 export {
@@ -159,11 +160,17 @@ export {
 } from './taxonomy.js';
 export {
   buildCheckoutStylesheet,
+  CONTRAST_LEVEL,
   DEFAULT_THEME,
   type DeepPartial,
+  formatThemeContrastWarning,
   type PactoTheme,
+  resolveTheme,
   STYLE_ELEMENT_ID,
+  type ThemeContrastIssue,
   themeToCssVars,
+  validateThemeContrast,
+  warnOnThemeContrastIssues,
 } from './theme.js';
 
 export const VERSION = '0.0.0';
