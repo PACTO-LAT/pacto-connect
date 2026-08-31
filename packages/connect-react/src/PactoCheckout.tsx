@@ -2,10 +2,13 @@ import {
   type CheckoutStorageAdapter,
   type DeepPartial,
   type FiatPaymentMethod,
+  formatAssetAmount,
   formatMessage,
   type PactoLocale,
   type PactoMessages,
   type PactoTheme,
+  resolveKeyedMessage,
+  resolveLocale,
   resolveMessages,
   themeToCssVars,
 } from '@pacto-connect/core';
@@ -39,6 +42,8 @@ export interface PactoCheckoutProps {
   onError?: (error: Error) => void;
   /** Widget copy locale (default `en`). */
   locale?: PactoLocale;
+  /** Rail region used when the host does not provide a locale. */
+  railRegion?: string;
   /** Per-string copy overrides / additional locale. */
   messages?: DeepPartial<PactoMessages>;
   /** Design tokens applied as `--pacto-*` CSS variables. */
@@ -69,7 +74,8 @@ export function PactoCheckout(props: PactoCheckoutProps) {
   const [method, setMethod] = useState<FiatPaymentMethod>('SINPE');
   const [reference, setReference] = useState('');
 
-  const m = resolveMessages(props.locale, props.messages);
+  const locale = resolveLocale({ locale: props.locale, railRegion: props.railRegion });
+  const m = resolveMessages(locale, props.messages);
   const themeVars = themeToCssVars(props.theme) as React.CSSProperties;
 
   useEffect(() => {
@@ -112,7 +118,7 @@ export function PactoCheckout(props: PactoCheckoutProps) {
             {props.logoUrl && (
               <img className="pacto-checkout-logo" src={props.logoUrl} alt={props.logoAlt ?? ''} />
             )}
-            <h2 id={titleId}>{m.steps[flow.step]}</h2>
+            <h2 id={titleId}>{resolveKeyedMessage(m, 'steps', flow.step, locale)}</h2>
           </div>
           <button type="button" onClick={props.onClose} aria-label={m.actions.closeAria}>
             {m.actions.close}
@@ -139,7 +145,8 @@ export function PactoCheckout(props: PactoCheckoutProps) {
             {flow.listings.map((listing) => (
               <li key={listing.id}>
                 <button type="button" onClick={() => flow.selectListing(listing)}>
-                  {listing.asset} — {listing.amount} @ {listing.price}
+                  {listing.asset} — {formatAssetAmount(Number(listing.amount), locale)} @{' '}
+                  {listing.price}
                 </button>
               </li>
             ))}
@@ -198,7 +205,9 @@ export function PactoCheckout(props: PactoCheckoutProps) {
             <p>{m.labels.waiting}</p>
             <ol aria-label={m.labels.escrowMilestones}>
               {flow.milestones.map((milestone) => (
-                <li key={milestone.cursor}>{m.milestones[milestone.type]}</li>
+                <li key={milestone.cursor}>
+                  {resolveKeyedMessage(m, 'milestones', milestone.type, locale)}
+                </li>
               ))}
             </ol>
           </div>

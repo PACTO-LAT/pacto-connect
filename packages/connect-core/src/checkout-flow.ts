@@ -26,7 +26,7 @@ import {
   type PactoSessionData,
 } from './client.js';
 import type { EscrowEvent } from './escrow-events.js';
-import { en, resolveMessages } from './i18n.js';
+import { en, resolveMessages } from './i18n/index.js';
 import { isTestMode } from './keys.js';
 import type { Escrow, Listing, PactoApiClient, Quote } from './resources.js';
 

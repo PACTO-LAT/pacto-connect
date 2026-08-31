@@ -12,6 +12,7 @@ import {
   type PactoMessages,
   type PactoSessionData,
   type PactoTheme,
+  resolveLocale,
   resolveMessages,
 } from '@pacto-connect/core';
 import { injectCheckoutStyles } from './styles.js';
@@ -32,8 +33,9 @@ export interface PactoCheckoutOptions {
   allowedOrigins?: string[];
   /** Inject the default modal stylesheet (default `true`). Set `false` to fully self-style. */
   injectStyles?: boolean;
-  /** Widget copy locale (default `en`). */
+  /** Widget copy locale; falls back to the selected rail region, then English. */
   locale?: PactoLocale;
+  railRegion?: string;
   /** Per-string copy overrides / additional locale. */
   messages?: DeepPartial<PactoMessages>;
   /** Design tokens applied as `--pacto-*` CSS variables. */
@@ -127,6 +129,7 @@ export class PactoCheckoutElement extends HTMLElement {
       'allowed-origins',
       'inject-styles',
       'locale',
+      'rail-region',
       'logo-url',
       'logo-alt',
     ];
@@ -201,6 +204,7 @@ export class PactoCheckoutElement extends HTMLElement {
         !this.hasAttribute('inject-styles') ||
         parseBooleanAttribute(this.getAttribute('inject-styles')),
       locale: (this.getAttribute('locale') as PactoLocale | null) ?? undefined,
+      railRegion: this.getAttribute('rail-region') ?? undefined,
       logoUrl: this.getAttribute('logo-url') ?? undefined,
       logoAlt: this.getAttribute('logo-alt') ?? undefined,
     };
@@ -262,9 +266,11 @@ export class PactoCheckoutElement extends HTMLElement {
       },
     });
 
+    const locale = resolveLocale({ locale: options.locale, railRegion: options.railRegion });
     this.view = new CheckoutView(this, this.controller, {
       onClose: () => this.close(),
-      messages: resolveMessages(options.locale, options.messages),
+      messages: resolveMessages(locale, options.messages),
+      locale,
       theme: options.theme,
       logoUrl: options.logoUrl,
       logoAlt: options.logoAlt,
@@ -342,6 +348,9 @@ export function applyCheckoutOptions(
   }
   if (options.locale) {
     element.setAttribute('locale', options.locale);
+  }
+  if (options.railRegion) {
+    element.setAttribute('rail-region', options.railRegion);
   }
   if (options.logoUrl) {
     element.setAttribute('logo-url', options.logoUrl);
