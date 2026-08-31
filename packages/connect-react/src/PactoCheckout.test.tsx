@@ -334,6 +334,51 @@ describe('PactoCheckout', () => {
     expect(onError).toHaveBeenCalled();
   });
 
+  it('forwards the `resilience` prop to the underlying client, so a normally-retryable failure with maxRetries: 0 fails on the first attempt', async () => {
+    let listingsCalls = 0;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? 'GET';
+
+        if (url.includes('/v1/session') && method === 'POST') {
+          return jsonResponse({
+            sessionId: 'sess_1',
+            clientSecret: 'cs_sess_1.sig',
+            expiresAt: '2099-01-01T00:00:00.000Z',
+            mode: 'buy',
+          });
+        }
+        if (url.endsWith('/v1/listings')) {
+          listingsCalls += 1;
+          return jsonResponse({ error: { code: 'unavailable', message: 'down' } }, 503);
+        }
+        return jsonResponse({ error: 'not found' }, 404);
+      }),
+    );
+
+    const onError = vi.fn();
+
+    render(
+      <PactoCheckout
+        publishableKey={publishableKey}
+        gatewayUrl={gatewayUrl}
+        open
+        onClose={() => {}}
+        onError={onError}
+        resilience={{ maxRetries: 0 }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('checkout-error')).toBeInTheDocument();
+    });
+
+    expect(onError).toHaveBeenCalled();
+    expect(listingsCalls).toBe(1);
+  });
+
   it('lists listings when no listingId is provided', async () => {
     const user = userEvent.setup();
 

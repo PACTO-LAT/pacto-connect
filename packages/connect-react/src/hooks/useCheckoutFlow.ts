@@ -1,5 +1,6 @@
 import {
   CheckoutFlowController,
+  type CheckoutFlowResilienceOptions,
   type CheckoutFlowState,
   type CheckoutStep,
   type CheckoutStorageAdapter,
@@ -28,6 +29,8 @@ export interface UseCheckoutFlowOptions {
   testMode?: boolean;
   storage?: CheckoutStorageAdapter;
   enabled: boolean;
+  /** Overrides the SDK's default resilience policy (timeouts, retry budget, backoff, circuit breaker). */
+  resilience?: CheckoutFlowResilienceOptions;
   onComplete?: (escrow: Escrow) => void;
   onDispute?: (escrow: Escrow) => void;
   onRefund?: (escrow: Escrow) => void;
@@ -85,6 +88,7 @@ export function useCheckoutFlow(options: UseCheckoutFlowOptions): UseCheckoutFlo
       mode: options.mode,
       testMode: options.testMode,
       storage,
+      resilience: options.resilience,
       onChange: setState,
       onComplete: (escrow) => onCompleteRef.current?.(escrow),
       onDispute: (escrow) => onDisputeRef.current?.(escrow),
@@ -106,6 +110,7 @@ export function useCheckoutFlow(options: UseCheckoutFlowOptions): UseCheckoutFlo
     options.mode,
     options.publishableKey,
     options.testMode,
+    options.resilience,
     storage,
   ]);
 
