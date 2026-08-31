@@ -1,3 +1,4 @@
+import type { CheckoutStep } from '../checkout-flow.js';
 import { en } from './catalogues/index.js';
 import type { PactoLocale, PactoMessages } from './types.js';
 
@@ -47,4 +48,33 @@ export function resolveKeyedMessage(
   }
 
   return (en[section] as Record<string, string>)[key] ?? key;
+}
+
+/**
+ * Resolves the copy a screen-reader live region should announce for the
+ * current checkout step, shared by every widget surface (React, the web
+ * component, and the React Native sheet's native chrome) so a step change or
+ * terminal state is described identically everywhere.
+ *
+ * Terminal steps that carry an escrow id announce the same detailed copy
+ * shown on screen (e.g. "Payment complete. Escrow esc_1 released."); every
+ * other step announces its `steps` catalogue entry (e.g. "Deposit to
+ * escrow").
+ */
+export function resolveStepAnnouncement(
+  messages: PactoMessages,
+  locale: PactoLocale,
+  step: CheckoutStep,
+  escrowId?: string | null,
+): string {
+  switch (step) {
+    case 'success':
+      return formatMessage(messages.labels.success, { escrowId: escrowId ?? '' });
+    case 'disputed':
+      return formatMessage(messages.labels.disputed, { escrowId: escrowId ?? '' });
+    case 'refunded':
+      return formatMessage(messages.labels.refunded, { escrowId: escrowId ?? '' });
+    default:
+      return resolveKeyedMessage(messages, 'steps', step, locale);
+  }
 }
