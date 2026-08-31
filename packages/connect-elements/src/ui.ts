@@ -4,9 +4,12 @@ import {
   type DeepPartial,
   type EscrowEvent,
   type FiatPaymentMethod,
+  formatAssetAmount,
   formatMessage,
+  type PactoLocale,
   type PactoMessages,
   type PactoTheme,
+  resolveKeyedMessage,
   themeToCssVars,
 } from '@pacto-connect/core';
 import { createFocusTrap, type FocusTrap } from './focus-trap.js';
@@ -24,6 +27,7 @@ function showSimulatorControls(
 export interface CheckoutViewOptions {
   onClose: () => void;
   messages: PactoMessages;
+  locale: PactoLocale;
   theme?: DeepPartial<PactoTheme>;
   logoUrl?: string;
   logoAlt?: string;
@@ -77,7 +81,7 @@ export class CheckoutView {
 
     const title = document.createElement('h2');
     title.id = titleId;
-    title.textContent = m.steps[state.step];
+    title.textContent = resolveKeyedMessage(m, 'steps', state.step, this.options.locale);
     heading.append(title);
 
     const closeButton = document.createElement('button');
@@ -225,7 +229,8 @@ export class CheckoutView {
       const item = document.createElement('li');
       const button = document.createElement('button');
       button.type = 'button';
-      button.textContent = `${listing.asset} — ${listing.amount} @ ${listing.price}`;
+      const amount = formatAssetAmount(Number(listing.amount), this.options.locale);
+      button.textContent = `${listing.asset} — ${amount} @ ${listing.price}`;
       button.addEventListener('click', () => {
         void this.controller.selectListing(listing);
       });
@@ -316,7 +321,7 @@ export class CheckoutView {
     list.setAttribute('aria-label', m.labels.escrowMilestones);
     for (const milestone of milestones) {
       const item = document.createElement('li');
-      item.textContent = m.milestones[milestone.type];
+      item.textContent = resolveKeyedMessage(m, 'milestones', milestone.type, this.options.locale);
       list.append(item);
     }
 
