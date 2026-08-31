@@ -145,3 +145,116 @@ describe('CheckoutView theming and i18n', () => {
     expect(container.textContent).not.toContain('escrow.funded');
   });
 });
+
+describe('CheckoutView accessibility', () => {
+  it('renders a step-announcer live region reflecting the current step', () => {
+    const container = document.createElement('div');
+    const view = new CheckoutView(container, controllerInStep(), {
+      onClose: vi.fn(),
+      messages: resolveMessages('en'),
+      locale: 'en',
+    });
+    view.render();
+
+    const announcer = container.querySelector('[data-testid="checkout-step-announcer"]');
+    expect(announcer).not.toBeNull();
+    expect(announcer?.getAttribute('role')).toBe('status');
+    expect(announcer?.getAttribute('aria-live')).toBe('polite');
+    expect(announcer?.textContent).toBe('Deposit to escrow');
+    view.destroy();
+  });
+
+  it('announces the detailed success message, including the escrow id, on the success step', () => {
+    const container = document.createElement('div');
+    const controller = {
+      getState: () => ({
+        step: 'success',
+        testMode: false,
+        escrow: { id: 'esc_1', amount: '100', asset: 'USDC' },
+        listings: [],
+        milestones: [],
+        error: null,
+        sessionId: 'sess_1',
+      }),
+    } as unknown as CheckoutFlowController;
+
+    const view = new CheckoutView(container, controller, {
+      onClose: vi.fn(),
+      messages: resolveMessages('en'),
+      locale: 'en',
+    });
+    view.render();
+
+    expect(container.querySelector('[data-testid="checkout-step-announcer"]')?.textContent).toBe(
+      'Payment complete. Escrow esc_1 released.',
+    );
+    view.destroy();
+  });
+
+  it('does not use the invalid listbox/option-less pattern for the listing list', () => {
+    const listings = [{ id: 'lst_1', asset: 'USDC', amount: '100', price: '5000' }];
+    const container = document.createElement('div');
+    new CheckoutView(container, controllerWithListings(listings), {
+      onClose: vi.fn(),
+      messages: resolveMessages('en'),
+      locale: 'en',
+    }).render();
+
+    const list = container.querySelector('[data-testid="listing-list"]');
+    expect(list?.getAttribute('role')).toBeNull();
+    expect(list?.getAttribute('aria-label')).toBe('Available listings');
+    expect(list?.querySelector('button')).not.toBeNull();
+  });
+
+  it('makes the step heading programmatically focusable and moves focus to it on step change', () => {
+    const container = document.createElement('div');
+    document.body.append(container);
+
+    const baseState = {
+      testMode: false,
+      escrow: { id: 'esc_1', amount: '100', asset: 'USDC' },
+      listings: [],
+      milestones: [],
+      error: null,
+      sessionId: 'sess_1',
+    };
+    let step: 'deposit' | 'uploadReceipt' = 'deposit';
+    const controller = {
+      getState: () => ({ ...baseState, step }),
+    } as unknown as CheckoutFlowController;
+
+    const view = new CheckoutView(container, controller, {
+      onClose: vi.fn(),
+      messages: resolveMessages('en'),
+      locale: 'en',
+    });
+
+    view.render();
+    const heading = container.querySelector('h2') as HTMLHeadingElement;
+    expect(heading.tabIndex).toBe(-1);
+
+    // Move focus elsewhere, then simulate a step change re-render.
+    (container.querySelector('header button') as HTMLButtonElement).focus();
+    step = 'uploadReceipt';
+    view.render();
+
+    const newHeading = container.querySelector('h2') as HTMLHeadingElement;
+    expect(document.activeElement).toBe(newHeading);
+
+    view.destroy();
+    container.remove();
+  });
+
+  it('gives the close button and form controls an accessible name', () => {
+    const container = document.createElement('div');
+    new CheckoutView(container, controllerInStep(), {
+      onClose: vi.fn(),
+      messages: resolveMessages('en'),
+      locale: 'en',
+    }).render();
+
+    expect(container.querySelector('header button')?.getAttribute('aria-label')).toBe(
+      'Close checkout',
+    );
+  });
+});

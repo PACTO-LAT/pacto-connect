@@ -10,6 +10,7 @@ import {
   type PactoMessages,
   type PactoTheme,
   resolveKeyedMessage,
+  resolveStepAnnouncement,
   themeToCssVars,
 } from '@pacto-connect/core';
 import { createFocusTrap, type FocusTrap } from './focus-trap.js';
@@ -37,6 +38,7 @@ export class CheckoutView {
   private method: FiatPaymentMethod = 'SINPE';
   private reference = '';
   private focusTrap: FocusTrap | null = null;
+  private lastStep: CheckoutStep | null = null;
 
   constructor(
     private readonly container: HTMLElement,
@@ -65,6 +67,19 @@ export class CheckoutView {
     const titleId = 'pacto-checkout-title';
     dialog.setAttribute('aria-labelledby', titleId);
 
+    const announcer = document.createElement('div');
+    announcer.className = 'pacto-checkout-sr-only';
+    announcer.setAttribute('role', 'status');
+    announcer.setAttribute('aria-live', 'polite');
+    announcer.dataset.testid = 'checkout-step-announcer';
+    announcer.textContent = resolveStepAnnouncement(
+      m,
+      this.options.locale,
+      state.step,
+      state.escrow?.id,
+    );
+    dialog.append(announcer);
+
     const header = document.createElement('header');
     header.className = 'pacto-checkout-header';
 
@@ -81,6 +96,7 @@ export class CheckoutView {
 
     const title = document.createElement('h2');
     title.id = titleId;
+    title.tabIndex = -1;
     title.textContent = resolveKeyedMessage(m, 'steps', state.step, this.options.locale);
     heading.append(title);
 
@@ -136,12 +152,22 @@ export class CheckoutView {
     this.container.append(dialog);
 
     // Trap focus on the persistent overlay container (the inner dialog node is
-    // swapped on every re-render). Activate on first render; afterwards pull
-    // focus back inside if a re-render dropped it.
-    if (this.focusTrap) {
-      this.focusTrap.refocus();
-    } else {
+    // swapped on every re-render, which also drops whatever had focus). On
+    // first render, activate the trap (focuses the first focusable element).
+    // On a step change, move focus to the new heading predictably so
+    // assistive tech both hears the announcer above and lands on content
+    // describing the new step. On any other re-render (e.g. a milestone list
+    // update within the same step), only pull focus back inside if it fell
+    // outside the container entirely.
+    const stepChanged = this.lastStep !== null && this.lastStep !== state.step;
+    this.lastStep = state.step;
+
+    if (!this.focusTrap) {
       this.focusTrap = createFocusTrap(this.container, () => this.options.onClose());
+    } else if (stepChanged) {
+      this.focusTrap.refocus(title);
+    } else {
+      this.focusTrap.refocus();
     }
   }
 
@@ -224,7 +250,6 @@ export class CheckoutView {
     m: PactoMessages,
   ): HTMLElement {
     const list = document.createElement('ul');
-    list.role = 'listbox';
     list.setAttribute('aria-label', m.labels.availableListings);
     list.dataset.testid = 'listing-list';
 
