@@ -2,11 +2,12 @@ import {
   buildCheckoutSnapshotScope,
   checkoutStorageKey,
   createMemoryCheckoutStorage,
+  PactoTimeoutError,
   serializeCheckoutSnapshot,
 } from '@pacto-connect/core';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type React from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PactoCheckoutSheet } from './PactoCheckoutSheet.js';
 import { createMockIntegrityProbe } from './security/device-integrity.js';
 import type { TestHandlers } from './test/react-native-webview-mock.js';
@@ -316,6 +317,103 @@ describe('PactoCheckoutSheet', () => {
 
     await waitFor(() => {
       expect(getWebViewNode().getAttribute('data-injected-before-load')).toContain(key);
+    });
+  });
+
+  describe('checkout:ready timeout', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('calls onError with a PactoTimeoutError when checkout:ready never arrives — a hung frame message times out instead of waiting indefinitely', async () => {
+      const onError = vi.fn();
+      renderCheckoutSheet({
+        visible: true,
+        checkoutUrl: CHECKOUT_URL,
+        publishableKey: 'pk_test_123',
+        readyTimeoutMs: 1_000,
+        onError,
+        onRequestClose: () => {},
+      });
+
+      expect(onError).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(1_000);
+
+      expect(onError).toHaveBeenCalledWith(expect.any(PactoTimeoutError));
+    });
+
+    it('does not call onError once checkout:ready arrives before the deadline', async () => {
+      const onError = vi.fn();
+      const onReady = vi.fn();
+      renderCheckoutSheet({
+        visible: true,
+        checkoutUrl: CHECKOUT_URL,
+        publishableKey: 'pk_test_123',
+        readyTimeoutMs: 1_000,
+        onError,
+        onReady,
+        onRequestClose: () => {},
+      });
+
+      await vi.advanceTimersByTimeAsync(500);
+      getWebViewHandlers().onMessage?.({
+        nativeEvent: {
+          data: envelope({ type: 'checkout:ready', payload: { sessionId: 'sess_1' } }),
+          url: `${CHECKOUT_URL}?publishableKey=pk_test_123`,
+        },
+      });
+      await vi.advanceTimersByTimeAsync(1_000);
+
+      expect(onReady).toHaveBeenCalledWith('sess_1');
+      expect(onError).not.toHaveBeenCalled();
+    });
+
+    it('does not call onError once the sheet is dismissed (visible becomes false) before the deadline', async () => {
+      const onError = vi.fn();
+      const { rerender } = renderCheckoutSheet({
+        visible: true,
+        checkoutUrl: CHECKOUT_URL,
+        publishableKey: 'pk_test_123',
+        readyTimeoutMs: 1_000,
+        onError,
+        onRequestClose: () => {},
+      });
+
+      rerender(
+        <PactoCheckoutSheet
+          {...defaultSecurityProps}
+          visible={false}
+          checkoutUrl={CHECKOUT_URL}
+          publishableKey="pk_test_123"
+          readyTimeoutMs={1_000}
+          onError={onError}
+          onRequestClose={() => {}}
+        />,
+      );
+
+      await vi.advanceTimersByTimeAsync(1_000);
+      expect(onError).not.toHaveBeenCalled();
+    });
+
+    it('uses the default 15s ready timeout when none is provided', async () => {
+      const onError = vi.fn();
+      renderCheckoutSheet({
+        visible: true,
+        checkoutUrl: CHECKOUT_URL,
+        publishableKey: 'pk_test_123',
+        onError,
+        onRequestClose: () => {},
+      });
+
+      await vi.advanceTimersByTimeAsync(14_999);
+      expect(onError).not.toHaveBeenCalled();
+
+      await vi.advanceTimersByTimeAsync(1);
+      expect(onError).toHaveBeenCalledWith(expect.any(PactoTimeoutError));
     });
   });
 });
