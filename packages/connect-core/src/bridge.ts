@@ -1,4 +1,6 @@
 import type { CheckoutStep } from './checkout-flow.js';
+import { PactoTimeoutError } from './errors.js';
+import { withTimeout } from './resilience/index.js';
 import type { Escrow } from './resources.js';
 
 export const PACTO_BRIDGE_SOURCE = 'pacto-connect' as const;
@@ -176,6 +178,66 @@ export function createBridgeClient(options: BridgeClientOptions): BridgeClient {
       listener = null;
     },
   };
+}
+
+/** Default budget for {@link waitForBridgeMessage} — see its doc comment. */
+export const DEFAULT_BRIDGE_MESSAGE_TIMEOUT_MS = 15_000;
+
+/** Matches a bridge message by its `type`, narrowing to that message's payload shape. */
+export function isBridgeMessageOfType<T extends PactoBridgeEventType>(
+  type: T,
+): (message: PactoBridgeMessage) => message is PactoBridgeMessage<T> {
+  return (message): message is PactoBridgeMessage<T> => message.type === type;
+}
+
+export interface WaitForBridgeMessageOptions {
+  /** Milliseconds to wait before rejecting with a {@link PactoTimeoutError}. Default 15000. */
+  timeoutMs?: number;
+  /** Restrict matches to messages whose `MessageEvent.source` is this window (e.g. a specific iframe). */
+  expectedSource?: Window;
+}
+
+/**
+ * Waits for a single message matching `matches` from `allowedOrigins`,
+ * bounded by a timeout. Without this, a host that posts into an embedded
+ * checkout and waits for a reply (e.g. the initial `checkout:ready`
+ * handshake) has no way to notice the embed never responded — a hung frame
+ * message would wait forever. `mountFrame` and `PactoCheckoutSheet` use this
+ * to bound that wait and surface a typed error instead.
+ */
+export function waitForBridgeMessage<T extends PactoBridgeEventType>(
+  allowedOrigins: string[],
+  matches: (message: PactoBridgeMessage) => message is PactoBridgeMessage<T>,
+  options: WaitForBridgeMessageOptions = {},
+): Promise<PactoBridgeMessage<T>> {
+  const timeoutMs = options.timeoutMs ?? DEFAULT_BRIDGE_MESSAGE_TIMEOUT_MS;
+  let host: BridgeHost | null = null;
+
+  return withTimeout(
+    () =>
+      new Promise<PactoBridgeMessage<T>>((resolve) => {
+        host = createBridgeHost({
+          allowedOrigins,
+          onMessage: (message, event) => {
+            if (options.expectedSource && event.source !== options.expectedSource) {
+              return;
+            }
+            if (matches(message)) {
+              resolve(message);
+            }
+          },
+        });
+      }),
+    timeoutMs,
+    () =>
+      new PactoTimeoutError(
+        'bridge_message_timeout',
+        'Timed out waiting for a checkout bridge message',
+      ),
+  ).finally(() => {
+    // Whether we resolved or timed out, stop listening for further messages.
+    host?.close();
+  });
 }
 
 export function createBridgeHost(options: BridgeHostOptions): BridgeHost {

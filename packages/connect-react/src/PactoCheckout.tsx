@@ -1,4 +1,5 @@
 import {
+  type CheckoutFlowResilienceOptions,
   type CheckoutStorageAdapter,
   type DeepPartial,
   type FiatPaymentMethod,
@@ -31,6 +32,8 @@ export interface PactoCheckoutProps {
   mode?: 'buy' | 'sell';
   testMode?: boolean;
   storage?: CheckoutStorageAdapter;
+  /** Overrides the SDK's default resilience policy (timeouts, retry budget, backoff, circuit breaker). */
+  resilience?: CheckoutFlowResilienceOptions;
   open: boolean;
   onClose: () => void;
   onComplete?: (escrow: import('@pacto-connect/core').Escrow) => void;
@@ -59,6 +62,7 @@ export function PactoCheckout(props: PactoCheckoutProps) {
     mode: props.mode,
     testMode: props.testMode,
     storage: props.storage,
+    resilience: props.resilience,
     enabled: props.open,
     onComplete: props.onComplete,
     onDispute: props.onDispute,

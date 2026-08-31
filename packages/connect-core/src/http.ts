@@ -5,6 +5,7 @@ import {
   PactoApiError,
   PactoError,
 } from './errors.js';
+import { ResiliencePolicy, type ResiliencePolicyConfig } from './resilience/index.js';
 import { generateRequestId, REQUEST_ID_HEADER } from './taxonomy.js';
 
 export const PUBLISHABLE_KEY_HEADER = 'x-pacto-publishable-key';
@@ -24,6 +25,14 @@ export interface HttpClientOptions {
   sleep?: (ms: number) => Promise<void>;
   /** Custom fetch implementation (e.g. certificate-pinned fetch in React Native). */
   fetch?: FetchLike;
+  /**
+   * Shared resilience policy (timeout, retry budget, backoff, circuit
+   * breaker) to use for this request. When omitted, a policy is built from
+   * `maxRetries`/`baseDelayMs`/`sleep` (and resilience defaults for the rest)
+   * scoped to just this call. Pass one explicitly — as `client.ts` does — to
+   * share a retry budget and breaker across every request in a session.
+   */
+  resiliencePolicy?: ResiliencePolicy;
 }
 
 export interface RequestParams {
@@ -34,48 +43,8 @@ export interface RequestParams {
   resource?: ErrorContext['resource'];
 }
 
-const DEFAULT_MAX_RETRIES = 3;
-const DEFAULT_BASE_DELAY_MS = 250;
-
-function defaultSleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function isWriteMethod(method: HttpMethod): boolean {
   return method !== 'GET';
-}
-
-function shouldRetry(status: number, attempt: number, maxRetries: number): boolean {
-  if (attempt >= maxRetries) {
-    return false;
-  }
-
-  return status === 429 || status >= 500;
-}
-
-function getBackoffDelay(attempt: number, baseDelayMs: number): number {
-  const exponential = baseDelayMs * 2 ** attempt;
-  const jitter = Math.floor(Math.random() * baseDelayMs);
-  return exponential + jitter;
-}
-
-function parseRetryAfter(headers: Headers): number | undefined {
-  const value = headers.get('Retry-After');
-  if (!value) {
-    return undefined;
-  }
-
-  const seconds = Number(value);
-  if (Number.isFinite(seconds)) {
-    return seconds * 1000;
-  }
-
-  const dateMs = Date.parse(value);
-  if (!Number.isNaN(dateMs)) {
-    return Math.max(0, dateMs - Date.now());
-  }
-
-  return undefined;
 }
 
 async function parseJsonSafe(response: Response): Promise<GatewayErrorBody> {
@@ -86,38 +55,52 @@ async function parseJsonSafe(response: Response): Promise<GatewayErrorBody> {
   }
 }
 
+/** Builds a request-scoped policy when the caller doesn't share one across a session. */
+export function resolveHttpResiliencePolicy(
+  options: Pick<HttpClientOptions, 'maxRetries' | 'baseDelayMs' | 'sleep' | 'resiliencePolicy'>,
+): ResiliencePolicy {
+  if (options.resiliencePolicy) {
+    return options.resiliencePolicy;
+  }
+
+  const config: ResiliencePolicyConfig = {
+    maxRetries: options.maxRetries,
+    baseDelayMs: options.baseDelayMs,
+    sleep: options.sleep,
+  };
+
+  return new ResiliencePolicy(config);
+}
+
 export async function request<T>(options: HttpClientOptions, params: RequestParams): Promise<T> {
-  const maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES;
-  const baseDelayMs = options.baseDelayMs ?? DEFAULT_BASE_DELAY_MS;
-  const sleepFn = options.sleep ?? defaultSleep;
+  const policy = resolveHttpResiliencePolicy(options);
   const fetchFn = options.fetch ?? fetch;
   const idempotencyKey =
     (params.idempotent ?? isWriteMethod(params.method)) ? crypto.randomUUID() : undefined;
   const requestId = generateRequestId();
 
-  let attempt = 0;
+  try {
+    return await policy.execute(async ({ signal }) => {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${options.clientSecret}`,
+        [PUBLISHABLE_KEY_HEADER]: options.publishableKey,
+        [REQUEST_ID_HEADER]: requestId,
+      };
 
-  while (true) {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${options.clientSecret}`,
-      [PUBLISHABLE_KEY_HEADER]: options.publishableKey,
-      [REQUEST_ID_HEADER]: requestId,
-    };
+      if (options.origin) {
+        headers.Origin = options.origin;
+      }
 
-    if (options.origin) {
-      headers.Origin = options.origin;
-    }
+      if (idempotencyKey) {
+        headers[IDEMPOTENCY_KEY_HEADER] = idempotencyKey;
+      }
 
-    if (idempotencyKey) {
-      headers[IDEMPOTENCY_KEY_HEADER] = idempotencyKey;
-    }
-
-    try {
       const response = await fetchFn(`${options.gatewayUrl}${params.path}`, {
         method: params.method,
         headers,
         body: params.body ? JSON.stringify(params.body) : undefined,
+        signal,
       });
 
       const body = await parseJsonSafe(response);
@@ -127,32 +110,17 @@ export async function request<T>(options: HttpClientOptions, params: RequestPara
         return body as T;
       }
 
-      const error = errorFromResponse(response.status, body, context, response.headers, requestId);
-
-      if (shouldRetry(response.status, attempt, maxRetries)) {
-        const retryAfter = response.status === 429 ? parseRetryAfter(response.headers) : undefined;
-        const delay = retryAfter ?? getBackoffDelay(attempt, baseDelayMs);
-        await sleepFn(delay);
-        attempt += 1;
-        continue;
-      }
-
+      throw errorFromResponse(response.status, body, context, response.headers, requestId);
+    });
+  } catch (error) {
+    if (error instanceof PactoError) {
       throw error;
-    } catch (error) {
-      if (error instanceof PactoError) {
-        throw error;
-      }
-
-      if (attempt >= maxRetries) {
-        const message = error instanceof Error ? error.message : 'Network request failed';
-        throw new PactoApiError('network_error', message, {
-          requestId,
-          code: 'PACTO_NETWORK',
-        });
-      }
-
-      await sleepFn(getBackoffDelay(attempt, baseDelayMs));
-      attempt += 1;
     }
+
+    const message = error instanceof Error ? error.message : 'Network request failed';
+    throw new PactoApiError('network_error', message, {
+      requestId,
+      code: 'PACTO_NETWORK',
+    });
   }
 }

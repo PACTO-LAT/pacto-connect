@@ -8,6 +8,8 @@ import type {
 } from '@pacto-connect/core';
 import {
   type CheckoutSnapshot,
+  DEFAULT_BRIDGE_MESSAGE_TIMEOUT_MS,
+  PactoTimeoutError,
   parseCheckoutSnapshot,
   serializeCheckoutSnapshot,
   snapshotMatchesScope,
@@ -85,6 +87,13 @@ export interface PactoCheckoutSheetProps {
    */
   returnUrl?: string;
   title?: string;
+  /**
+   * Milliseconds to wait for the hosted checkout page's initial
+   * `checkout:ready` handshake before giving up and calling `onError`.
+   * Without this, a WebView that never loads or never posts back (a hung
+   * frame message) leaves the sheet spinning forever. Default 15000.
+   */
+  readyTimeoutMs?: number;
   onRequestClose: () => void;
   onReady?: (sessionId: string) => void;
   onStep?: (step: CheckoutStep) => void;
@@ -147,6 +156,41 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
   const [resumedSnapshot, setResumedSnapshot] = useState<CheckoutSnapshot | null>(null);
   const [linkState, setLinkState] = useState<string | null>(null);
   const integrityCheckedRef = useRef(false);
+  const readyReceivedRef = useRef(false);
+  const onErrorRef = useRef(props.onError);
+
+  useEffect(() => {
+    onErrorRef.current = props.onError;
+  });
+
+  // Bounds the wait for the hosted page's initial `checkout:ready` handshake
+  // — without this, a WebView that never loads or never posts back (a hung
+  // frame message) leaves the sheet spinning forever with no way to notice.
+  // Reads `onError` via a ref so an unrelated re-render (which commonly
+  // recreates an inline `onError` callback) doesn't restart the deadline.
+  useEffect(() => {
+    if (!props.visible) {
+      readyReceivedRef.current = false;
+      return;
+    }
+
+    const timeoutMs = props.readyTimeoutMs ?? DEFAULT_BRIDGE_MESSAGE_TIMEOUT_MS;
+    const timer = setTimeout(() => {
+      if (readyReceivedRef.current) {
+        return;
+      }
+      onErrorRef.current?.(
+        new PactoTimeoutError(
+          'checkout_ready_timeout',
+          'Timed out waiting for the checkout page to become ready',
+        ),
+      );
+    }, timeoutMs);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [props.visible, props.readyTimeoutMs]);
 
   useEffect(() => {
     if (!props.visible) {
@@ -369,6 +413,7 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
 
       dispatchBridgeMessage(message, {
         onReady: (sessionId) => {
+          readyReceivedRef.current = true;
           props.onReady?.(sessionId);
           syncHostedStorage();
         },

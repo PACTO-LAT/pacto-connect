@@ -2,11 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createBridgeClient,
   createBridgeHost,
+  isBridgeMessageOfType,
   isOriginAllowed,
   isPactoBridgeEnvelope,
   PACTO_BRIDGE_SOURCE,
   PACTO_BRIDGE_VERSION,
+  waitForBridgeMessage,
 } from './bridge';
+import { PactoTimeoutError } from './errors';
 
 describe('postMessage bridge', () => {
   it('validates pacto bridge envelopes', () => {
@@ -97,6 +100,120 @@ describe('postMessage bridge', () => {
     expect(handler).not.toHaveBeenCalled();
     stop();
     client.close();
+  });
+});
+
+describe('waitForBridgeMessage', () => {
+  const isReady = isBridgeMessageOfType('checkout:ready');
+
+  it('resolves when a matching message arrives from an allowed origin', async () => {
+    const promise = waitForBridgeMessage(['https://frame.example'], isReady, { timeoutMs: 5_000 });
+
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        origin: 'https://frame.example',
+        data: {
+          v: PACTO_BRIDGE_VERSION,
+          source: PACTO_BRIDGE_SOURCE,
+          message: { type: 'checkout:ready', payload: { sessionId: 'sess_1' } },
+        },
+      }),
+    );
+
+    await expect(promise).resolves.toEqual({
+      type: 'checkout:ready',
+      payload: { sessionId: 'sess_1' },
+    });
+  });
+
+  it('ignores messages that do not match the predicate', async () => {
+    const promise = waitForBridgeMessage(['https://frame.example'], isReady, { timeoutMs: 5_000 });
+
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        origin: 'https://frame.example',
+        data: {
+          v: PACTO_BRIDGE_VERSION,
+          source: PACTO_BRIDGE_SOURCE,
+          message: { type: 'checkout:step', payload: { step: 'deposit' } },
+        },
+      }),
+    );
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        origin: 'https://frame.example',
+        data: {
+          v: PACTO_BRIDGE_VERSION,
+          source: PACTO_BRIDGE_SOURCE,
+          message: { type: 'checkout:ready', payload: { sessionId: 'sess_1' } },
+        },
+      }),
+    );
+
+    await expect(promise).resolves.toEqual({
+      type: 'checkout:ready',
+      payload: { sessionId: 'sess_1' },
+    });
+  });
+
+  it('ignores messages from an unauthorized origin', async () => {
+    const promise = waitForBridgeMessage(['https://frame.example'], isReady, { timeoutMs: 5_000 });
+
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        origin: 'https://evil.example',
+        data: {
+          v: PACTO_BRIDGE_VERSION,
+          source: PACTO_BRIDGE_SOURCE,
+          message: { type: 'checkout:ready', payload: { sessionId: 'evil' } },
+        },
+      }),
+    );
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        origin: 'https://frame.example',
+        data: {
+          v: PACTO_BRIDGE_VERSION,
+          source: PACTO_BRIDGE_SOURCE,
+          message: { type: 'checkout:ready', payload: { sessionId: 'sess_1' } },
+        },
+      }),
+    );
+
+    await expect(promise).resolves.toEqual({
+      type: 'checkout:ready',
+      payload: { sessionId: 'sess_1' },
+    });
+  });
+
+  describe('timeout', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('rejects with a PactoTimeoutError when no matching message arrives — a hung frame message times out instead of waiting indefinitely', async () => {
+      const promise = waitForBridgeMessage(['https://frame.example'], isReady, {
+        timeoutMs: 1_000,
+      });
+      const assertion = expect(promise).rejects.toBeInstanceOf(PactoTimeoutError);
+
+      await vi.advanceTimersByTimeAsync(1_000);
+      await assertion;
+    });
+
+    it('uses the default 15s timeout when none is provided', async () => {
+      const promise = waitForBridgeMessage(['https://frame.example'], isReady);
+      const assertion = expect(promise).rejects.toBeInstanceOf(PactoTimeoutError);
+
+      await vi.advanceTimersByTimeAsync(14_999);
+      await Promise.resolve();
+      await vi.advanceTimersByTimeAsync(1);
+      await assertion;
+    });
   });
 });
 

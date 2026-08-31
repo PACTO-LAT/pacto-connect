@@ -1,4 +1,11 @@
+import {
+  PactoCircuitOpenError,
+  PactoError,
+  PactoRetryExhaustedError,
+  PactoTimeoutError,
+} from './errors.js';
 import { type FetchLike, PUBLISHABLE_KEY_HEADER } from './http.js';
+import { ResiliencePolicy, type ResiliencePolicyConfig, withTimeout } from './resilience/index.js';
 import { readSseStream, type SseMessage } from './sse.js';
 
 export const ESCROW_EVENT_NAMES = [
@@ -44,9 +51,28 @@ export interface SessionConnectionConfig {
   clientSecret: string;
   origin?: string;
   baseDelayMs?: number;
+  /**
+   * Local ceiling on consecutive connection failures for this subscriber
+   * before it gives up and surfaces a {@link PactoRetryExhaustedError} via
+   * `onError`. Independent of (and in addition to) the shared session-wide
+   * retry budget on `resiliencePolicy`.
+   */
   maxReconnectAttempts?: number;
   sleep?: (ms: number) => Promise<void>;
   fetch?: FetchLike;
+  /**
+   * Shared resilience policy (timeout, session-wide retry budget, backoff,
+   * circuit breaker). When omitted, a policy scoped to just this subscriber
+   * is built from `baseDelayMs`/`maxReconnectAttempts`/`sleep`.
+   */
+  resiliencePolicy?: ResiliencePolicy;
+  /**
+   * Called when the subscriber gives up reconnecting (retry budget/ceiling
+   * exhausted), hits a non-retryable failure, or the circuit breaker rejects
+   * a connection attempt. Without this, those conditions previously failed
+   * silently — the stream just stopped.
+   */
+  onError?: (error: PactoError) => void;
 }
 
 const MILESTONE_BY_EVENT: Record<EscrowEventName, EscrowMilestone> = {
@@ -59,21 +85,34 @@ const MILESTONE_BY_EVENT: Record<EscrowEventName, EscrowMilestone> = {
   'dispute.resolved': 'dispute_resolved',
 };
 
-const DEFAULT_BASE_DELAY_MS = 500;
 const DEFAULT_MAX_RECONNECT_ATTEMPTS = 5;
-
-function defaultSleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function isEscrowEventName(value: string): value is EscrowEventName {
   return (ESCROW_EVENT_NAMES as readonly string[]).includes(value);
 }
 
-function getBackoffDelay(attempt: number, baseDelayMs: number): number {
-  const exponential = baseDelayMs * 2 ** attempt;
-  const jitter = Math.floor(Math.random() * baseDelayMs);
-  return exponential + jitter;
+/** Normalizes an arbitrary thrown value into a `PactoError` for `onError`. */
+function toPactoError(err: unknown): PactoError {
+  if (err instanceof PactoError) {
+    return err;
+  }
+  const message = err instanceof Error ? err.message : String(err);
+  return new PactoError('connection_error', 'PACTO_NETWORK', 'connection_failed', message);
+}
+
+/** Builds a subscriber-scoped policy when the caller doesn't share one across a session. */
+export function resolveEscrowResiliencePolicy(config: SessionConnectionConfig): ResiliencePolicy {
+  if (config.resiliencePolicy) {
+    return config.resiliencePolicy;
+  }
+
+  const policyConfig: ResiliencePolicyConfig = {
+    baseDelayMs: config.baseDelayMs,
+    sleep: config.sleep,
+    retryBudget: config.maxReconnectAttempts ?? DEFAULT_MAX_RECONNECT_ATTEMPTS,
+  };
+
+  return new ResiliencePolicy(policyConfig);
 }
 
 function mapToEscrowEvent(
@@ -125,15 +164,20 @@ export class EscrowEventSubscriber {
   private lastCursor?: string;
   private closed = false;
   private connecting = false;
-  private reconnectAttempt = 0;
+  /** Consecutive connection failures for this subscriber (resets on a successful/clean connection). */
+  private localFailures = 0;
   private readonly seenCursors = new Set<string>();
   private readonly filterEscrowId?: string;
+  private readonly policy: ResiliencePolicy;
+  private readonly localFailureCeiling: number;
 
   constructor(
     private readonly config: SessionConnectionConfig,
     options?: EscrowSubscribeOptions,
   ) {
     this.filterEscrowId = options?.escrowId;
+    this.policy = resolveEscrowResiliencePolicy(config);
+    this.localFailureCeiling = config.maxReconnectAttempts ?? DEFAULT_MAX_RECONNECT_ATTEMPTS;
   }
 
   on(event: EscrowEventName, handler: EscrowEventHandler, options?: EscrowSubscribeOptions): void {
@@ -180,25 +224,70 @@ export class EscrowEventSubscriber {
     this.connecting = true;
 
     while (!this.closed && this.hasHandlers()) {
+      if (this.policy.breaker && !this.policy.breaker.canRequest()) {
+        this.emitError(
+          new PactoCircuitOpenError(
+            'circuit_open',
+            'Escrow event stream circuit is open; reconnect deferred',
+            this.policy.breaker.msUntilHalfOpen(),
+          ),
+        );
+        await this.sleep()(this.policy.breaker.msUntilHalfOpen() || this.policy.computeDelay(0));
+        continue;
+      }
+
       try {
         await this.connectOnce();
-        this.reconnectAttempt = 0;
-      } catch {
+        this.policy.breaker?.onSuccess();
+        this.localFailures = 0;
+        // A clean stream close (server ended the connection normally) is not
+        // a failure — reconnect immediately without consuming backoff/budget.
+        continue;
+      } catch (err) {
+        this.policy.breaker?.onFailure();
+
         if (this.closed || !this.hasHandlers()) {
           break;
         }
 
-        if (this.reconnectAttempt >= this.maxReconnectAttempts()) {
+        if (!this.policy.isRetryable(err)) {
+          this.emitError(toPactoError(err));
           break;
         }
 
-        const delay = getBackoffDelay(this.reconnectAttempt, this.baseDelayMs());
+        this.localFailures += 1;
+        if (this.localFailures > this.localFailureCeiling) {
+          this.emitError(
+            new PactoRetryExhaustedError(
+              'reconnect_budget_exhausted',
+              'Escrow event stream reconnect ceiling exhausted',
+              this.localFailures,
+            ),
+          );
+          break;
+        }
+
+        if (!this.policy.budget.tryConsume()) {
+          this.emitError(
+            new PactoRetryExhaustedError(
+              'retry_budget_exhausted',
+              'Session-wide retry budget exhausted while reconnecting the escrow event stream',
+              this.localFailures,
+            ),
+          );
+          break;
+        }
+
+        const delay = this.policy.computeDelay(this.localFailures - 1);
         await this.sleep()(delay);
-        this.reconnectAttempt += 1;
       }
     }
 
     this.connecting = false;
+  }
+
+  private emitError(error: PactoError): void {
+    this.config.onError?.(error);
   }
 
   private async connectOnce(): Promise<void> {
@@ -221,13 +310,23 @@ export class EscrowEventSubscriber {
     }
 
     const fetchFn = this.config.fetch ?? fetch;
-    const response = await fetchFn(url.toString(), { method: 'GET', headers });
+
+    // Only the initial connect is bounded by the per-attempt timeout — once
+    // the stream is open, `readSseStream`'s idle timeout takes over so a
+    // healthy, long-lived stream is never cut off by it.
+    const response = await withTimeout(
+      (signal) => fetchFn(url.toString(), { method: 'GET', headers, signal }),
+      this.policy.timeoutMs,
+      () => new PactoTimeoutError('connect_timeout', 'Escrow event stream connection timed out'),
+    );
 
     if (!response.ok || !response.body) {
       throw new Error(`Escrow event stream failed with status ${response.status}`);
     }
 
-    await readSseStream(response.body, (message) => this.handleMessage(message));
+    await readSseStream(response.body, (message) => this.handleMessage(message), {
+      idleTimeoutMs: this.policy.streamIdleTimeoutMs,
+    });
   }
 
   private handleMessage(message: SseMessage): void {
@@ -272,15 +371,7 @@ export class EscrowEventSubscriber {
     }
   }
 
-  private baseDelayMs(): number {
-    return this.config.baseDelayMs ?? DEFAULT_BASE_DELAY_MS;
-  }
-
-  private maxReconnectAttempts(): number {
-    return this.config.maxReconnectAttempts ?? DEFAULT_MAX_RECONNECT_ATTEMPTS;
-  }
-
   private sleep(): (ms: number) => Promise<void> {
-    return this.config.sleep ?? defaultSleep;
+    return (ms) => this.policy.sleep(ms);
   }
 }

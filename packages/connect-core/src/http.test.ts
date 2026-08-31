@@ -3,11 +3,14 @@ import {
   errorFromResponse,
   PactoApiError,
   PactoAuthError,
+  PactoCircuitOpenError,
   PactoEscrowError,
   PactoRateLimitError,
   PactoSessionError,
+  PactoTimeoutError,
 } from './errors.js';
 import { IDEMPOTENCY_KEY_HEADER, request } from './http.js';
+import { ResiliencePolicy } from './resilience/index.js';
 import { REQUEST_ID_HEADER } from './taxonomy.js';
 
 const gatewayUrl = 'https://gateway.example';
@@ -326,5 +329,93 @@ describe('http request', () => {
 
     expect(customFetch).toHaveBeenCalledTimes(1);
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('aborts a hung request once the per-attempt timeout elapses', async () => {
+    vi.useFakeTimers();
+    try {
+      let capturedSignal: AbortSignal | undefined;
+      vi.mocked(fetch).mockImplementation((_input, init) => {
+        capturedSignal = init?.signal as AbortSignal;
+        return new Promise(() => {});
+      });
+
+      const promise = request(
+        {
+          gatewayUrl,
+          publishableKey,
+          clientSecret,
+          sleep,
+          resiliencePolicy: new ResiliencePolicy({ timeoutMs: 1_000, maxRetries: 0, sleep }),
+        },
+        { method: 'GET', path: '/v1/listings' },
+      );
+      const assertion = expect(promise).rejects.toBeInstanceOf(PactoTimeoutError);
+
+      await vi.advanceTimersByTimeAsync(1_000);
+      await assertion;
+      expect(capturedSignal?.aborted).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('shares a retry budget and circuit breaker across requests via an injected resiliencePolicy', async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      mockFetchResponse(503, { error: { code: 'unavailable', message: 'down' } }) as Response,
+    );
+
+    const policy = new ResiliencePolicy({ maxRetries: 0, breaker: { failureThreshold: 1 }, sleep });
+
+    await expect(
+      request(
+        { gatewayUrl, publishableKey, clientSecret, sleep, resiliencePolicy: policy },
+        { method: 'GET', path: '/v1/listings' },
+      ),
+    ).rejects.toBeInstanceOf(PactoApiError);
+
+    // The first failure trips the shared breaker; a second, unrelated
+    // request sharing the same policy is rejected fast without a new fetch.
+    vi.mocked(fetch).mockClear();
+    await expect(
+      request(
+        { gatewayUrl, publishableKey, clientSecret, sleep, resiliencePolicy: policy },
+        { method: 'GET', path: '/v1/quotes/quo_1' },
+      ),
+    ).rejects.toBeInstanceOf(PactoCircuitOpenError);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('exhausts the session-wide retry budget across multiple requests and throws a typed error', async () => {
+    // Request #1 fails once, then succeeds on its single retry — consuming
+    // the shared policy's only retry-budget unit in the process.
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(
+        mockFetchResponse(503, { error: { code: 'unavailable', message: 'down' } }) as Response,
+      )
+      .mockResolvedValueOnce(mockFetchResponse(200, { listings: [] }) as Response)
+      // Request #2 keeps failing — its first retry attempt should find the
+      // shared budget already exhausted by request #1.
+      .mockResolvedValue(
+        mockFetchResponse(503, { error: { code: 'unavailable', message: 'down' } }) as Response,
+      );
+
+    const policy = new ResiliencePolicy({ maxRetries: 5, retryBudget: 1, sleep });
+
+    await expect(
+      request(
+        { gatewayUrl, publishableKey, clientSecret, sleep, resiliencePolicy: policy },
+        { method: 'GET', path: '/v1/listings' },
+      ),
+    ).resolves.toEqual({ listings: [] });
+    expect(policy.budget.remaining).toBe(0);
+
+    const { PactoRetryExhaustedError } = await import('./errors.js');
+    await expect(
+      request(
+        { gatewayUrl, publishableKey, clientSecret, sleep, resiliencePolicy: policy },
+        { method: 'GET', path: '/v1/quotes/quo_1' },
+      ),
+    ).rejects.toBeInstanceOf(PactoRetryExhaustedError);
   });
 });

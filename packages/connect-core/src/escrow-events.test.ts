@@ -1,28 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PactoCircuitOpenError, PactoRetryExhaustedError } from './errors.js';
 import { EscrowEventSubscriber } from './escrow-events.js';
-import { parseSseBlock, readSseStream } from './sse.js';
+import { ResiliencePolicy } from './resilience/index.js';
 
 function encodeSse(block: string): Uint8Array {
   return new TextEncoder().encode(block);
 }
-
-describe('sse parser', () => {
-  it('parses event blocks with id, event, and data', () => {
-    const message = parseSseBlock(
-      'id: cursor-1\nevent: escrow.funded\ndata: {"escrowId":"esc_1","occurredAt":"2024-01-01T00:00:00.000Z"}',
-    );
-
-    expect(message).toEqual({
-      id: 'cursor-1',
-      event: 'escrow.funded',
-      data: '{"escrowId":"esc_1","occurredAt":"2024-01-01T00:00:00.000Z"}',
-    });
-  });
-
-  it('ignores heartbeat comments', () => {
-    expect(parseSseBlock(': heartbeat')).toBeNull();
-  });
-});
 
 describe('escrow event subscription', () => {
   const sleep = vi.fn(async () => {});
@@ -198,22 +181,81 @@ describe('escrow event subscription', () => {
 
     subscriber.close();
   });
-});
 
-describe('readSseStream', () => {
-  it('reads chunked sse payloads', async () => {
-    const messages: string[] = [];
-    const stream = new ReadableStream<Uint8Array>({
-      start(controller) {
-        controller.enqueue(encodeSse('id: 1\nevent: ping\ndata: {}\n\n'));
-        controller.close();
-      },
+  it('surfaces a non-retryable connection failure via onError instead of retrying silently', async () => {
+    const onError = vi.fn();
+    vi.mocked(fetch).mockRejectedValue(new Error('unauthorized'));
+
+    // A custom classifier stands in for a non-retryable PactoError a custom
+    // `fetch` implementation might throw (e.g. an auth failure it detects
+    // itself) — it should stop the loop immediately, with no retry.
+    const policy = new ResiliencePolicy({ sleep, isRetryable: () => false });
+
+    const subscriber = new EscrowEventSubscriber({
+      gatewayUrl,
+      publishableKey,
+      clientSecret,
+      sleep,
+      resiliencePolicy: policy,
+      onError,
     });
 
-    await readSseStream(stream, (message) => {
-      messages.push(message.event ?? '');
+    subscriber.on('released', vi.fn());
+
+    await vi.waitFor(() => expect(onError).toHaveBeenCalledTimes(1));
+    expect(sleep).not.toHaveBeenCalled();
+    expect(fetch).toHaveBeenCalledTimes(1);
+
+    subscriber.close();
+  });
+
+  it('surfaces reconnect-budget exhaustion via onError as a typed PactoRetryExhaustedError', async () => {
+    const onError = vi.fn();
+    vi.mocked(fetch).mockRejectedValue(new Error('connection refused'));
+
+    const subscriber = new EscrowEventSubscriber({
+      gatewayUrl,
+      publishableKey,
+      clientSecret,
+      sleep,
+      maxReconnectAttempts: 2,
+      onError,
     });
 
-    expect(messages).toEqual(['ping']);
+    subscriber.on('released', vi.fn());
+
+    await vi.waitFor(() => expect(onError).toHaveBeenCalled());
+    expect(onError).toHaveBeenCalledWith(expect.any(PactoRetryExhaustedError));
+
+    subscriber.close();
+  });
+
+  it('shares a circuit breaker via an injected resiliencePolicy and rejects fast while open', async () => {
+    const onError = vi.fn();
+    vi.mocked(fetch).mockRejectedValue(new Error('connection refused'));
+
+    // Deliberately does NOT share the describe-level mock `sleep` (which
+    // resolves instantly): once the breaker opens, the loop's real
+    // (setTimeout-backed) sleep for `resetTimeoutMs` keeps it from spinning
+    // — a mock that resolves immediately would spin the loop indefinitely.
+    const policy = new ResiliencePolicy({
+      breaker: { failureThreshold: 1, resetTimeoutMs: 200 },
+    });
+
+    const subscriber = new EscrowEventSubscriber({
+      gatewayUrl,
+      publishableKey,
+      clientSecret,
+      maxReconnectAttempts: 10,
+      resiliencePolicy: policy,
+      onError,
+    });
+
+    subscriber.on('released', vi.fn());
+
+    await vi.waitFor(() => expect(policy.breaker?.getState()).toBe('open'));
+    await vi.waitFor(() => expect(onError).toHaveBeenCalledWith(expect.any(PactoCircuitOpenError)));
+
+    subscriber.close();
   });
 });

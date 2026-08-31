@@ -3,6 +3,7 @@ import {
   type EscrowEvent,
   type EscrowStatus,
   Pacto,
+  type PactoInitOptions,
   type PactoSession,
   type PactoSessionData,
 } from '@pacto-connect/core';
@@ -10,6 +11,20 @@ import { useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 
 export type PactoEscrowTransport = 'sse' | 'polling';
+
+/** Resilience knobs forwarded verbatim to `Pacto.init()` — see `@pacto-connect/core`'s `client.ts` for defaults. */
+export type PactoEscrowResilienceOptions = Pick<
+  PactoInitOptions,
+  | 'maxRetries'
+  | 'baseDelayMs'
+  | 'maxDelayMs'
+  | 'retryBudget'
+  | 'timeoutMs'
+  | 'streamIdleTimeoutMs'
+  | 'breaker'
+  | 'onBreakerStateChange'
+  | 'maxReconnectAttempts'
+>;
 
 export interface UsePactoEscrowEventsOptions {
   gatewayUrl?: string;
@@ -31,6 +46,8 @@ export interface UsePactoEscrowEventsOptions {
   sessionRefreshMarginMs?: number;
   /** Custom fetch implementation (e.g. certificate-pinned fetch). */
   fetch?: import('@pacto-connect/core').FetchLike;
+  /** Overrides the SDK's default resilience policy (timeouts, retry budget, backoff, circuit breaker) for the SSE transport. */
+  resilience?: PactoEscrowResilienceOptions;
   onEvent?: (event: EscrowEvent) => void;
   /**
    * Called after the hook transparently rotates to a refreshed session
@@ -143,6 +160,7 @@ export function usePactoEscrowEvents(
       publishableKey: options.publishableKey,
       gatewayUrl: options.gatewayUrl,
       fetch: options.fetch,
+      ...options.resilience,
     });
 
     let currentSession: PactoSession = client.resumeCheckoutSession({
@@ -238,6 +256,14 @@ export function usePactoEscrowEvents(
       ] as const) {
         currentSession.on(name, handler, { escrowId: options.escrowId });
       }
+      // Surfaces breaker-open/retry-exhausted/non-retryable stream failures
+      // (previously silent — the stream just stopped) through the same
+      // `error` state the polling transport already reports.
+      currentSession.onStreamError((err) => {
+        if (!cancelled) {
+          setError(err);
+        }
+      });
     }
 
     // A backgrounded RN app has its JS runtime suspended on iOS (and often

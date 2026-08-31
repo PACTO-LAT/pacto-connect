@@ -52,6 +52,26 @@ export function isPactoErrorCode(value: unknown): value is PactoErrorCode {
   return typeof value === 'string' && (PACTO_ERROR_CODES as readonly string[]).includes(value);
 }
 
+/**
+ * Taxonomy codes that represent a transient, retryable condition: the
+ * gateway (or the network path to it) is temporarily unavailable rather than
+ * the request itself being invalid. This is the single source of truth for
+ * retryability — network modules classify errors through
+ * {@link isRetryableErrorCode} (or {@link isRetryableError}, its
+ * `PactoError`-aware counterpart in `errors.ts`) instead of inspecting HTTP
+ * status codes locally.
+ */
+export const RETRYABLE_ERROR_CODES: readonly PactoErrorCode[] = [
+  'PACTO_NETWORK',
+  'PACTO_UPSTREAM',
+  'PACTO_RATE_LIMIT',
+  'PACTO_INTERNAL',
+];
+
+export function isRetryableErrorCode(code: PactoErrorCode): boolean {
+  return (RETRYABLE_ERROR_CODES as readonly string[]).includes(code);
+}
+
 export interface ClassifyInput {
   status?: number;
   type?: string;

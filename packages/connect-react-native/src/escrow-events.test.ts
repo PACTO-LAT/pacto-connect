@@ -331,3 +331,46 @@ describe('usePactoEscrowEvents (polling transport)', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
+
+describe('usePactoEscrowEvents (sse transport)', () => {
+  const baseOptions = {
+    publishableKey: 'pk_test_123',
+    gatewayUrl: 'https://gateway.pacto.example',
+    sessionId: 'sess_1',
+    clientSecret: 'secret_1',
+    expiresAt: new Date(Date.now() + 60_000).toISOString(),
+    mode: 'buy' as const,
+    escrowId: 'escrow_1',
+    transport: 'sse' as const,
+  };
+
+  beforeEach(() => {
+    (AppState as unknown as { __reset(): void }).__reset();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    (AppState as unknown as { __reset(): void }).__reset();
+  });
+
+  it('forwards the `resilience` option to Pacto.init() and surfaces a stream failure via onStreamError as the hook error state', async () => {
+    // Every connection attempt fails (no `.body`), driving the subscriber
+    // to give up quickly via a tiny `maxReconnectAttempts`.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse({})),
+    );
+
+    const { result, unmount } = renderHook(() =>
+      usePactoEscrowEvents({
+        ...baseOptions,
+        resilience: { maxReconnectAttempts: 1, baseDelayMs: 1 },
+      }),
+    );
+
+    await vi.waitFor(() => expect(result.current.error).not.toBeNull());
+    expect(result.current.transport).toBe('sse');
+
+    unmount();
+  });
+});

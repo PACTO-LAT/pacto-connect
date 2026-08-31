@@ -1,4 +1,4 @@
-import { PACTO_BRIDGE_SOURCE, PACTO_BRIDGE_VERSION } from '@pacto-connect/core';
+import { PACTO_BRIDGE_SOURCE, PACTO_BRIDGE_VERSION, PactoTimeoutError } from '@pacto-connect/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { FRAME_SANDBOX, mountFrame } from './frame';
 
@@ -165,5 +165,81 @@ describe('mountFrame', () => {
       payload: { escrow },
     });
     expect(onComplete).not.toHaveBeenCalled();
+  });
+
+  describe('checkout:ready timeout', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('calls onError with a PactoTimeoutError when checkout:ready never arrives — a hung frame message times out instead of waiting indefinitely', async () => {
+      const onError = vi.fn();
+      const handle = mountFrame('#checkout-root', {
+        url: frameUrl,
+        publishableKey,
+        readyTimeoutMs: 1_000,
+        onError,
+      });
+
+      expect(onError).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(1_000);
+
+      expect(onError).toHaveBeenCalledWith(expect.any(PactoTimeoutError));
+      handle.destroy();
+    });
+
+    it('does not call onError once checkout:ready arrives before the deadline', async () => {
+      const onError = vi.fn();
+      const onReady = vi.fn();
+      const handle = mountFrame('#checkout-root', {
+        url: frameUrl,
+        publishableKey,
+        readyTimeoutMs: 1_000,
+        onError,
+        onReady,
+      });
+
+      await vi.advanceTimersByTimeAsync(500);
+      dispatchFromFrame(handle.iframe, frameOrigin, {
+        type: 'checkout:ready',
+        payload: { sessionId: 'sess_1' },
+      });
+      await vi.advanceTimersByTimeAsync(1_000);
+
+      expect(onReady).toHaveBeenCalledWith('sess_1');
+      expect(onError).not.toHaveBeenCalled();
+      handle.destroy();
+    });
+
+    it('does not call onError after destroy() even if the deadline later elapses', async () => {
+      const onError = vi.fn();
+      const handle = mountFrame('#checkout-root', {
+        url: frameUrl,
+        publishableKey,
+        readyTimeoutMs: 1_000,
+        onError,
+      });
+
+      handle.destroy();
+      await vi.advanceTimersByTimeAsync(1_000);
+
+      expect(onError).not.toHaveBeenCalled();
+    });
+
+    it('uses the default 15s ready timeout when none is provided', async () => {
+      const onError = vi.fn();
+      const handle = mountFrame('#checkout-root', { url: frameUrl, publishableKey, onError });
+
+      await vi.advanceTimersByTimeAsync(14_999);
+      expect(onError).not.toHaveBeenCalled();
+
+      await vi.advanceTimersByTimeAsync(1);
+      expect(onError).toHaveBeenCalledWith(expect.any(PactoTimeoutError));
+      handle.destroy();
+    });
   });
 });

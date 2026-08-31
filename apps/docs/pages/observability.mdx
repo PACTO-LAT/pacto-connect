@@ -63,6 +63,94 @@ try {
 }
 ```
 
+## Resilience: retries, timeouts, and the circuit breaker
+
+Every network path in the SDK — REST requests, the escrow event SSE stream,
+and the checkout-frame bridge handshake — goes through one shared,
+configurable resilience policy. It gives you:
+
+- a **per-attempt timeout**, so a hung request or a checkout frame that never
+  sends `checkout:ready` fails instead of hanging forever;
+- a **session-wide retry budget** that bounds total retries across every
+  call a client makes, so a degraded gateway doesn't get hammered by
+  unbounded retry traffic from one client instance (or, embedded many times
+  on a page, from many at once);
+- **exponential backoff with full jitter** between retries; and
+- a **circuit breaker** that opens after sustained failure, rejects
+  subsequent calls immediately while open, and recovers through a bounded
+  number of half-open trial requests.
+
+Retryability is decided by the `PACTO_*` taxonomy code on the thrown error —
+`PACTO_NETWORK`, `PACTO_UPSTREAM`, `PACTO_RATE_LIMIT`, and `PACTO_INTERNAL`
+are retried; everything else (`PACTO_AUTH`, `PACTO_VALIDATION`,
+`PACTO_SESSION`, `PACTO_ESCROW`, `PACTO_SECURITY`, `PACTO_UNKNOWN`) is not —
+never by inspecting an HTTP status code at the call site.
+
+### Defaults
+
+| Knob | Default | Applies to |
+| --- | --- | --- |
+| `timeoutMs` | 10000 | Per HTTP request / opening the event stream |
+| `streamIdleTimeoutMs` | 45000 | Idle-read timeout on an open SSE stream |
+| `maxRetries` | 3 | Retries for a single call, on top of its first attempt |
+| `retryBudget` | 50 | Total retries shared across every call for a client's lifetime |
+| `baseDelayMs` | 250 | Backoff base |
+| `maxDelayMs` | 8000 | Backoff ceiling |
+| breaker `failureThreshold` | 5 | Consecutive failures before the circuit opens |
+| breaker `resetTimeoutMs` | 30000 | Time open before a half-open trial is allowed |
+| breaker `halfOpenMaxAttempts` | 1 | Concurrent trial requests while half-open |
+| `readyTimeoutMs` (frame/WebView embeds) | 15000 | Wait for the checkout frame's initial `checkout:ready` |
+
+Every knob is overridable. Pass them to `Pacto.init()` directly, or through
+`resilience` on `CheckoutFlowController`, `usePactoEscrowEvents`, and
+`<PactoCheckout resilience={...}>`:
+
+```ts
+import { Pacto } from '@pacto-connect/core';
+
+const pacto = Pacto.init({
+  publishableKey,
+  timeoutMs: 8_000,
+  retryBudget: 20,
+  maxRetries: 2,
+  breaker: { failureThreshold: 3, resetTimeoutMs: 15_000 },
+  onBreakerStateChange: (t) => metrics.gauge('pacto.breaker', t.to),
+});
+```
+
+Pass `breaker: false` to disable the breaker entirely.
+
+### Budget scope
+
+The retry budget and circuit breaker are created once per `Pacto.init()`
+client and shared across every request and stream reconnect that client
+makes — not reset per call. Retrying one request can exhaust budget that a
+later, unrelated request on the same client needed; when that happens the
+later call fails fast with a typed `PactoRetryExhaustedError` rather than
+retrying past the budget or failing silently.
+
+### Circuit breaker transitions
+
+`closed → open`: after `failureThreshold` consecutive failures.
+`open`: every call is rejected immediately with a `PactoCircuitOpenError`
+(no request is attempted) until `resetTimeoutMs` elapses.
+`open → half_open`: once `resetTimeoutMs` elapses, up to
+`halfOpenMaxAttempts` trial calls are let through.
+`half_open → closed`: on a trial success.
+`half_open → open`: on a trial failure — the reset-timeout wait starts over.
+
+### New typed errors
+
+| Error | Thrown when |
+| --- | --- |
+| `PactoTimeoutError` | A single attempt exceeded `timeoutMs` (or `streamIdleTimeoutMs` for the SSE stream, or `readyTimeoutMs` for a frame/WebView handshake) |
+| `PactoRetryExhaustedError` | The session-wide `retryBudget` (or a stream's local reconnect ceiling) ran out |
+| `PactoCircuitOpenError` | The breaker was open and rejected the call without attempting it |
+
+All three extend `PactoError` with `code: 'PACTO_NETWORK'`, so existing
+`switch (err.code)` handling for `PACTO_NETWORK` keeps working — use
+`instanceof` to distinguish them when you want to.
+
 ## Request-ID correlation
 
 Every SDK request sends an `x-pacto-request-id` header (format `req_<uuid>`).
