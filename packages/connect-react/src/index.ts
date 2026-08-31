@@ -57,7 +57,10 @@ export {
   PactoSession,
   PactoSessionError,
   resolveMessages,
+  type ThemeContrastIssue,
   themeToCssVars,
+  validateThemeContrast,
+  warnOnThemeContrastIssues,
 } from '@pacto-connect/core';
 export type {
   UseCheckoutFlowOptions,
