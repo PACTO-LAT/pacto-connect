@@ -5,11 +5,14 @@ import {
   PactoApiError,
   PactoError,
 } from './errors.js';
+import { generateRequestId, REQUEST_ID_HEADER } from './taxonomy.js';
 
 export const PUBLISHABLE_KEY_HEADER = 'x-pacto-publishable-key';
 export const IDEMPOTENCY_KEY_HEADER = 'Idempotency-Key';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+export type FetchLike = typeof fetch;
 
 export interface HttpClientOptions {
   gatewayUrl: string;
@@ -19,6 +22,8 @@ export interface HttpClientOptions {
   maxRetries?: number;
   baseDelayMs?: number;
   sleep?: (ms: number) => Promise<void>;
+  /** Custom fetch implementation (e.g. certificate-pinned fetch in React Native). */
+  fetch?: FetchLike;
 }
 
 export interface RequestParams {
@@ -85,8 +90,10 @@ export async function request<T>(options: HttpClientOptions, params: RequestPara
   const maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES;
   const baseDelayMs = options.baseDelayMs ?? DEFAULT_BASE_DELAY_MS;
   const sleepFn = options.sleep ?? defaultSleep;
+  const fetchFn = options.fetch ?? fetch;
   const idempotencyKey =
     (params.idempotent ?? isWriteMethod(params.method)) ? crypto.randomUUID() : undefined;
+  const requestId = generateRequestId();
 
   let attempt = 0;
 
@@ -95,6 +102,7 @@ export async function request<T>(options: HttpClientOptions, params: RequestPara
       'Content-Type': 'application/json',
       Authorization: `Bearer ${options.clientSecret}`,
       [PUBLISHABLE_KEY_HEADER]: options.publishableKey,
+      [REQUEST_ID_HEADER]: requestId,
     };
 
     if (options.origin) {
@@ -106,7 +114,7 @@ export async function request<T>(options: HttpClientOptions, params: RequestPara
     }
 
     try {
-      const response = await fetch(`${options.gatewayUrl}${params.path}`, {
+      const response = await fetchFn(`${options.gatewayUrl}${params.path}`, {
         method: params.method,
         headers,
         body: params.body ? JSON.stringify(params.body) : undefined,
@@ -119,7 +127,7 @@ export async function request<T>(options: HttpClientOptions, params: RequestPara
         return body as T;
       }
 
-      const error = errorFromResponse(response.status, body, context, response.headers);
+      const error = errorFromResponse(response.status, body, context, response.headers, requestId);
 
       if (shouldRetry(response.status, attempt, maxRetries)) {
         const retryAfter = response.status === 429 ? parseRetryAfter(response.headers) : undefined;
@@ -137,7 +145,10 @@ export async function request<T>(options: HttpClientOptions, params: RequestPara
 
       if (attempt >= maxRetries) {
         const message = error instanceof Error ? error.message : 'Network request failed';
-        throw new PactoApiError('network_error', message);
+        throw new PactoApiError('network_error', message, {
+          requestId,
+          code: 'PACTO_NETWORK',
+        });
       }
 
       await sleepFn(getBackoffDelay(attempt, baseDelayMs));

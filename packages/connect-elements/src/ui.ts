@@ -124,6 +124,9 @@ export class CheckoutView {
       case 'disputed':
         dialog.append(this.createDisputed(state.escrow, m));
         break;
+      case 'refunded':
+        dialog.append(this.createRefunded(state.escrow, m));
+        break;
     }
 
     if (showSimulatorControls(state.testMode, state.step, state.escrow)) {
@@ -348,6 +351,17 @@ export class CheckoutView {
     output.setAttribute('aria-live', 'polite');
     output.dataset.testid = 'checkout-disputed';
     output.textContent = formatMessage(m.labels.disputed, { escrowId: escrow?.id ?? '' });
+    return output;
+  }
+
+  private createRefunded(
+    escrow: import('@pacto-connect/core').Escrow | null,
+    m: PactoMessages,
+  ): HTMLElement {
+    const output = document.createElement('output');
+    output.setAttribute('aria-live', 'polite');
+    output.dataset.testid = 'checkout-refunded';
+    output.textContent = formatMessage(m.labels.refunded, { escrowId: escrow?.id ?? '' });
     return output;
   }
 }

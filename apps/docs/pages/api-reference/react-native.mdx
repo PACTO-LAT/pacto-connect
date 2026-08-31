@@ -24,7 +24,7 @@ npm install @pacto-connect/react-native
 function PactoCheckoutSheet(props): Element;
 ```
 
-Defined in: [PactoCheckoutSheet.tsx:58](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L58)
+Defined in: [connect-react-native/src/PactoCheckoutSheet.tsx:117](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L117)
 
 Renders the hosted Pacto checkout inside a WebView, in a modal sheet — the
 React Native counterpart to `mountFrame()` in `@pacto-connect/elements`.
@@ -44,13 +44,59 @@ ever passed to or bundled into the app.
 
 ---
 
+# Function: appendLinkState()
+
+```ts
+function appendLinkState(returnUrl, state): string;
+```
+
+Defined in: [connect-react-native/src/security/link-state.ts:106](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/link-state.ts#L106)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `returnUrl` | `string` |
+| `state` | `string` |
+
+## Returns
+
+`string`
+
+
+---
+
+# Function: appendUniversalLinkState()
+
+```ts
+function appendUniversalLinkState(returnUrl, state): string;
+```
+
+Defined in: [connect-react-native/src/universal-links.ts:89](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L89)
+
+Appends a one-time link state parameter to a checkout return URL.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `returnUrl` | `string` |
+| `state` | `string` |
+
+## Returns
+
+`string`
+
+
+---
+
 # Function: buildAndroidAssetLinks()
 
 ```ts
 function buildAndroidAssetLinks(options): AndroidAssetLinks;
 ```
 
-Defined in: [universal-links.ts:68](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L68)
+Defined in: [connect-react-native/src/universal-links.ts:68](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L68)
 
 Body for `/.well-known/assetlinks.json`.
 
@@ -73,7 +119,7 @@ Body for `/.well-known/assetlinks.json`.
 function buildAppleAppSiteAssociation(options): AppleAppSiteAssociation;
 ```
 
-Defined in: [universal-links.ts:30](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L30)
+Defined in: [connect-react-native/src/universal-links.ts:30](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L30)
 
 Body for `/.well-known/apple-app-site-association` (no file extension, served as JSON).
 
@@ -90,13 +136,81 @@ Body for `/.well-known/apple-app-site-association` (no file extension, served as
 
 ---
 
+# Function: buildCheckoutSnapshotScope()
+
+```ts
+function buildCheckoutSnapshotScope(options): CheckoutSnapshotScope;
+```
+
+Defined in: connect-core/dist/index.d.ts:744
+
+@pacto-connect/react-native
+
+React Native SDK for Pacto Connect: a WebView-hosted checkout sheet,
+deep-link return handling, and an escrow event hook — reusing
+`@pacto-connect/core`'s handshake/session model rather than reimplementing
+the checkout UI natively.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `options` | \&#123; `listingId?`: `string`; `mode`: `"buy"` \| `"sell"`; `publishableKey`: `string`; \&#125; |
+| `options.listingId?` | `string` |
+| `options.mode` | `"buy"` \| `"sell"` |
+| `options.publishableKey` | `string` |
+
+## Returns
+
+`CheckoutSnapshotScope`
+
+
+---
+
+# Function: buildCheckoutStorageSeedScript()
+
+```ts
+function buildCheckoutStorageSeedScript(storageKey, raw): string;
+```
+
+Defined in: [connect-react-native/src/webview-bridge.ts:125](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L125)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `storageKey` | `string` |
+| `raw` | `string` |
+
+## Returns
+
+`string`
+
+
+---
+
+# Function: buildCheckoutStorageSyncScript()
+
+```ts
+function buildCheckoutStorageSyncScript(): string;
+```
+
+Defined in: [connect-react-native/src/webview-bridge.ts:129](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L129)
+
+## Returns
+
+`string`
+
+
+---
+
 # Function: buildCheckoutUrl()
 
 ```ts
 function buildCheckoutUrl(options): string;
 ```
 
-Defined in: [webview-bridge.ts:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L35)
+Defined in: [connect-react-native/src/webview-bridge.ts:39](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L39)
 
 ## Parameters
 
@@ -117,7 +231,7 @@ Defined in: [webview-bridge.ts:35](https://github.com/PACTO-LAT/pacto-connect/bl
 function buildInboundBridgeScript(message): string;
 ```
 
-Defined in: [webview-bridge.ts:99](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L99)
+Defined in: [connect-react-native/src/webview-bridge.ts:113](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L113)
 
 Script for `webViewRef.injectJavaScript()` to deliver a native->web message
 (e.g. `checkout:close`). `'*'` is safe as the postMessage target origin
@@ -138,13 +252,55 @@ the page is the one we intend to reach.
 
 ---
 
+# Function: buildUserPresenceAbortScript()
+
+```ts
+function buildUserPresenceAbortScript(requestId): string;
+```
+
+Defined in: [connect-react-native/src/security/user-presence.ts:142](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/user-presence.ts#L142)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `requestId` | `string` |
+
+## Returns
+
+`string`
+
+
+---
+
+# Function: buildUserPresenceContinuationScript()
+
+```ts
+function buildUserPresenceContinuationScript(requestId): string;
+```
+
+Defined in: [connect-react-native/src/security/user-presence.ts:138](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/user-presence.ts#L138)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `requestId` | `string` |
+
+## Returns
+
+`string`
+
+
+---
+
 # Function: checkoutOrigin()
 
 ```ts
 function checkoutOrigin(checkoutUrl): string;
 ```
 
-Defined in: [webview-bridge.ts:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L31)
+Defined in: [connect-react-native/src/webview-bridge.ts:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L35)
 
 ## Parameters
 
@@ -159,13 +315,451 @@ Defined in: [webview-bridge.ts:31](https://github.com/PACTO-LAT/pacto-connect/bl
 
 ---
 
+# Function: checkoutStorageKey()
+
+```ts
+function checkoutStorageKey(scope): string;
+```
+
+Defined in: connect-core/dist/index.d.ts:743
+
+@pacto-connect/react-native
+
+React Native SDK for Pacto Connect: a WebView-hosted checkout sheet,
+deep-link return handling, and an escrow event hook — reusing
+`@pacto-connect/core`'s handshake/session model rather than reimplementing
+the checkout UI natively.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `scope` | `CheckoutSnapshotScope` |
+
+## Returns
+
+`string`
+
+
+---
+
+# Function: createBiometricsUserPresenceAdapter()
+
+```ts
+function createBiometricsUserPresenceAdapter(module?): UserPresenceAdapter;
+```
+
+Defined in: [connect-react-native/src/security/user-presence.ts:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/user-presence.ts#L32)
+
+Default adapter via `react-native-biometrics` (optional peer dependency).
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `module?` | `BiometricsModule` |
+
+## Returns
+
+[`UserPresenceAdapter`](#interface.userpresenceadapter)
+
+
+---
+
+# Function: createDefaultReactNativeCheckoutStorage()
+
+```ts
+function createDefaultReactNativeCheckoutStorage(): CheckoutStorageAdapter;
+```
+
+Defined in: [connect-react-native/src/checkout-storage.ts:47](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/checkout-storage.ts#L47)
+
+@pacto-connect/react-native
+
+React Native SDK for Pacto Connect: a WebView-hosted checkout sheet,
+deep-link return handling, and an escrow event hook — reusing
+`@pacto-connect/core`'s handshake/session model rather than reimplementing
+the checkout UI natively.
+
+## Returns
+
+`CheckoutStorageAdapter`
+
+
+---
+
+# Function: createDefaultSecureSessionStore()
+
+```ts
+function createDefaultSecureSessionStore(): SecureSessionStoreAdapter;
+```
+
+Defined in: [connect-react-native/src/security/secure-session-store.ts:81](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/secure-session-store.ts#L81)
+
+## Returns
+
+[`SecureSessionStoreAdapter`](#interface.securesessionstoreadapter)
+
+
+---
+
+# Function: createJailMonkeyIntegrityProbe()
+
+```ts
+function createJailMonkeyIntegrityProbe(): IntegrityProbe;
+```
+
+Defined in: [connect-react-native/src/security/device-integrity.ts:68](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/device-integrity.ts#L68)
+
+Default probe backed by `jail-monkey` (optional peer dependency).
+
+## Returns
+
+[`IntegrityProbe`](#interface.integrityprobe)
+
+
+---
+
+# Function: createKeychainSecureStorageBackend()
+
+```ts
+function createKeychainSecureStorageBackend(service?): SecureStorageBackend;
+```
+
+Defined in: [connect-react-native/src/security/keychain-backend.ts:7](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/keychain-backend.ts#L7)
+
+Secure storage backend backed by iOS Keychain / Android Keystore via
+`react-native-keychain` (optional peer dependency).
+
+## Parameters
+
+| Parameter | Type | Default value |
+| ------ | ------ | ------ |
+| `service` | `string` | `'pacto-connect-session'` |
+
+## Returns
+
+[`SecureStorageBackend`](#interface.securestoragebackend)
+
+
+---
+
+# Function: createLinkStateStore()
+
+```ts
+function createLinkStateStore(options?): LinkStateStore;
+```
+
+Defined in: [connect-react-native/src/security/link-state.ts:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/link-state.ts#L44)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `options?` | \&#123; `now?`: () => `number`; `storage?`: `Map`\<`string`, `LinkStateRecord`\>; `ttlMs?`: `number`; \&#125; |
+| `options.now?` | () => `number` |
+| `options.storage?` | `Map`\<`string`, `LinkStateRecord`\> |
+| `options.ttlMs?` | `number` |
+
+## Returns
+
+[`LinkStateStore`](#interface.linkstatestore)
+
+
+---
+
+# Function: createMemorySecureSessionStore()
+
+```ts
+function createMemorySecureSessionStore(): SecureSessionStoreAdapter;
+```
+
+Defined in: [connect-react-native/src/security/secure-session-store.ts:77](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/secure-session-store.ts#L77)
+
+## Returns
+
+[`SecureSessionStoreAdapter`](#interface.securesessionstoreadapter)
+
+
+---
+
+# Function: createMemorySecureStorageBackend()
+
+```ts
+function createMemorySecureStorageBackend(): SecureStorageBackend;
+```
+
+Defined in: [connect-react-native/src/security/secure-session-store.ts:60](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/secure-session-store.ts#L60)
+
+In-memory backend for tests and environments without native secure storage.
+
+## Returns
+
+[`SecureStorageBackend`](#interface.securestoragebackend)
+
+
+---
+
+# Function: createMockIntegrityProbe()
+
+```ts
+function createMockIntegrityProbe(signals): IntegrityProbe;
+```
+
+Defined in: [connect-react-native/src/security/device-integrity.ts:84](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/device-integrity.ts#L84)
+
+In-memory probe for tests.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `signals` | `Partial`\<`IntegritySignals`\> |
+
+## Returns
+
+[`IntegrityProbe`](#interface.integrityprobe)
+
+
+---
+
+# Function: createMockPinnedFetch()
+
+```ts
+function createMockPinnedFetch(options): {
+  (input, init?): Promise<Response>;
+  (input, init?): Promise<Response>;
+  (input, init?): Promise<Response>;
+};
+```
+
+Defined in: [connect-react-native/src/security/cert-pinning.ts:128](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/cert-pinning.ts#L128)
+
+Test helper — simulates pin validation without native modules.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `options` | \&#123; `fallbackFetch?`: \&#123; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \&#125;; `pinSet`: [`PinSet`](#interface.pinset); `serverPin`: `string` \| `null`; \&#125; |
+| `options.fallbackFetch?` | \&#123; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \&#125; |
+| `options.pinSet` | [`PinSet`](#interface.pinset) |
+| `options.serverPin` | `string` \| `null` |
+
+## Returns
+
+```ts
+(input, init?): Promise<Response>;
+```
+
+[MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/fetch)
+
+### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `input` | `URL` \| `RequestInfo` |
+| `init?` | `RequestInit` |
+
+### Returns
+
+`Promise`\<`Response`\>
+
+```ts
+(input, init?): Promise<Response>;
+```
+
+[MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/fetch)
+
+### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `input` | `RequestInfo` |
+| `init?` | `RequestInit` |
+
+### Returns
+
+`Promise`\<`Response`\>
+
+```ts
+(input, init?): Promise<Response>;
+```
+
+[MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/fetch)
+
+### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `input` | `string` \| `URL` \| `Request` |
+| `init?` | `RequestInit` |
+
+### Returns
+
+`Promise`\<`Response`\>
+
+
+---
+
+# Function: createMockUserPresenceAdapter()
+
+```ts
+function createMockUserPresenceAdapter(behavior): UserPresenceAdapter;
+```
+
+Defined in: [connect-react-native/src/security/user-presence.ts:100](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/user-presence.ts#L100)
+
+Test double for user presence.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `behavior` | () => `Promise`\<`UserPresenceResult`\> |
+
+## Returns
+
+[`UserPresenceAdapter`](#interface.userpresenceadapter)
+
+
+---
+
+# Function: createPinnedFetch()
+
+```ts
+function createPinnedFetch(pinSet, fallbackFetch?): {
+  (input, init?): Promise<Response>;
+  (input, init?): Promise<Response>;
+  (input, init?): Promise<Response>;
+};
+```
+
+Defined in: [connect-react-native/src/security/cert-pinning.ts:49](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/cert-pinning.ts#L49)
+
+Creates a fetch wrapper that pins gateway TLS certificates. Accepts any
+hash in the pin set so rotation can ship `current + next` ahead of cert change.
+
+## Parameters
+
+| Parameter | Type | Default value |
+| ------ | ------ | ------ |
+| `pinSet` | [`PinSet`](#interface.pinset) | `undefined` |
+| `fallbackFetch` | \&#123; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \&#125; | `fetch` |
+
+## Returns
+
+```ts
+(input, init?): Promise<Response>;
+```
+
+[MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/fetch)
+
+### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `input` | `URL` \| `RequestInfo` |
+| `init?` | `RequestInit` |
+
+### Returns
+
+`Promise`\<`Response`\>
+
+```ts
+(input, init?): Promise<Response>;
+```
+
+[MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/fetch)
+
+### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `input` | `RequestInfo` |
+| `init?` | `RequestInit` |
+
+### Returns
+
+`Promise`\<`Response`\>
+
+```ts
+(input, init?): Promise<Response>;
+```
+
+[MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/fetch)
+
+### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `input` | `string` \| `URL` \| `Request` |
+| `init?` | `RequestInit` |
+
+### Returns
+
+`Promise`\<`Response`\>
+
+
+---
+
+# Function: createReactNativeCheckoutStorage()
+
+```ts
+function createReactNativeCheckoutStorage(backend, namespace?): CheckoutStorageAdapter;
+```
+
+Defined in: [connect-react-native/src/checkout-storage.ts:9](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/checkout-storage.ts#L9)
+
+@pacto-connect/react-native
+
+React Native SDK for Pacto Connect: a WebView-hosted checkout sheet,
+deep-link return handling, and an escrow event hook — reusing
+`@pacto-connect/core`'s handshake/session model rather than reimplementing
+the checkout UI natively.
+
+## Parameters
+
+| Parameter | Type | Default value |
+| ------ | ------ | ------ |
+| `backend` | [`ReactNativeStorageBackend`](#interface.reactnativestoragebackend) | `undefined` |
+| `namespace` | `string` | `'pacto-connect:checkout'` |
+
+## Returns
+
+`CheckoutStorageAdapter`
+
+
+---
+
+# Function: createSecureSessionStore()
+
+```ts
+function createSecureSessionStore(backend): SecureSessionStoreAdapter;
+```
+
+Defined in: [connect-react-native/src/security/secure-session-store.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/secure-session-store.ts#L24)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `backend` | [`SecureStorageBackend`](#interface.securestoragebackend) |
+
+## Returns
+
+[`SecureSessionStoreAdapter`](#interface.securesessionstoreadapter)
+
+
+---
+
 # Function: dispatchBridgeMessage()
 
 ```ts
 function dispatchBridgeMessage(message, callbacks): void;
 ```
 
-Defined in: [webview-bridge.ts:150](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L150)
+Defined in: [connect-react-native/src/webview-bridge.ts:223](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L223)
 
 Mirrors `connect-elements`' `mountFrame` handleMessage switch.
 
@@ -183,6 +777,28 @@ Mirrors `connect-elements`' `mountFrame` handleMessage switch.
 
 ---
 
+# Function: evaluateDeviceIntegrity()
+
+```ts
+function evaluateDeviceIntegrity(probe, configured?): Promise<IntegrityResult>;
+```
+
+Defined in: [connect-react-native/src/security/device-integrity.ts:49](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/device-integrity.ts#L49)
+
+## Parameters
+
+| Parameter | Type | Default value |
+| ------ | ------ | ------ |
+| `probe` | [`IntegrityProbe`](#interface.integrityprobe) | `undefined` |
+| `configured` | [`IntegrityPolicy`](#typealias.integritypolicy) | `DEFAULT_INTEGRITY_POLICY` |
+
+## Returns
+
+`Promise`\<[`IntegrityResult`](#interface.integrityresult)\>
+
+
+---
+
 # Function: isSessionExpiringSoon()
 
 ```ts
@@ -192,7 +808,7 @@ function isSessionExpiringSoon(
    now?): boolean;
 ```
 
-Defined in: [escrow-events.ts:71](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L71)
+Defined in: [connect-react-native/src/escrow-events.ts:73](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L73)
 
 Pure check the refresh logic uses — exported for testing without a live clock.
 
@@ -211,13 +827,42 @@ Pure check the refresh logic uses — exported for testing without a live clock.
 
 ---
 
+# Function: parseCheckoutStorageSyncMessage()
+
+```ts
+function parseCheckoutStorageSyncMessage(
+   raw, 
+   currentUrl, 
+   expectedOrigin): CheckoutStorageSyncPayload | null;
+```
+
+Defined in: [connect-react-native/src/webview-bridge.ts:133](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L133)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `raw` | `string` |
+| `currentUrl` | `string` |
+| `expectedOrigin` | `string` |
+
+## Returns
+
+`CheckoutStorageSyncPayload` \| `null`
+
+
+---
+
 # Function: parsePactoReturnUrl()
 
 ```ts
-function parsePactoReturnUrl(url, scheme): PactoReturnLinkResult | null;
+function parsePactoReturnUrl(
+   url, 
+   scheme, 
+   options?): PactoReturnLinkResult | null;
 ```
 
-Defined in: [deep-link.ts:23](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L23)
+Defined in: [connect-react-native/src/deep-link.ts:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L31)
 
 Parses a return URL matching `scheme` (a custom scheme like `myapp://` or a
 universal-link prefix like `https://myapp.example/pacto-return`) into its
@@ -230,10 +875,32 @@ scheme or carry none of the expected params.
 | ------ | ------ |
 | `url` | `string` |
 | `scheme` | `string` |
+| `options?` | `ParsePactoReturnUrlOptions` |
 
 ## Returns
 
 [`PactoReturnLinkResult`](#interface.pactoreturnlinkresult) \| `null`
+
+
+---
+
+# Function: parseUserPresenceRequest()
+
+```ts
+function parseUserPresenceRequest(raw): UserPresenceRequestMessage | null;
+```
+
+Defined in: [connect-react-native/src/security/user-presence.ts:123](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/user-presence.ts#L123)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `raw` | `string` |
+
+## Returns
+
+`UserPresenceRequestMessage` \| `null`
 
 
 ---
@@ -247,7 +914,7 @@ function parseWebViewBridgeMessage(
    expectedOrigin): PactoBridgeMessage | null;
 ```
 
-Defined in: [webview-bridge.ts:110](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L110)
+Defined in: [connect-react-native/src/webview-bridge.ts:183](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L183)
 
 Validates and unwraps a raw `onMessage` payload from the WebView. `currentUrl`
 (the WebView's current page URL, from `nativeEvent.url`) stands in for the
@@ -269,13 +936,133 @@ carry no origin of their own.
 
 ---
 
+# Function: resolveCheckoutGatewayFetch()
+
+```ts
+function resolveCheckoutGatewayFetch(props): 
+  | ({
+  (input, init?): Promise<Response>;
+  (input, init?): Promise<Response>;
+  (input, init?): Promise<Response>;
+})
+  | undefined;
+```
+
+Defined in: [connect-react-native/src/PactoCheckoutSheet.tsx:480](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L480)
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `props` | \&#123; `fetch?`: \&#123; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \&#125;; `pinning?`: [`PinSet`](#interface.pinset); \&#125; |
+| `props.fetch?` | \&#123; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \&#125; |
+| `props.pinning?` | [`PinSet`](#interface.pinset) |
+
+## Returns
+
+### Function
+
+```ts
+{
+  (input, init?): Promise<Response>;
+  (input, init?): Promise<Response>;
+  (input, init?): Promise<Response>;
+}
+```
+
+#### Call Signature
+
+```ts
+(input, init?): Promise<Response>;
+```
+
+[MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/fetch)
+
+##### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `input` | `URL` \| `RequestInfo` |
+| `init?` | `RequestInit` |
+
+##### Returns
+
+`Promise`\<`Response`\>
+
+#### Call Signature
+
+```ts
+(input, init?): Promise<Response>;
+```
+
+[MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/fetch)
+
+##### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `input` | `RequestInfo` |
+| `init?` | `RequestInit` |
+
+##### Returns
+
+`Promise`\<`Response`\>
+
+#### Call Signature
+
+```ts
+(input, init?): Promise<Response>;
+```
+
+[MDN Reference](https://developer.mozilla.org/docs/Web/API/Window/fetch)
+
+##### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `input` | `string` \| `URL` \| `Request` |
+| `init?` | `RequestInit` |
+
+##### Returns
+
+`Promise`\<`Response`\>
+
+***
+
+`undefined`
+
+
+---
+
+# Function: resolveIntegrityPolicy()
+
+```ts
+function resolveIntegrityPolicy(detectedSignals, configured?): IntegrityResult;
+```
+
+Defined in: [connect-react-native/src/security/device-integrity.ts:34](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/device-integrity.ts#L34)
+
+## Parameters
+
+| Parameter | Type | Default value |
+| ------ | ------ | ------ |
+| `detectedSignals` | `string`[] | `undefined` |
+| `configured` | [`IntegrityPolicy`](#typealias.integritypolicy) | `DEFAULT_INTEGRITY_POLICY` |
+
+## Returns
+
+[`IntegrityResult`](#interface.integrityresult)
+
+
+---
+
 # Function: resolvePactoEscrowTransport()
 
 ```ts
 function resolvePactoEscrowTransport(forced?): PactoEscrowTransport;
 ```
 
-Defined in: [escrow-events.ts:63](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L63)
+Defined in: [connect-react-native/src/escrow-events.ts:65](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L65)
 
 React Native's JS engine (Hermes/JSC) doesn't reliably expose a streaming
 `fetch` response body — `ReadableStream` is typically undefined unless the
@@ -310,7 +1097,7 @@ function statusToSyntheticEvent(
    updatedAt): EscrowEvent | null;
 ```
 
-Defined in: [escrow-events.ts:88](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L88)
+Defined in: [connect-react-native/src/escrow-events.ts:92](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L92)
 
 Pure mapper the polling loop uses — exported for testing without a live timer.
 
@@ -319,8 +1106,8 @@ Pure mapper the polling loop uses — exported for testing without a live timer.
 | Parameter | Type |
 | ------ | ------ |
 | `escrowId` | `string` |
-| `previousStatus` | `EscrowStatus` \| `null` |
-| `status` | `EscrowStatus` |
+| `previousStatus` | \| `"cancelled"` \| `"disputed"` \| `"refunded"` \| `"released"` \| `"pending"` \| `"active"` \| `"funded"` \| `null` |
+| `status` | \| `"cancelled"` \| `"disputed"` \| `"refunded"` \| `"released"` \| `"pending"` \| `"active"` \| `"funded"` |
 | `updatedAt` | `string` |
 
 ## Returns
@@ -336,7 +1123,7 @@ Pure mapper the polling loop uses — exported for testing without a live timer.
 function usePactoDeepLink(options): void;
 ```
 
-Defined in: [deep-link.ts:58](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L58)
+Defined in: [connect-react-native/src/deep-link.ts:117](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L117)
 
 Subscribes to `Linking` for the app's Pacto return link, covering both a
 warm return (app resumed via `url` event) and a cold start (app launched by
@@ -361,7 +1148,7 @@ tapping the link, surfaced only through `getInitialURL`).
 function usePactoEscrowEvents(options): UsePactoEscrowEventsResult;
 ```
 
-Defined in: [escrow-events.ts:112](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L112)
+Defined in: [connect-react-native/src/escrow-events.ts:116](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L116)
 
 ## Parameters
 
@@ -376,37 +1163,60 @@ Defined in: [escrow-events.ts:112](https://github.com/PACTO-LAT/pacto-connect/bl
 
 ---
 
+# Function: verifyPactoReturnLink()
+
+```ts
+function verifyPactoReturnLink(options): Promise<PactoReturnLinkResult>;
+```
+
+Defined in: [connect-react-native/src/deep-link.ts:76](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L76)
+
+Parses and verifies link state before returning deep-link params.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `options` | `VerifyPactoReturnLinkOptions` |
+
+## Returns
+
+`Promise`\<[`PactoReturnLinkResult`](#interface.pactoreturnlinkresult)\>
+
+
+---
+
 # Interface: AndroidAssetLinksOptions
 
-Defined in: [universal-links.ts:51](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L51)
+Defined in: [connect-react-native/src/universal-links.ts:51](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L51)
 
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="packagename"></a> `packageName` | `string` | Application ID / package name, e.g. `"com.example.app"`. | [universal-links.ts:53](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L53) |
-| <a id="sha256certfingerprints"></a> `sha256CertFingerprints` | `string`[] | SHA-256 certificate fingerprints (colon-separated hex) for every signing key used to build the app. | [universal-links.ts:55](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L55) |
+| <a id="packagename"></a> `packageName` | `string` | Application ID / package name, e.g. `"com.example.app"`. | [connect-react-native/src/universal-links.ts:53](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L53) |
+| <a id="sha256certfingerprints"></a> `sha256CertFingerprints` | `string`[] | SHA-256 certificate fingerprints (colon-separated hex) for every signing key used to build the app. | [connect-react-native/src/universal-links.ts:55](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L55) |
 
 
 ---
 
 # Interface: AppleAppSiteAssociation
 
-Defined in: [universal-links.ts:23](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L23)
+Defined in: [connect-react-native/src/universal-links.ts:23](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L23)
 
 ## Properties
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="applinks"></a> `applinks` | \&#123; `details`: \&#123; `appIDs`: `string`[]; `components`: \&#123; `/`: `string`; \&#125;[]; \&#125;[]; \&#125; | [universal-links.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L24) |
-| `applinks.details` | \&#123; `appIDs`: `string`[]; `components`: \&#123; `/`: `string`; \&#125;[]; \&#125;[] | [universal-links.ts:25](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L25) |
+| <a id="applinks"></a> `applinks` | \&#123; `details`: \&#123; `appIDs`: `string`[]; `components`: \&#123; `/`: `string`; \&#125;[]; \&#125;[]; \&#125; | [connect-react-native/src/universal-links.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L24) |
+| `applinks.details` | \&#123; `appIDs`: `string`[]; `components`: \&#123; `/`: `string`; \&#125;[]; \&#125;[] | [connect-react-native/src/universal-links.ts:25](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L25) |
 
 
 ---
 
 # Interface: AppleAppSiteAssociationOptions
 
-Defined in: [universal-links.ts:16](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L16)
+Defined in: [connect-react-native/src/universal-links.ts:16](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L16)
 
 A custom URL scheme (`pacto-example://...`) always works for the checkout
 return link and needs no server-side setup — that's what `usePactoDeepLink`
@@ -425,15 +1235,15 @@ bundle entirely.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="appid"></a> `appId` | `string` | Apple Developer Team ID + bundle identifier, e.g. `"ABCDE12345.com.example.app"`. | [universal-links.ts:18](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L18) |
-| <a id="paths"></a> `paths?` | `string`[] | URL path patterns to hand off to the app. Defaults to `['/pacto-return*']`. | [universal-links.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L20) |
+| <a id="appid"></a> `appId` | `string` | Apple Developer Team ID + bundle identifier, e.g. `"ABCDE12345.com.example.app"`. | [connect-react-native/src/universal-links.ts:18](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L18) |
+| <a id="paths"></a> `paths?` | `string`[] | URL path patterns to hand off to the app. Defaults to `['/pacto-return*']`. | [connect-react-native/src/universal-links.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L20) |
 
 
 ---
 
 # Interface: BuildCheckoutUrlOptions
 
-Defined in: [webview-bridge.ts:18](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L18)
+Defined in: [connect-react-native/src/webview-bridge.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L20)
 
 Bridges the postMessage-based `PactoBridgeEnvelope` protocol (shared with
 `connect-elements`' iframe embed) onto a React Native WebView, which has no
@@ -444,48 +1254,167 @@ channel (`ReactNativeWebView.postMessage` out, `injectJavaScript` in).
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="checkouturl"></a> `checkoutUrl` | `string` | URL of the hosted checkout page (the one running `bootstrapCheckoutFrame`). | [webview-bridge.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L20) |
-| <a id="listingid"></a> `listingId?` | `string` | - | [webview-bridge.ts:22](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L22) |
-| <a id="mode"></a> `mode?` | `CheckoutMode` | - | [webview-bridge.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L24) |
-| <a id="params"></a> `params?` | `Record`\<`string`, `string`\> | - | [webview-bridge.ts:28](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L28) |
-| <a id="publishablekey"></a> `publishableKey` | `string` | - | [webview-bridge.ts:21](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L21) |
-| <a id="returnurl"></a> `returnUrl?` | `string` | App deep-link the hosted page should return to after an external payment step. | [webview-bridge.ts:27](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L27) |
-| <a id="sessionid"></a> `sessionId?` | `string` | - | [webview-bridge.ts:23](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L23) |
-| <a id="testmode"></a> `testMode?` | `boolean` | - | [webview-bridge.ts:25](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L25) |
+| <a id="checkouturl"></a> `checkoutUrl` | `string` | URL of the hosted checkout page (the one running `bootstrapCheckoutFrame`). | [connect-react-native/src/webview-bridge.ts:22](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L22) |
+| <a id="linkstate"></a> `linkState?` | `string` | One-time link state appended to returnUrl when both are set. | [connect-react-native/src/webview-bridge.ts:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L31) |
+| <a id="listingid"></a> `listingId?` | `string` | - | [connect-react-native/src/webview-bridge.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L24) |
+| <a id="mode"></a> `mode?` | `"buy"` \| `"sell"` | - | [connect-react-native/src/webview-bridge.ts:26](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L26) |
+| <a id="params"></a> `params?` | `Record`\<`string`, `string`\> | - | [connect-react-native/src/webview-bridge.ts:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L32) |
+| <a id="publishablekey"></a> `publishableKey` | `string` | - | [connect-react-native/src/webview-bridge.ts:23](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L23) |
+| <a id="returnurl"></a> `returnUrl?` | `string` | App deep-link the hosted page should return to after an external payment step. | [connect-react-native/src/webview-bridge.ts:29](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L29) |
+| <a id="sessionid"></a> `sessionId?` | `string` | - | [connect-react-native/src/webview-bridge.ts:25](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L25) |
+| <a id="testmode"></a> `testMode?` | `boolean` | - | [connect-react-native/src/webview-bridge.ts:27](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L27) |
+
+
+---
+
+# Interface: IntegrityProbe
+
+Defined in: [connect-react-native/src/security/device-integrity.ts:15](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/device-integrity.ts#L15)
+
+## Methods
+
+### collectSignals()
+
+```ts
+collectSignals(): Promise<IntegritySignals>;
+```
+
+Defined in: [connect-react-native/src/security/device-integrity.ts:16](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/device-integrity.ts#L16)
+
+#### Returns
+
+`Promise`\<`IntegritySignals`\>
+
+
+---
+
+# Interface: IntegrityResult
+
+Defined in: [connect-react-native/src/security/device-integrity.ts:19](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/device-integrity.ts#L19)
+
+## Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="recommendation"></a> `recommendation` | [`IntegrityPolicy`](#typealias.integritypolicy) | [connect-react-native/src/security/device-integrity.ts:21](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/device-integrity.ts#L21) |
+| <a id="signals"></a> `signals` | `string`[] | [connect-react-native/src/security/device-integrity.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/device-integrity.ts#L20) |
+
+
+---
+
+# Interface: LinkStateStore
+
+Defined in: [connect-react-native/src/security/link-state.ts:12](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/link-state.ts#L12)
+
+## Methods
+
+### consume()
+
+```ts
+consume(state): Promise<void>;
+```
+
+Defined in: [connect-react-native/src/security/link-state.ts:15](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/link-state.ts#L15)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `state` | `string` |
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### issue()
+
+```ts
+issue(scope, sessionId?): Promise<string>;
+```
+
+Defined in: [connect-react-native/src/security/link-state.ts:13](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/link-state.ts#L13)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `scope` | `CheckoutSnapshotScope` |
+| `sessionId?` | `string` |
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### verify()
+
+```ts
+verify(
+   state, 
+   scope, 
+sessionId?): Promise<void>;
+```
+
+Defined in: [connect-react-native/src/security/link-state.ts:14](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/link-state.ts#L14)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `state` | `string` |
+| `scope` | `CheckoutSnapshotScope` |
+| `sessionId?` | `string` |
+
+#### Returns
+
+`Promise`\<`void`\>
 
 
 ---
 
 # Interface: PactoCheckoutSheetProps
 
-Defined in: [PactoCheckoutSheet.tsx:14](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L14)
+Defined in: [connect-react-native/src/PactoCheckoutSheet.tsx:61](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L61)
 
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="checkouturl"></a> `checkoutUrl` | `string` | URL of the hosted checkout page (the one running `bootstrapCheckoutFrame`). | [PactoCheckoutSheet.tsx:17](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L17) |
-| <a id="listingid"></a> `listingId?` | `string` | - | [PactoCheckoutSheet.tsx:19](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L19) |
-| <a id="mode"></a> `mode?` | `CheckoutMode` | - | [PactoCheckoutSheet.tsx:21](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L21) |
-| <a id="oncomplete"></a> `onComplete?` | (`escrow`) => `void` | - | [PactoCheckoutSheet.tsx:33](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L33) |
-| <a id="ondispute"></a> `onDispute?` | (`escrow`) => `void` | - | [PactoCheckoutSheet.tsx:34](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L34) |
-| <a id="onerror"></a> `onError?` | (`error`) => `void` | - | [PactoCheckoutSheet.tsx:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L35) |
-| <a id="onready"></a> `onReady?` | (`sessionId`) => `void` | - | [PactoCheckoutSheet.tsx:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L31) |
-| <a id="onrequestclose"></a> `onRequestClose` | () => `void` | - | [PactoCheckoutSheet.tsx:30](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L30) |
-| <a id="onstep"></a> `onStep?` | (`step`) => `void` | - | [PactoCheckoutSheet.tsx:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L32) |
-| <a id="publishablekey"></a> `publishableKey` | `string` | - | [PactoCheckoutSheet.tsx:18](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L18) |
-| <a id="returnurl"></a> `returnUrl?` | `string` | App deep-link (custom scheme or universal link) the hosted page should navigate to after an external payment step. Pair with `usePactoDeepLink` using the same scheme to resume after the OS routes the app back. | [PactoCheckoutSheet.tsx:28](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L28) |
-| <a id="sessionid"></a> `sessionId?` | `string` | - | [PactoCheckoutSheet.tsx:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L20) |
-| <a id="testmode"></a> `testMode?` | `boolean` | - | [PactoCheckoutSheet.tsx:22](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L22) |
-| <a id="title"></a> `title?` | `string` | - | [PactoCheckoutSheet.tsx:29](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L29) |
-| <a id="visible"></a> `visible` | `boolean` | - | [PactoCheckoutSheet.tsx:15](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L15) |
+| <a id="checkouturl"></a> `checkoutUrl` | `string` | URL of the hosted checkout page (the one running `bootstrapCheckoutFrame`). | [connect-react-native/src/PactoCheckoutSheet.tsx:64](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L64) |
+| <a id="fetch"></a> `fetch?` | \&#123; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \&#125; | Custom fetch for gateway traffic (defaults to pinned fetch when pinning is set). | [connect-react-native/src/PactoCheckoutSheet.tsx:76](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L76) |
+| <a id="integritypolicy"></a> `integrityPolicy?` | [`IntegrityPolicy`](#typealias.integritypolicy) | - | [connect-react-native/src/PactoCheckoutSheet.tsx:77](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L77) |
+| <a id="integrityprobe"></a> `integrityProbe?` | [`IntegrityProbe`](#interface.integrityprobe) | - | [connect-react-native/src/PactoCheckoutSheet.tsx:78](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L78) |
+| <a id="linkstatestore"></a> `linkStateStore?` | [`LinkStateStore`](#interface.linkstatestore) | - | [connect-react-native/src/PactoCheckoutSheet.tsx:72](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L72) |
+| <a id="listingid"></a> `listingId?` | `string` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:66](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L66) |
+| <a id="mode"></a> `mode?` | `"buy"` \| `"sell"` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:68](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L68) |
+| <a id="oncomplete"></a> `onComplete?` | (`escrow`) => `void` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:91](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L91) |
+| <a id="ondispute"></a> `onDispute?` | (`escrow`) => `void` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:92](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L92) |
+| <a id="onerror"></a> `onError?` | (`error`) => `void` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:93](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L93) |
+| <a id="onintegritywarning"></a> `onIntegrityWarning?` | (`signals`) => `void` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:94](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L94) |
+| <a id="onready"></a> `onReady?` | (`sessionId`) => `void` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:89](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L89) |
+| <a id="onrequestclose"></a> `onRequestClose` | () => `void` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:88](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L88) |
+| <a id="onstep"></a> `onStep?` | (`step`) => `void` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:90](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L90) |
+| <a id="pinning"></a> `pinning?` | [`PinSet`](#interface.pinset) | Certificate pin set for gateway traffic from native escrow hooks. | [connect-react-native/src/PactoCheckoutSheet.tsx:74](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L74) |
+| <a id="publishablekey"></a> `publishableKey` | `string` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:65](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L65) |
+| <a id="returnurl"></a> `returnUrl?` | `string` | App deep-link (custom scheme or universal link) the hosted page should navigate to after an external payment step. Pair with `usePactoDeepLink` using the same scheme to resume after the OS routes the app back. | [connect-react-native/src/PactoCheckoutSheet.tsx:86](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L86) |
+| <a id="securesessionstore"></a> `secureSessionStore?` | [`SecureSessionStoreAdapter`](#interface.securesessionstoreadapter) | - | [connect-react-native/src/PactoCheckoutSheet.tsx:71](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L71) |
+| <a id="sessionid"></a> `sessionId?` | `string` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:67](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L67) |
+| <a id="storage"></a> `storage?` | `CheckoutStorageAdapter` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:70](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L70) |
+| <a id="testmode"></a> `testMode?` | `boolean` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:69](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L69) |
+| <a id="title"></a> `title?` | `string` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:87](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L87) |
+| <a id="userpresence"></a> `userPresence?` | [`UserPresenceOptions`](#interface.userpresenceoptions) | - | [connect-react-native/src/PactoCheckoutSheet.tsx:79](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L79) |
+| <a id="userpresenceadapter"></a> `userPresenceAdapter?` | [`UserPresenceAdapter`](#interface.userpresenceadapter) | - | [connect-react-native/src/PactoCheckoutSheet.tsx:80](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L80) |
+| <a id="visible"></a> `visible` | `boolean` | - | [connect-react-native/src/PactoCheckoutSheet.tsx:62](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/PactoCheckoutSheet.tsx#L62) |
 
 
 ---
 
 # Interface: PactoReturnLinkResult
 
-Defined in: [deep-link.ts:11](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L11)
+Defined in: [connect-react-native/src/deep-link.ts:13](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L13)
 
 Handles the app returning from an external payment step (e.g. a bank app or
 3-D Secure redirect) via a custom-scheme or universal link, independent of
@@ -496,16 +1425,32 @@ suspended or backgrounded the app while the user was outside it.
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="escrowid"></a> `escrowId?` | `string` | [deep-link.ts:13](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L13) |
-| <a id="sessionid"></a> `sessionId?` | `string` | [deep-link.ts:12](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L12) |
-| <a id="status"></a> `status?` | `string` | [deep-link.ts:14](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L14) |
+| <a id="escrowid"></a> `escrowId?` | `string` | [connect-react-native/src/deep-link.ts:15](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L15) |
+| <a id="sessionid"></a> `sessionId?` | `string` | [connect-react-native/src/deep-link.ts:14](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L14) |
+| <a id="state"></a> `state?` | `string` | [connect-react-native/src/deep-link.ts:17](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L17) |
+| <a id="status"></a> `status?` | `string` | [connect-react-native/src/deep-link.ts:16](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L16) |
 
 
 ---
 
-# Interface: UsePactoDeepLinkOptions
+# Interface: PinSet
 
-Defined in: [deep-link.ts:46](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L46)
+Defined in: [connect-react-native/src/security/cert-pinning.ts:3](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/cert-pinning.ts#L3)
+
+## Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="enabled"></a> `enabled?` | `boolean` | When false, delegates to the platform fetch without pinning. Default true. | [connect-react-native/src/security/cert-pinning.ts:9](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/cert-pinning.ts#L9) |
+| <a id="host"></a> `host` | `string` | Gateway hostname to pin, e.g. connect.pacto.example | [connect-react-native/src/security/cert-pinning.ts:5](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/cert-pinning.ts#L5) |
+| <a id="pins"></a> `pins` | `string`[] | SPKI SHA-256 base64 hashes — current plus optional next for rotation. | [connect-react-native/src/security/cert-pinning.ts:7](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/cert-pinning.ts#L7) |
+
+
+---
+
+# Interface: ReactNativeStorageBackend
+
+Defined in: [connect-react-native/src/checkout-storage.ts:3](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/checkout-storage.ts#L3)
 
 @pacto-connect/react-native
 
@@ -514,54 +1459,320 @@ deep-link return handling, and an escrow event hook — reusing
 `@pacto-connect/core`'s handshake/session model rather than reimplementing
 the checkout UI natively.
 
+## Methods
+
+### getItem()
+
+```ts
+getItem(key): string | Promise<string | null> | null;
+```
+
+Defined in: [connect-react-native/src/checkout-storage.ts:4](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/checkout-storage.ts#L4)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `key` | `string` |
+
+#### Returns
+
+`string` \| `Promise`\<`string` \| `null`\> \| `null`
+
+***
+
+### removeItem()
+
+```ts
+removeItem(key): void | Promise<void>;
+```
+
+Defined in: [connect-react-native/src/checkout-storage.ts:6](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/checkout-storage.ts#L6)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `key` | `string` |
+
+#### Returns
+
+`void` \| `Promise`\<`void`\>
+
+***
+
+### setItem()
+
+```ts
+setItem(key, value): void | Promise<void>;
+```
+
+Defined in: [connect-react-native/src/checkout-storage.ts:5](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/checkout-storage.ts#L5)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `key` | `string` |
+| `value` | `string` |
+
+#### Returns
+
+`void` \| `Promise`\<`void`\>
+
+
+---
+
+# Interface: SecureSessionStoreAdapter
+
+Defined in: [connect-react-native/src/security/secure-session-store.ts:11](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/secure-session-store.ts#L11)
+
+## Methods
+
+### clearAll()
+
+```ts
+clearAll(): Promise<void>;
+```
+
+Defined in: [connect-react-native/src/security/secure-session-store.ts:15](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/secure-session-store.ts#L15)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### clearSession()
+
+```ts
+clearSession(scope): Promise<void>;
+```
+
+Defined in: [connect-react-native/src/security/secure-session-store.ts:14](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/secure-session-store.ts#L14)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `scope` | `CheckoutSnapshotScope` |
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### loadSession()
+
+```ts
+loadSession(scope): Promise<CheckoutSessionEnvelope | null>;
+```
+
+Defined in: [connect-react-native/src/security/secure-session-store.ts:13](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/secure-session-store.ts#L13)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `scope` | `CheckoutSnapshotScope` |
+
+#### Returns
+
+`Promise`\<`CheckoutSessionEnvelope` \| `null`\>
+
+***
+
+### saveSession()
+
+```ts
+saveSession(scope, session): Promise<void>;
+```
+
+Defined in: [connect-react-native/src/security/secure-session-store.ts:12](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/secure-session-store.ts#L12)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `scope` | `CheckoutSnapshotScope` |
+| `session` | `CheckoutSessionEnvelope` |
+
+#### Returns
+
+`Promise`\<`void`\>
+
+
+---
+
+# Interface: SecureStorageBackend
+
+Defined in: [connect-react-native/src/security/secure-session-store.ts:5](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/secure-session-store.ts#L5)
+
+## Methods
+
+### getItem()
+
+```ts
+getItem(key): Promise<string | null>;
+```
+
+Defined in: [connect-react-native/src/security/secure-session-store.ts:6](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/secure-session-store.ts#L6)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `key` | `string` |
+
+#### Returns
+
+`Promise`\<`string` \| `null`\>
+
+***
+
+### removeItem()
+
+```ts
+removeItem(key): Promise<void>;
+```
+
+Defined in: [connect-react-native/src/security/secure-session-store.ts:8](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/secure-session-store.ts#L8)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `key` | `string` |
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### setItem()
+
+```ts
+setItem(key, value): Promise<void>;
+```
+
+Defined in: [connect-react-native/src/security/secure-session-store.ts:7](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/secure-session-store.ts#L7)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `key` | `string` |
+| `value` | `string` |
+
+#### Returns
+
+`Promise`\<`void`\>
+
+
+---
+
+# Interface: UsePactoDeepLinkOptions
+
+Defined in: [connect-react-native/src/deep-link.ts:100](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L100)
+
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="enabled"></a> `enabled?` | `boolean` | - | [deep-link.ts:49](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L49) |
-| <a id="onreturn"></a> `onReturn` | (`result`) => `void` | - | [deep-link.ts:50](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L50) |
-| <a id="scheme"></a> `scheme` | `string` | Custom scheme or universal-link prefix the checkout's `returnUrl` was set to. | [deep-link.ts:48](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L48) |
+| <a id="enabled"></a> `enabled?` | `boolean` | - | [connect-react-native/src/deep-link.ts:103](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L103) |
+| <a id="linkstatestore"></a> `linkStateStore?` | [`LinkStateStore`](#interface.linkstatestore) | - | [connect-react-native/src/deep-link.ts:105](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L105) |
+| <a id="onerror"></a> `onError?` | (`error`) => `void` | - | [connect-react-native/src/deep-link.ts:109](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L109) |
+| <a id="onreturn"></a> `onReturn` | (`result`) => `void` | - | [connect-react-native/src/deep-link.ts:108](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L108) |
+| <a id="requirestate"></a> `requireState?` | `boolean` | - | [connect-react-native/src/deep-link.ts:104](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L104) |
+| <a id="scheme"></a> `scheme` | `string` | Custom scheme or universal-link prefix the checkout's `returnUrl` was set to. | [connect-react-native/src/deep-link.ts:102](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L102) |
+| <a id="scope"></a> `scope?` | `CheckoutSnapshotScope` | - | [connect-react-native/src/deep-link.ts:106](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L106) |
+| <a id="sessionid"></a> `sessionId?` | `string` | - | [connect-react-native/src/deep-link.ts:107](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/deep-link.ts#L107) |
 
 
 ---
 
 # Interface: UsePactoEscrowEventsOptions
 
-Defined in: [escrow-events.ts:14](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L14)
+Defined in: [connect-react-native/src/escrow-events.ts:14](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L14)
 
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="clientsecret"></a> `clientSecret` | `string` | - | [escrow-events.ts:18](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L18) |
-| <a id="enabled"></a> `enabled?` | `boolean` | - | [escrow-events.ts:22](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L22) |
-| <a id="escrowid"></a> `escrowId` | `string` | - | [escrow-events.ts:21](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L21) |
-| <a id="expiresat"></a> `expiresAt` | `string` \| `Date` | - | [escrow-events.ts:19](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L19) |
-| <a id="gatewayurl"></a> `gatewayUrl?` | `string` | - | [escrow-events.ts:15](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L15) |
-| <a id="mode"></a> `mode` | `CheckoutMode` | - | [escrow-events.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L20) |
-| <a id="onevent"></a> `onEvent?` | (`event`) => `void` | - | [escrow-events.ts:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L32) |
-| <a id="onsessionrefresh"></a> `onSessionRefresh?` | (`session`) => `void` | Called after the hook transparently rotates to a refreshed session (new `clientSecret`/`expiresAt`) — persist it if you resume tracking across app restarts. | [escrow-events.ts:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L38) |
-| <a id="pollintervalms"></a> `pollIntervalMs?` | `number` | Polling interval used when the SSE transport isn't available. Default 4000ms. | [escrow-events.ts:26](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L26) |
-| <a id="publishablekey"></a> `publishableKey` | `string` | - | [escrow-events.ts:16](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L16) |
-| <a id="sessionid"></a> `sessionId` | `string` | - | [escrow-events.ts:17](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L17) |
-| <a id="sessionrefreshmarginms"></a> `sessionRefreshMarginMs?` | `number` | How close to `expiresAt` counts as "expiring soon" and triggers a `PactoSession.refresh()` before the next poll/reconnect. Default 30000ms. | [escrow-events.ts:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L31) |
-| <a id="transport"></a> `transport?` | [`PactoEscrowTransport`](#typealias.pactoescrowtransport) | Force a transport instead of auto-detecting streaming `fetch` support. | [escrow-events.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L24) |
+| <a id="clientsecret"></a> `clientSecret` | `string` | - | [connect-react-native/src/escrow-events.ts:18](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L18) |
+| <a id="enabled"></a> `enabled?` | `boolean` | - | [connect-react-native/src/escrow-events.ts:22](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L22) |
+| <a id="escrowid"></a> `escrowId` | `string` | - | [connect-react-native/src/escrow-events.ts:21](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L21) |
+| <a id="expiresat"></a> `expiresAt` | `string` \| `Date` | - | [connect-react-native/src/escrow-events.ts:19](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L19) |
+| <a id="fetch"></a> `fetch?` | \&#123; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; (`input`, `init?`): `Promise`\<`Response`\>; \&#125; | Custom fetch implementation (e.g. certificate-pinned fetch). | [connect-react-native/src/escrow-events.ts:33](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L33) |
+| <a id="gatewayurl"></a> `gatewayUrl?` | `string` | - | [connect-react-native/src/escrow-events.ts:15](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L15) |
+| <a id="mode"></a> `mode` | `"buy"` \| `"sell"` | - | [connect-react-native/src/escrow-events.ts:20](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L20) |
+| <a id="onevent"></a> `onEvent?` | (`event`) => `void` | - | [connect-react-native/src/escrow-events.ts:34](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L34) |
+| <a id="onsessionrefresh"></a> `onSessionRefresh?` | (`session`) => `void` | Called after the hook transparently rotates to a refreshed session (new `clientSecret`/`expiresAt`) — persist it if you resume tracking across app restarts. | [connect-react-native/src/escrow-events.ts:40](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L40) |
+| <a id="pollintervalms"></a> `pollIntervalMs?` | `number` | Polling interval used when the SSE transport isn't available. Default 4000ms. | [connect-react-native/src/escrow-events.ts:26](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L26) |
+| <a id="publishablekey"></a> `publishableKey` | `string` | - | [connect-react-native/src/escrow-events.ts:16](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L16) |
+| <a id="sessionid"></a> `sessionId` | `string` | - | [connect-react-native/src/escrow-events.ts:17](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L17) |
+| <a id="sessionrefreshmarginms"></a> `sessionRefreshMarginMs?` | `number` | How close to `expiresAt` counts as "expiring soon" and triggers a `PactoSession.refresh()` before the next poll/reconnect. Default 30000ms. | [connect-react-native/src/escrow-events.ts:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L31) |
+| <a id="transport"></a> `transport?` | [`PactoEscrowTransport`](#typealias.pactoescrowtransport) | Force a transport instead of auto-detecting streaming `fetch` support. | [connect-react-native/src/escrow-events.ts:24](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L24) |
 
 
 ---
 
 # Interface: UsePactoEscrowEventsResult
 
-Defined in: [escrow-events.ts:41](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L41)
+Defined in: [connect-react-native/src/escrow-events.ts:43](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L43)
 
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="error"></a> `error` | `Error` \| `null` | - | [escrow-events.ts:46](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L46) |
-| <a id="milestones"></a> `milestones` | `EscrowEvent`[] | - | [escrow-events.ts:42](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L42) |
-| <a id="status"></a> `status` | `EscrowStatus` \| `null` | Only populated by the polling transport — SSE tracks milestones, not a standalone status. | [escrow-events.ts:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L44) |
-| <a id="transport"></a> `transport` | [`PactoEscrowTransport`](#typealias.pactoescrowtransport) \| `null` | - | [escrow-events.ts:45](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L45) |
+| <a id="error"></a> `error` | `Error` \| `null` | - | [connect-react-native/src/escrow-events.ts:48](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L48) |
+| <a id="milestones"></a> `milestones` | `EscrowEvent`[] | - | [connect-react-native/src/escrow-events.ts:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L44) |
+| <a id="status"></a> `status` | \| `"cancelled"` \| `"disputed"` \| `"refunded"` \| `"released"` \| `"pending"` \| `"active"` \| `"funded"` \| `null` | Only populated by the polling transport — SSE tracks milestones, not a standalone status. | [connect-react-native/src/escrow-events.ts:46](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L46) |
+| <a id="transport"></a> `transport` | [`PactoEscrowTransport`](#typealias.pactoescrowtransport) \| `null` | - | [connect-react-native/src/escrow-events.ts:47](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L47) |
+
+
+---
+
+# Interface: UserPresenceAdapter
+
+Defined in: [connect-react-native/src/security/user-presence.ts:17](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/user-presence.ts#L17)
+
+## Methods
+
+### requestPresence()
+
+```ts
+requestPresence(options?): Promise<UserPresenceResult>;
+```
+
+Defined in: [connect-react-native/src/security/user-presence.ts:18](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/user-presence.ts#L18)
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `options?` | [`UserPresenceOptions`](#interface.userpresenceoptions) |
+
+#### Returns
+
+`Promise`\<`UserPresenceResult`\>
+
+
+---
+
+# Interface: UserPresenceOptions
+
+Defined in: [connect-react-native/src/security/user-presence.ts:5](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/user-presence.ts#L5)
+
+## Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="enabled"></a> `enabled?` | `boolean` | [connect-react-native/src/security/user-presence.ts:6](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/user-presence.ts#L6) |
+| <a id="fallback"></a> `fallback?` | `UserPresenceFallback` | [connect-react-native/src/security/user-presence.ts:7](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/user-presence.ts#L7) |
+| <a id="promptmessage"></a> `promptMessage?` | `string` | [connect-react-native/src/security/user-presence.ts:8](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/user-presence.ts#L8) |
 
 
 ---
@@ -579,17 +1790,28 @@ type AndroidAssetLinks = {
 }[];
 ```
 
-Defined in: [universal-links.ts:58](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L58)
+Defined in: [connect-react-native/src/universal-links.ts:58](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L58)
 
 ## Type Declaration
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `relation` | `string`[] | [universal-links.ts:59](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L59) |
-| `target` | \&#123; `namespace`: `"android_app"`; `package_name`: `string`; `sha256_cert_fingerprints`: `string`[]; \&#125; | [universal-links.ts:60](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L60) |
-| `target.namespace` | `"android_app"` | [universal-links.ts:61](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L61) |
-| `target.package_name` | `string` | [universal-links.ts:62](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L62) |
-| `target.sha256_cert_fingerprints` | `string`[] | [universal-links.ts:63](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L63) |
+| `relation` | `string`[] | [connect-react-native/src/universal-links.ts:59](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L59) |
+| `target` | \&#123; `namespace`: `"android_app"`; `package_name`: `string`; `sha256_cert_fingerprints`: `string`[]; \&#125; | [connect-react-native/src/universal-links.ts:60](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L60) |
+| `target.namespace` | `"android_app"` | [connect-react-native/src/universal-links.ts:61](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L61) |
+| `target.package_name` | `string` | [connect-react-native/src/universal-links.ts:62](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L62) |
+| `target.sha256_cert_fingerprints` | `string`[] | [connect-react-native/src/universal-links.ts:63](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/universal-links.ts#L63) |
+
+
+---
+
+# Type Alias: IntegrityPolicy
+
+```ts
+type IntegrityPolicy = "proceed" | "warn" | "block";
+```
+
+Defined in: [connect-react-native/src/security/device-integrity.ts:3](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/device-integrity.ts#L3)
 
 
 ---
@@ -600,7 +1822,7 @@ Defined in: [universal-links.ts:58](https://github.com/PACTO-LAT/pacto-connect/b
 type PactoEscrowTransport = "sse" | "polling";
 ```
 
-Defined in: [escrow-events.ts:12](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L12)
+Defined in: [connect-react-native/src/escrow-events.ts:12](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L12)
 
 
 ---
@@ -611,7 +1833,7 @@ Defined in: [escrow-events.ts:12](https://github.com/PACTO-LAT/pacto-connect/blo
 const BRIDGE_SHIM_SCRIPT: "\n(function () {\n  if (window.__pactoConnectRNBridgeInstalled) { return true; }\n  window.__pactoConnectRNBridgeInstalled = true;\n  window.addEventListener('message', function (event) {\n    if (event.source !== window) { return; }\n    if (!window.ReactNativeWebView) { return; }\n    try {\n      window.ReactNativeWebView.postMessage(JSON.stringify(event.data));\n    } catch (err) {}\n  });\n})();\ntrue;\n";
 ```
 
-Defined in: [webview-bridge.ts:77](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L77)
+Defined in: [connect-react-native/src/webview-bridge.ts:91](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L91)
 
 Injected via `injectedJavaScriptBeforeContentLoaded` so the listener is
 attached before the checkout page's own scripts run (otherwise an early
@@ -623,13 +1845,60 @@ native side in [parseWebViewBridgeMessage](#function.parsewebviewbridgemessage),
 
 ---
 
+# Variable: CHECKOUT\_STORAGE\_SYNC\_SOURCE
+
+```ts
+const CHECKOUT_STORAGE_SYNC_SOURCE: "pacto-connect-rn-sync" = 'pacto-connect-rn-sync';
+```
+
+Defined in: [connect-react-native/src/webview-bridge.ts:123](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/webview-bridge.ts#L123)
+
+
+---
+
+# Variable: DEFAULT\_INTEGRITY\_POLICY
+
+```ts
+const DEFAULT_INTEGRITY_POLICY: IntegrityPolicy = 'warn';
+```
+
+Defined in: [connect-react-native/src/security/device-integrity.ts:5](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/device-integrity.ts#L5)
+
+
+---
+
+# Variable: DEFAULT\_LINK\_STATE\_TTL\_MS
+
+```ts
+const DEFAULT_LINK_STATE_TTL_MS: number;
+```
+
+Defined in: [connect-react-native/src/security/link-state.ts:18](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/link-state.ts#L18)
+
+
+---
+
 # Variable: DEFAULT\_SESSION\_REFRESH\_MARGIN\_MS
 
 ```ts
 const DEFAULT_SESSION_REFRESH_MARGIN_MS: 30000 = 30_000;
 ```
 
-Defined in: [escrow-events.ts:50](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L50)
+Defined in: [connect-react-native/src/escrow-events.ts:52](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/escrow-events.ts#L52)
+
+
+---
+
+# Variable: USER\_PRESENCE\_GATE\_SCRIPT
+
+```ts
+const USER_PRESENCE_GATE_SCRIPT: string;
+```
+
+Defined in: [connect-react-native/src/security/user-presence.ts:150](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/security/user-presence.ts#L150)
+
+Injected before page load to gate escrow deposit POST requests behind native
+biometric confirmation without changing hosted checkout sources.
 
 
 ---
@@ -640,4 +1909,4 @@ Defined in: [escrow-events.ts:50](https://github.com/PACTO-LAT/pacto-connect/blo
 const VERSION: "0.0.0" = '0.0.0';
 ```
 
-Defined in: [index.ts:45](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/index.ts#L45)
+Defined in: [connect-react-native/src/index.ts:102](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react-native/src/index.ts#L102)

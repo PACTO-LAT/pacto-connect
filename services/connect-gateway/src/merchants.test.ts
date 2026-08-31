@@ -13,11 +13,25 @@ vi.mock('./db.js', () => ({
       create: vi.fn(),
       groupBy: vi.fn(),
     },
+    $transaction: vi.fn(async (fn: (tx: unknown) => unknown) => fn(prismaMock())),
   },
 }));
 
+vi.mock('./ledger.js', () => ({
+  appendSettlementEntry: vi.fn(),
+}));
+
+function prismaMock() {
+  return {
+    merchantSettlement: {
+      create: vi.mocked(prisma.merchantSettlement.create),
+    },
+  };
+}
+
 import type { Merchant } from '@prisma/client';
 import { prisma } from './db.js';
+import { appendSettlementEntry } from './ledger.js';
 import {
   createMerchant,
   findActiveMerchant,
@@ -46,6 +60,8 @@ describe('merchants module', () => {
     vi.mocked(prisma.merchant.update).mockReset();
     vi.mocked(prisma.merchantSettlement.create).mockReset();
     vi.mocked(prisma.merchantSettlement.groupBy).mockReset();
+    vi.mocked(prisma.$transaction).mockReset();
+    vi.mocked(appendSettlementEntry).mockReset();
   });
   afterEach(() => vi.restoreAllMocks());
 
@@ -70,9 +86,32 @@ describe('merchants module', () => {
     });
   });
 
+  it('recordSettlement creates settlement and ledger entry in a transaction', async () => {
+    vi.mocked(prisma.merchantSettlement.create).mockResolvedValue({} as never);
+    vi.mocked(appendSettlementEntry).mockResolvedValue({} as never);
+    vi.mocked(prisma.$transaction).mockImplementation(async (fn) =>
+      fn({
+        merchantSettlement: { create: vi.mocked(prisma.merchantSettlement.create) },
+      } as never),
+    );
+
+    await recordSettlement({ merchantId: 'mrc_1', escrowId: 'esc_1', amount: 100, asset: 'USDC' });
+
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    expect(appendSettlementEntry).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        merchantId: 'mrc_1',
+        sourceEscrowId: 'esc_1',
+        amount: 100,
+        asset: 'USDC',
+      }),
+    );
+  });
+
   it('recordSettlement is idempotent (swallows unique-constraint conflict)', async () => {
     const err = Object.assign(new Error('unique'), { code: 'P2002' });
-    vi.mocked(prisma.merchantSettlement.create).mockRejectedValueOnce(err);
+    vi.mocked(prisma.$transaction).mockRejectedValueOnce(err);
     await expect(
       recordSettlement({ merchantId: 'mrc_1', escrowId: 'esc_1', amount: 100, asset: 'USDC' }),
     ).resolves.toBeUndefined();

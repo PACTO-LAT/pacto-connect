@@ -29,6 +29,8 @@ export interface UsePactoEscrowEventsOptions {
    * `PactoSession.refresh()` before the next poll/reconnect. Default 30000ms.
    */
   sessionRefreshMarginMs?: number;
+  /** Custom fetch implementation (e.g. certificate-pinned fetch). */
+  fetch?: import('@pacto-connect/core').FetchLike;
   onEvent?: (event: EscrowEvent) => void;
   /**
    * Called after the hook transparently rotates to a refreshed session
@@ -82,6 +84,8 @@ const STATUS_MILESTONE: Partial<
   funded: { type: 'escrow.funded', milestone: 'funded' },
   released: { type: 'released', milestone: 'released' },
   disputed: { type: 'disputed', milestone: 'disputed' },
+  cancelled: { type: 'cancelled', milestone: 'cancelled' },
+  refunded: { type: 'refunded', milestone: 'refunded' },
 };
 
 /** Pure mapper the polling loop uses — exported for testing without a live timer. */
@@ -138,6 +142,7 @@ export function usePactoEscrowEvents(
     const client = Pacto.init({
       publishableKey: options.publishableKey,
       gatewayUrl: options.gatewayUrl,
+      fetch: options.fetch,
     });
 
     let currentSession: PactoSession = client.resumeCheckoutSession({
@@ -222,7 +227,15 @@ export function usePactoEscrowEvents(
 
     function subscribeSse(): void {
       const handler = (event: EscrowEvent) => record(event);
-      for (const name of ['escrow.funded', 'fiat.reported', 'released', 'disputed'] as const) {
+      for (const name of [
+        'escrow.funded',
+        'fiat.reported',
+        'released',
+        'disputed',
+        'cancelled',
+        'refunded',
+        'dispute.resolved',
+      ] as const) {
         currentSession.on(name, handler, { escrowId: options.escrowId });
       }
     }
@@ -286,6 +299,7 @@ export function usePactoEscrowEvents(
     options.transport,
     options.pollIntervalMs,
     options.sessionRefreshMarginMs,
+    options.fetch,
   ]);
 
   return { milestones, status, transport, error };

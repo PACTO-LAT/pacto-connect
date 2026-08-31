@@ -1,0 +1,282 @@
+openapi: 3.1.0
+info:
+  title: Pacto Connect Gateway API
+  version: 1.0.0
+  description: |
+    HTTP API for the Pacto Connect Gateway (BFF). This specification documents
+    every publicly reachable route as implemented. Secret keys (sk_*) are issued
+    via admin but are not used to authenticate incoming requests.
+
+servers:
+  - url: http://localhost:8787
+    description: Local development
+  - url: https://connect.pacto.example
+    description: Production (example)
+
+tags:
+  - name: health
+    description: Health checks
+  - name: session
+    description: Checkout session handshake
+  - name: quote
+    description: FX quotes
+  - name: escrows
+    description: Escrow lifecycle
+  - name: subscriptions
+    description: Recurring subscriptions
+  - name: test
+    description: Test-mode controls
+  - name: webhooks
+    description: Webhook ingress and admin
+  - name: admin
+    description: Key and merchant administration
+
+components:
+  securitySchemes:
+    PublishableKey:
+      type: apiKey
+      in: header
+      name: x-pacto-publishable-key
+      description: |
+        Publishable key (pk_test_* or pk_live_*). May also be sent as
+        Authorization Bearer pk_* on routes that do not use Bearer for client secret.
+        Requires a valid Origin or Referer header on /v1/* routes.
+    ClientSecret:
+      type: http
+      scheme: bearer
+      bearerFormat: clientSecret
+      description: |
+        Checkout session client secret (cs_*). Used together with publishable key
+        in x-pacto-publishable-key header on escrow, subscription, and test routes.
+    AdminToken:
+      type: http
+      scheme: bearer
+      bearerFormat: adminToken
+      description: Gateway admin token (GATEWAY_ADMIN_TOKEN).
+    WebhookSignature:
+      type: apiKey
+      in: header
+      name: Pacto-Signature
+      description: HMAC signature for inbound webhook payloads.
+
+  schemas:
+    ErrorBody:
+      $ref: './components/schemas.yaml#/ErrorBody'
+    ErrorEnvelope:
+      $ref: './components/schemas.yaml#/ErrorEnvelope'
+    HealthResponse:
+      $ref: './components/schemas.yaml#/HealthResponse'
+    CheckoutMode:
+      $ref: './components/schemas.yaml#/CheckoutMode'
+    CreateSessionRequest:
+      $ref: './components/schemas.yaml#/CreateSessionRequest'
+    SessionResponse:
+      $ref: './components/schemas.yaml#/SessionResponse'
+    RefreshSessionRequest:
+      $ref: './components/schemas.yaml#/RefreshSessionRequest'
+    FxCurrency:
+      $ref: './components/schemas.yaml#/FxCurrency'
+    CreateFxQuoteRequest:
+      $ref: './components/schemas.yaml#/CreateFxQuoteRequest'
+    FxQuote:
+      $ref: './components/schemas.yaml#/FxQuote'
+    FxQuoteResponse:
+      $ref: './components/schemas.yaml#/FxQuoteResponse'
+    EscrowStatus:
+      $ref: './components/schemas.yaml#/EscrowStatus'
+    Escrow:
+      $ref: './components/schemas.yaml#/Escrow'
+    EscrowResponse:
+      $ref: './components/schemas.yaml#/EscrowResponse'
+    EscrowStatusBody:
+      $ref: './components/schemas.yaml#/EscrowStatusBody'
+    EscrowStatusResponse:
+      $ref: './components/schemas.yaml#/EscrowStatusResponse'
+    CreateEscrowRequest:
+      $ref: './components/schemas.yaml#/CreateEscrowRequest'
+    FiatPaymentMethod:
+      $ref: './components/schemas.yaml#/FiatPaymentMethod'
+    FiatReportRequest:
+      $ref: './components/schemas.yaml#/FiatReportRequest'
+    CancelEscrowRequest:
+      $ref: './components/schemas.yaml#/CancelEscrowRequest'
+    RefundEscrowRequest:
+      $ref: './components/schemas.yaml#/RefundEscrowRequest'
+    EscrowRefund:
+      $ref: './components/schemas.yaml#/EscrowRefund'
+    EscrowRefundResponse:
+      $ref: './components/schemas.yaml#/EscrowRefundResponse'
+    OpenDisputeRequest:
+      $ref: './components/schemas.yaml#/OpenDisputeRequest'
+    EscrowDispute:
+      $ref: './components/schemas.yaml#/EscrowDispute'
+    EscrowDisputeResponse:
+      $ref: './components/schemas.yaml#/EscrowDisputeResponse'
+    ResolveDisputeRequest:
+      $ref: './components/schemas.yaml#/ResolveDisputeRequest'
+    SubscriptionStatus:
+      $ref: './components/schemas.yaml#/SubscriptionStatus'
+    SubscriptionInterval:
+      $ref: './components/schemas.yaml#/SubscriptionInterval'
+    Subscription:
+      $ref: './components/schemas.yaml#/Subscription'
+    SubscriptionResponse:
+      $ref: './components/schemas.yaml#/SubscriptionResponse'
+    SubscriptionListResponse:
+      $ref: './components/schemas.yaml#/SubscriptionListResponse'
+    CreateSubscriptionRequest:
+      $ref: './components/schemas.yaml#/CreateSubscriptionRequest'
+    ChargeResult:
+      $ref: './components/schemas.yaml#/ChargeResult'
+    ChargeResultResponse:
+      $ref: './components/schemas.yaml#/ChargeResultResponse'
+    OkResponse:
+      $ref: './components/schemas.yaml#/OkResponse'
+    TestDisputeRequest:
+      $ref: './components/schemas.yaml#/TestDisputeRequest'
+    InboundWebhookRequest:
+      $ref: './components/schemas.yaml#/InboundWebhookRequest'
+    InboundWebhookResponse:
+      $ref: './components/schemas.yaml#/InboundWebhookResponse'
+    KeyMode:
+      $ref: './components/schemas.yaml#/KeyMode'
+    ApiKeyPublic:
+      $ref: './components/schemas.yaml#/ApiKeyPublic'
+    ApiKeyCreated:
+      $ref: './components/schemas.yaml#/ApiKeyCreated'
+    ApiKeyListResponse:
+      $ref: './components/schemas.yaml#/ApiKeyListResponse'
+    CreateApiKeyRequest:
+      $ref: './components/schemas.yaml#/CreateApiKeyRequest'
+    ApiKeyCreatedResponse:
+      $ref: './components/schemas.yaml#/ApiKeyCreatedResponse'
+    ApiKeyResponse:
+      $ref: './components/schemas.yaml#/ApiKeyResponse'
+    MerchantPublic:
+      $ref: './components/schemas.yaml#/MerchantPublic'
+    MerchantVolume:
+      $ref: './components/schemas.yaml#/MerchantVolume'
+    MerchantWithVolume:
+      $ref: './components/schemas.yaml#/MerchantWithVolume'
+    MerchantResponse:
+      $ref: './components/schemas.yaml#/MerchantResponse'
+    MerchantListResponse:
+      $ref: './components/schemas.yaml#/MerchantListResponse'
+    CreateMerchantRequest:
+      $ref: './components/schemas.yaml#/CreateMerchantRequest'
+    WebhookEndpointPublic:
+      $ref: './components/schemas.yaml#/WebhookEndpointPublic'
+    WebhookEndpointCreated:
+      $ref: './components/schemas.yaml#/WebhookEndpointCreated'
+    WebhookEndpointListResponse:
+      $ref: './components/schemas.yaml#/WebhookEndpointListResponse'
+    WebhookEndpointResponse:
+      $ref: './components/schemas.yaml#/WebhookEndpointResponse'
+    RegisterWebhookEndpointRequest:
+      $ref: './components/schemas.yaml#/RegisterWebhookEndpointRequest'
+    WebhookDelivery:
+      $ref: './components/schemas.yaml#/WebhookDelivery'
+    WebhookDeliveryListResponse:
+      $ref: './components/schemas.yaml#/WebhookDeliveryListResponse'
+    WebhookDeliveryResponse:
+      $ref: './components/schemas.yaml#/WebhookDeliveryResponse'
+    WebhookVerifyResponse:
+      $ref: './components/schemas.yaml#/WebhookVerifyResponse'
+    SettlementPeriodResponse:
+      $ref: './components/schemas.yaml#/SettlementPeriodResponse'
+    LedgerEntryResponse:
+      $ref: './components/schemas.yaml#/LedgerEntryResponse'
+    PayoutRunResponse:
+      $ref: './components/schemas.yaml#/PayoutRunResponse'
+    PayoutRunListResponse:
+      $ref: './components/schemas.yaml#/PayoutRunListResponse'
+    AdminLegacyError:
+      $ref: './components/schemas.yaml#/AdminLegacyError'
+
+paths:
+  /health:
+    $ref: './paths/health.yaml#/~1health'
+  /v1/session:
+    $ref: './paths/session.yaml#/~1v1~1session'
+  /v1/session/refresh:
+    $ref: './paths/session.yaml#/~1v1~1session~1refresh'
+  /v1/quote:
+    $ref: './paths/quote.yaml#/~1v1~1quote'
+  /v1/escrows/events:
+    $ref: './paths/escrows.yaml#/~1v1~1escrows~1events'
+  /v1/escrows:
+    $ref: './paths/escrows.yaml#/~1v1~1escrows'
+  /v1/escrows/{id}:
+    $ref: './paths/escrows.yaml#/~1v1~1escrows~1{id}'
+  /v1/escrows/{id}/status:
+    $ref: './paths/escrows.yaml#/~1v1~1escrows~1{id}~1status'
+  /v1/escrows/{id}/deposit:
+    $ref: './paths/escrows.yaml#/~1v1~1escrows~1{id}~1deposit'
+  /v1/escrows/{id}/fiat-report:
+    $ref: './paths/escrows.yaml#/~1v1~1escrows~1{id}~1fiat-report'
+  /v1/escrows/{id}/cancel:
+    $ref: './paths/escrows.yaml#/~1v1~1escrows~1{id}~1cancel'
+  /v1/escrows/{id}/refund:
+    $ref: './paths/escrows.yaml#/~1v1~1escrows~1{id}~1refund'
+  /v1/escrows/{id}/disputes:
+    $ref: './paths/escrows.yaml#/~1v1~1escrows~1{id}~1disputes'
+  /v1/escrows/{id}/disputes/{disputeId}/resolve:
+    $ref: './paths/escrows.yaml#/~1v1~1escrows~1{id}~1disputes~1{disputeId}~1resolve'
+  /v1/subscriptions:
+    $ref: './paths/subscriptions.yaml#/~1v1~1subscriptions'
+  /v1/subscriptions/{id}:
+    $ref: './paths/subscriptions.yaml#/~1v1~1subscriptions~1{id}'
+  /v1/subscriptions/{id}/cancel:
+    $ref: './paths/subscriptions.yaml#/~1v1~1subscriptions~1{id}~1cancel'
+  /v1/test/escrows/{id}/dispute:
+    $ref: './paths/test.yaml#/~1v1~1test~1escrows~1{id}~1dispute'
+  /v1/test/escrows/{id}/timeout:
+    $ref: './paths/test.yaml#/~1v1~1test~1escrows~1{id}~1timeout'
+  /v1/test/escrows/{id}/release:
+    $ref: './paths/test.yaml#/~1v1~1test~1escrows~1{id}~1release'
+  /v1/test/subscriptions/{id}/advance:
+    $ref: './paths/test.yaml#/~1v1~1test~1subscriptions~1{id}~1advance'
+  /v1/test/subscriptions/{id}/fail-next:
+    $ref: './paths/test.yaml#/~1v1~1test~1subscriptions~1{id}~1fail-next'
+  /v1/webhooks/inbound:
+    $ref: './paths/inbound-webhooks.yaml#/~1v1~1webhooks~1inbound'
+  /admin/keys:
+    $ref: './paths/admin.yaml#/~1admin~1keys'
+  /admin/keys/{id}/rotate:
+    $ref: './paths/admin.yaml#/~1admin~1keys~1{id}~1rotate'
+  /admin/keys/{id}/cutover:
+    $ref: './paths/admin.yaml#/~1admin~1keys~1{id}~1cutover'
+  /admin/keys/{id}/revoke:
+    $ref: './paths/admin.yaml#/~1admin~1keys~1{id}~1revoke'
+  /admin/keys/{keyId}/merchants:
+    $ref: './paths/admin.yaml#/~1admin~1keys~1{keyId}~1merchants'
+  /admin/merchants/{id}/disable:
+    $ref: './paths/admin.yaml#/~1admin~1merchants~1{id}~1disable'
+  /admin/merchants/{id}/periods/{periodKey}/close:
+    $ref: './paths/admin.yaml#/~1admin~1merchants~1{id}~1periods~1{periodKey}~1close'
+  /admin/merchants/{id}/ledger/corrections:
+    $ref: './paths/admin.yaml#/~1admin~1merchants~1{id}~1ledger~1corrections'
+  /admin/merchants/{id}/periods/{periodKey}/payout-runs:
+    $ref: './paths/admin.yaml#/~1admin~1merchants~1{id}~1periods~1{periodKey}~1payout-runs'
+  /admin/payout-runs:
+    $ref: './paths/admin.yaml#/~1admin~1payout-runs'
+  /admin/payout-runs/{id}:
+    $ref: './paths/admin.yaml#/~1admin~1payout-runs~1{id}'
+  /admin/merchants/{id}/periods/{periodKey}/statement.csv:
+    $ref: './paths/admin.yaml#/~1admin~1merchants~1{id}~1periods~1{periodKey}~1statement.csv'
+  /admin/webhooks:
+    $ref: './paths/admin.yaml#/~1admin~1webhooks'
+  /admin/webhooks/deliveries:
+    $ref: './paths/admin.yaml#/~1admin~1webhooks~1deliveries'
+  /admin/webhooks/dlq:
+    $ref: './paths/admin.yaml#/~1admin~1webhooks~1dlq'
+  /admin/webhooks/deliveries/{id}/retry:
+    $ref: './paths/admin.yaml#/~1admin~1webhooks~1deliveries~1{id}~1retry'
+  /admin/webhooks/{id}:
+    $ref: './paths/admin.yaml#/~1admin~1webhooks~1{id}'
+  /admin/webhooks/{id}/verify:
+    $ref: './paths/admin.yaml#/~1admin~1webhooks~1{id}~1verify'
+  /admin/webhooks/{id}/enable:
+    $ref: './paths/admin.yaml#/~1admin~1webhooks~1{id}~1enable'
+  /admin/webhooks/{id}/disable:
+    $ref: './paths/admin.yaml#/~1admin~1webhooks~1{id}~1disable'

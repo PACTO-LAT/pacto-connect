@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import * as core from './index';
 import { init, PactoSession, VERSION } from './index';
 
 const gatewayUrl = 'https://gateway.example';
@@ -14,6 +15,88 @@ function mockFetchResponse(status: number, body: Record<string, unknown>) {
 }
 
 describe('@pacto-connect/core', () => {
+  it('exposes a stable public export surface', () => {
+    const exportNames = Object.keys(core).sort();
+    expect(exportNames).toMatchInlineSnapshot(`
+      [
+        "CHECKOUT_SNAPSHOT_VERSION",
+        "CheckoutFlowController",
+        "CheckoutQuoteExpiredError",
+        "DEFAULT_GATEWAY_URL",
+        "DEFAULT_THEME",
+        "ESCROW_DETAIL_CODES",
+        "ESCROW_EVENT_NAMES",
+        "IllegalCheckoutTransitionError",
+        "PACTO_BRIDGE_SOURCE",
+        "PACTO_BRIDGE_VERSION",
+        "PACTO_ERROR_CODES",
+        "Pacto",
+        "PactoApiError",
+        "PactoAuthError",
+        "PactoError",
+        "PactoEscrowError",
+        "PactoRateLimitError",
+        "PactoSecurityError",
+        "PactoSession",
+        "PactoSessionError",
+        "RAIL_ADAPTER_CONTRACT_VERSION",
+        "REQUEST_ID_HEADER",
+        "RailError",
+        "SECURITY_DETAIL_CODES",
+        "STYLE_ELEMENT_ID",
+        "VERSION",
+        "applyCheckoutTransition",
+        "assertCatalogueParity",
+        "assertPaymentRailConformance",
+        "buildCheckoutSnapshotScope",
+        "buildCheckoutStylesheet",
+        "canTransition",
+        "checkoutStorageKey",
+        "classifyGatewayError",
+        "createBridgeClient",
+        "createBridgeHost",
+        "createDefaultPaymentRailRegistry",
+        "createInitialCheckoutState",
+        "createMemoryCheckoutStorage",
+        "createPaymentRailRegistry",
+        "createSinpeRail",
+        "createSpeiRail",
+        "createWebCheckoutStorage",
+        "enMessages",
+        "esMessages",
+        "formatAssetAmount",
+        "formatCurrency",
+        "formatDate",
+        "formatGender",
+        "formatMessage",
+        "formatPlural",
+        "generateRequestId",
+        "init",
+        "isCheckoutSnapshotExpired",
+        "isEscrowDetailCode",
+        "isOriginAllowed",
+        "isPactoBridgeEnvelope",
+        "isPactoErrorCode",
+        "isPersistableStep",
+        "isQuoteExpired",
+        "isSecurityDetailCode",
+        "isTerminalCheckoutStep",
+        "isTestMode",
+        "keyMode",
+        "parseCheckoutSnapshot",
+        "ptMessages",
+        "resolveKeyedMessage",
+        "resolveLocale",
+        "resolveMessages",
+        "serializeCheckoutSnapshot",
+        "sinpeRail",
+        "snapshotMatchesScope",
+        "speiRail",
+        "themeToCssVars",
+      ]
+    `);
+  });
+
   it('exposes a version', () => {
     expect(VERSION).toBe('0.0.0');
   });
@@ -80,7 +163,8 @@ describe('@pacto-connect/core sessions', () => {
     ).rejects.toEqual(
       expect.objectContaining({
         name: 'PactoSessionError',
-        code: 'session_invalid',
+        code: 'PACTO_SESSION',
+        detailCode: 'session_invalid',
       }),
     );
   });
@@ -114,7 +198,8 @@ describe('@pacto-connect/core sessions', () => {
     await expect(session.refresh()).rejects.toEqual(
       expect.objectContaining({
         name: 'PactoSessionError',
-        code: 'session_expired',
+        code: 'PACTO_SESSION',
+        detailCode: 'session_expired',
       }),
     );
   });

@@ -9,6 +9,7 @@ export const es: PactoMessages = {
     tracking: 'Siguiendo el estado de la garantía',
     success: 'Pago completado',
     disputed: 'Garantía en disputa',
+    refunded: 'Garantía reembolsada',
     error: 'Error en el pago',
   },
   milestones: {
@@ -16,6 +17,9 @@ export const es: PactoMessages = {
     'fiat.reported': 'Pago reportado',
     released: 'Fondos liberados',
     disputed: 'Garantía en disputa',
+    cancelled: 'Garantía cancelada',
+    refunded: 'Garantía reembolsada',
+    'dispute.resolved': 'Disputa resuelta',
   },
   actions: {
     close: 'Cerrar',
@@ -38,8 +42,10 @@ export const es: PactoMessages = {
     waiting: 'Esperando la liberación de la garantía…',
     testBanner: 'MODO DE PRUEBA — sin fondos reales ni transacciones en Stellar',
     genericError: 'Algo salió mal',
+    quoteExpired: 'Esta cotización expiró. Vuelve a iniciar el pago.',
     depositInstruction: 'Deposita {amount} {asset} al contrato de garantía.',
     success: 'Pago completado. Garantía {escrowId} liberada.',
     disputed: 'La garantía {escrowId} ha sido disputada.',
+    refunded: 'La garantía {escrowId} ha sido reembolsada.',
   },
 };

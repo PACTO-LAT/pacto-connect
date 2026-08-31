@@ -1,4 +1,5 @@
 import {
+  type CheckoutStorageAdapter,
   type DeepPartial,
   type FiatPaymentMethod,
   formatAssetAmount,
@@ -32,10 +33,12 @@ export interface PactoCheckoutProps {
   listingId?: string;
   mode?: 'buy' | 'sell';
   testMode?: boolean;
+  storage?: CheckoutStorageAdapter;
   open: boolean;
   onClose: () => void;
   onComplete?: (escrow: import('@pacto-connect/core').Escrow) => void;
   onDispute?: (escrow: import('@pacto-connect/core').Escrow) => void;
+  onRefund?: (escrow: import('@pacto-connect/core').Escrow) => void;
   onError?: (error: Error) => void;
   /** Widget copy locale (default `en`). */
   locale?: PactoLocale;
@@ -60,9 +63,11 @@ export function PactoCheckout(props: PactoCheckoutProps) {
     listingId: props.listingId,
     mode: props.mode,
     testMode: props.testMode,
+    storage: props.storage,
     enabled: props.open,
     onComplete: props.onComplete,
     onDispute: props.onDispute,
+    onRefund: props.onRefund,
     onError: props.onError,
   });
 
@@ -217,6 +222,12 @@ export function PactoCheckout(props: PactoCheckoutProps) {
         {flow.step === 'disputed' && (
           <output aria-live="polite" data-testid="checkout-disputed">
             {formatMessage(m.labels.disputed, { escrowId: flow.escrow?.id ?? '' })}
+          </output>
+        )}
+
+        {flow.step === 'refunded' && (
+          <output aria-live="polite" data-testid="checkout-refunded">
+            {formatMessage(m.labels.refunded, { escrowId: flow.escrow?.id ?? '' })}
           </output>
         )}
 

@@ -1,6 +1,12 @@
 import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
+import { createDefaultPaymentRailRegistry, type PaymentRailRegistry } from '@pacto-connect/core';
 import { QuoteError } from './errors.js';
-import { type FxCurrency, type FxOracle, staticFxOracle } from './fx-oracle.js';
+import {
+  type FxCurrency,
+  type FxOracle,
+  resolveRailsForPair,
+  staticFxOracle,
+} from './fx-oracle.js';
 
 const DEFAULT_QUOTE_TTL_MS = 60_000;
 
@@ -27,6 +33,7 @@ export interface CreateQuoteInput {
   amount: number;
   spreadBps: number;
   oracle?: FxOracle;
+  registry?: PaymentRailRegistry;
   ttlMs?: number;
 }
 
@@ -97,6 +104,9 @@ export function createQuote(input: CreateQuoteInput): QuoteResult {
   if (!Number.isInteger(input.spreadBps) || input.spreadBps < 0 || input.spreadBps > 10000) {
     throw new QuoteError('quote_invalid', 'spreadBps must be an integer between 0 and 10000');
   }
+
+  const registry = input.registry ?? createDefaultPaymentRailRegistry();
+  resolveRailsForPair(registry, input.from, input.to);
 
   const oracle = input.oracle ?? staticFxOracle;
   const rate = oracle.getRate(input.from, input.to);

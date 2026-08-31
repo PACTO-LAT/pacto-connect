@@ -1,4 +1,24 @@
 import {
+  applyCheckoutTransition,
+  type CheckoutFlowState,
+  CheckoutQuoteExpiredError,
+  type CheckoutStep,
+  createInitialCheckoutState,
+  isPersistableStep,
+  isQuoteExpired,
+  isTerminalCheckoutStep,
+} from './checkout-machine.js';
+import {
+  buildCheckoutSnapshotScope,
+  type CheckoutSnapshot,
+  type CheckoutStorageAdapter,
+  checkoutStorageKey,
+  isCheckoutSnapshotExpired,
+  parseCheckoutSnapshot,
+  serializeCheckoutSnapshot,
+  snapshotMatchesScope,
+} from './checkout-storage.js';
+import {
   type CheckoutMode,
   Pacto,
   type PactoClient,
@@ -6,30 +26,11 @@ import {
   type PactoSessionData,
 } from './client.js';
 import type { EscrowEvent } from './escrow-events.js';
+import { en, resolveMessages } from './i18n/index.js';
 import { isTestMode } from './keys.js';
 import type { Escrow, Listing, PactoApiClient, Quote } from './resources.js';
 
-export type CheckoutStep =
-  | 'loading'
-  | 'selectListing'
-  | 'deposit'
-  | 'uploadReceipt'
-  | 'tracking'
-  | 'success'
-  | 'disputed'
-  | 'error';
-
-export interface CheckoutFlowState {
-  step: CheckoutStep;
-  sessionId: string | null;
-  listings: Listing[];
-  selectedListing: Listing | null;
-  escrow: Escrow | null;
-  quote: Quote | null;
-  error: Error | null;
-  milestones: EscrowEvent[];
-  testMode: boolean;
-}
+export type { CheckoutFlowState, CheckoutStep };
 
 export interface CheckoutFlowOptions {
   publishableKey: string;
@@ -39,26 +40,17 @@ export interface CheckoutFlowOptions {
   testMode?: boolean;
   /** Pre-created session; skips POST /v1/session when provided. */
   session?: PactoSessionData;
+  storage?: CheckoutStorageAdapter;
+  now?: () => number;
   onChange?: (state: CheckoutFlowState) => void;
   onComplete?: (escrow: Escrow) => void;
   onDispute?: (escrow: Escrow) => void;
+  onRefund?: (escrow: Escrow) => void;
   onError?: (error: Error) => void;
 }
 
-const INITIAL_STATE: CheckoutFlowState = {
-  step: 'loading',
-  sessionId: null,
-  listings: [],
-  selectedListing: null,
-  escrow: null,
-  quote: null,
-  error: null,
-  milestones: [],
-  testMode: false,
-};
-
 export class CheckoutFlowController {
-  private state: CheckoutFlowState = { ...INITIAL_STATE };
+  private state: CheckoutFlowState;
   private session: PactoSession | null = null;
   private client: PactoClient | null = null;
   private api: PactoApiClient | null = null;
@@ -66,14 +58,24 @@ export class CheckoutFlowController {
   private eventsBound = false;
   private destroyed = false;
 
-  constructor(private readonly options: CheckoutFlowOptions) {}
+  constructor(private readonly options: CheckoutFlowOptions) {
+    this.state = createInitialCheckoutState(isTestMode(options.publishableKey));
+  }
 
   getState(): CheckoutFlowState {
     return this.state;
   }
 
   async start(): Promise<void> {
-    await this.initialize();
+    if (this.options.session) {
+      await this.initialize();
+      return;
+    }
+
+    const hydrated = await this.tryHydrate();
+    if (!hydrated) {
+      await this.initialize();
+    }
   }
 
   destroy(): void {
@@ -102,6 +104,10 @@ export class CheckoutFlowController {
       return;
     }
 
+    if (this.ensureQuoteLive()) {
+      return;
+    }
+
     this.patchState({ step: 'loading' });
     try {
       const response = await api.escrows.deposit(currentEscrow.id, {
@@ -122,6 +128,10 @@ export class CheckoutFlowController {
     const api = this.api;
     const currentEscrow = this.escrow;
     if (!api || !currentEscrow) {
+      return;
+    }
+
+    if (this.ensureQuoteLive()) {
       return;
     }
 
@@ -198,19 +208,188 @@ export class CheckoutFlowController {
     }
   }
 
+  private getNow(): number {
+    return this.options.now?.() ?? Date.now();
+  }
+
+  private snapshotScope() {
+    return buildCheckoutSnapshotScope({
+      publishableKey: this.options.publishableKey,
+      listingId: this.options.listingId,
+      mode: this.options.mode ?? 'buy',
+    });
+  }
+
+  private storageKey(): string {
+    return checkoutStorageKey(this.snapshotScope());
+  }
+
   private patchState(partial: Partial<CheckoutFlowState>): void {
     if (this.destroyed) {
       return;
     }
 
-    this.state = { ...this.state, ...partial };
+    this.state = applyCheckoutTransition(this.state, partial);
     this.options.onChange?.(this.state);
+    void this.persistState();
   }
 
   private handleError(err: unknown): void {
     const normalized = err instanceof Error ? err : new Error(String(err));
     this.patchState({ error: normalized, step: 'error' });
     this.options.onError?.(normalized);
+  }
+
+  private handleQuoteExpired(): void {
+    const error = new CheckoutQuoteExpiredError(resolveMessages().labels.quoteExpired);
+    this.patchState({ error, step: 'error', quote: null });
+    this.options.onError?.(error);
+  }
+
+  private ensureQuoteLive(): boolean {
+    if (!isQuoteExpired(this.state.quote, this.getNow())) {
+      return false;
+    }
+
+    void this.clearStorage();
+    this.handleQuoteExpired();
+    return true;
+  }
+
+  private async clearStorage(): Promise<void> {
+    const storage = this.options.storage;
+    if (!storage) {
+      return;
+    }
+
+    try {
+      await Promise.resolve(storage.removeItem(this.storageKey()));
+    } catch {
+      // Never propagate storage failures to host code.
+    }
+  }
+
+  private async persistState(): Promise<void> {
+    const storage = this.options.storage;
+    if (!storage || !this.session) {
+      return;
+    }
+
+    if (isTerminalCheckoutStep(this.state.step)) {
+      await this.clearStorage();
+      return;
+    }
+
+    if (!isPersistableStep(this.state.step)) {
+      return;
+    }
+
+    const snapshot: CheckoutSnapshot = {
+      version: 1,
+      step: this.state.step,
+      sessionId: this.state.sessionId ?? this.session.sessionId,
+      selectedListing: this.state.selectedListing,
+      quote: this.state.quote,
+      escrow: this.state.escrow,
+      milestones: this.state.milestones,
+      testMode: this.state.testMode,
+      session: {
+        sessionId: this.session.sessionId,
+        clientSecret: this.session.clientSecret,
+        expiresAt: this.session.expiresAt.toISOString(),
+        mode: this.session.mode,
+      },
+      scope: this.snapshotScope(),
+    };
+
+    try {
+      await Promise.resolve(
+        storage.setItem(this.storageKey(), serializeCheckoutSnapshot(snapshot)),
+      );
+    } catch {
+      // Never propagate storage failures to host code.
+    }
+  }
+
+  private async tryHydrate(): Promise<boolean> {
+    const storage = this.options.storage;
+    if (!storage) {
+      return false;
+    }
+
+    let raw: string | null = null;
+    try {
+      raw = await Promise.resolve(storage.getItem(this.storageKey()));
+    } catch {
+      return false;
+    }
+
+    if (!raw) {
+      return false;
+    }
+
+    const snapshot = parseCheckoutSnapshot(raw);
+    if (!snapshot || !snapshotMatchesScope(snapshot, this.snapshotScope())) {
+      await this.clearStorage();
+      return false;
+    }
+
+    if (isCheckoutSnapshotExpired(snapshot, this.getNow())) {
+      await this.clearStorage();
+      this.state = createInitialCheckoutState(isTestMode(this.options.publishableKey));
+      this.handleQuoteExpired();
+      return true;
+    }
+
+    try {
+      const client = Pacto.init({
+        publishableKey: this.options.publishableKey,
+        gatewayUrl: this.options.gatewayUrl,
+      });
+      this.client = client;
+
+      const sessionData: PactoSessionData = {
+        sessionId: snapshot.session.sessionId,
+        clientSecret: snapshot.session.clientSecret,
+        expiresAt: new Date(snapshot.session.expiresAt),
+        mode: snapshot.session.mode,
+      };
+
+      const session = client.resumeCheckoutSession(sessionData);
+      if (session.isExpired()) {
+        await this.clearStorage();
+        this.state = createInitialCheckoutState(isTestMode(this.options.publishableKey));
+        this.handleQuoteExpired();
+        return true;
+      }
+
+      this.session = session;
+      this.api = client.api(session);
+      this.escrow = snapshot.escrow;
+      this.eventsBound = false;
+
+      this.state = {
+        step: snapshot.step,
+        sessionId: snapshot.sessionId,
+        listings: [],
+        selectedListing: snapshot.selectedListing,
+        escrow: snapshot.escrow,
+        quote: snapshot.quote,
+        error: null,
+        milestones: snapshot.milestones,
+        testMode: snapshot.testMode,
+      };
+
+      if (snapshot.step === 'tracking' || snapshot.step === 'disputed') {
+        this.bindEscrowEvents();
+      }
+
+      this.options.onChange?.(this.state);
+      return true;
+    } catch {
+      await this.clearStorage();
+      return false;
+    }
   }
 
   private bindEscrowEvents(): void {
@@ -247,6 +426,35 @@ export class CheckoutFlowController {
       { escrowId },
     );
 
+    session.on(
+      'refunded',
+      (event) => {
+        trackMilestone(event);
+        this.patchState({ step: 'refunded' });
+        this.options.onRefund?.(currentEscrow);
+      },
+      { escrowId },
+    );
+
+    session.on(
+      'dispute.resolved',
+      (event) => {
+        trackMilestone(event);
+        const outcome =
+          event.data && typeof event.data === 'object' && 'outcome' in event.data
+            ? (event.data as { outcome?: string }).outcome
+            : undefined;
+        if (outcome === 'refund') {
+          this.patchState({ step: 'refunded' });
+          this.options.onRefund?.(currentEscrow);
+        } else {
+          this.patchState({ step: 'success' });
+          this.options.onComplete?.(currentEscrow);
+        }
+      },
+      { escrowId },
+    );
+
     session.on('escrow.funded', trackMilestone, { escrowId });
     session.on('fiat.reported', trackMilestone, { escrowId });
   }
@@ -275,12 +483,14 @@ export class CheckoutFlowController {
   }
 
   private async initialize(): Promise<void> {
-    this.state = {
-      ...INITIAL_STATE,
-      testMode: isTestMode(this.options.publishableKey),
-    };
+    await this.clearStorage();
+
+    this.state = createInitialCheckoutState(isTestMode(this.options.publishableKey));
     this.eventsBound = false;
     this.escrow = null;
+    this.session?.closeEvents();
+    this.session = null;
+    this.api = null;
     this.options.onChange?.(this.state);
 
     try {
@@ -315,3 +525,5 @@ export class CheckoutFlowController {
     }
   }
 }
+
+export { createInitialCheckoutState } from './checkout-machine.js';

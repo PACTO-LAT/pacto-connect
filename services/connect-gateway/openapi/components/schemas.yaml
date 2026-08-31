@@ -1,0 +1,931 @@
+ErrorBody:
+  type: object
+  required: [type, code, message]
+  properties:
+    type:
+      type: string
+      description: Error category (e.g. validation_error, session_error, gateway_error)
+    code:
+      type: string
+      description: Machine-readable error code
+    message:
+      type: string
+    pactoCode:
+      type: string
+      description: Normalized Pacto error code (injected by error envelope middleware)
+    requestId:
+      type: string
+      description: Request correlation id (x-pacto-request-id)
+
+ErrorEnvelope:
+  type: object
+  required: [error]
+  properties:
+    error:
+      $ref: '#/ErrorBody'
+
+HealthResponse:
+  type: object
+  required: [status, service]
+  properties:
+    status:
+      type: string
+      enum: [ok]
+    service:
+      type: string
+      enum: [connect-gateway]
+
+CheckoutMode:
+  type: string
+  enum: [buy, sell]
+
+CreateSessionRequest:
+  type: object
+  required: [mode]
+  properties:
+    listingId:
+      type: string
+    quote:
+      type: object
+      additionalProperties: true
+    mode:
+      $ref: '#/CheckoutMode'
+    merchantId:
+      type: string
+
+SessionResponse:
+  type: object
+  required: [sessionId, clientSecret, expiresAt, mode]
+  properties:
+    sessionId:
+      type: string
+    clientSecret:
+      type: string
+    expiresAt:
+      type: string
+      format: date-time
+    mode:
+      $ref: '#/CheckoutMode'
+    merchantId:
+      type: string
+      nullable: true
+
+RefreshSessionRequest:
+  type: object
+  required: [clientSecret]
+  properties:
+    clientSecret:
+      type: string
+
+FxCurrency:
+  type: string
+  enum: [CRC, MXN, USD]
+
+CreateFxQuoteRequest:
+  type: object
+  required: [from, to, amount]
+  properties:
+    from:
+      $ref: '#/FxCurrency'
+    to:
+      $ref: '#/FxCurrency'
+    amount:
+      type: number
+      exclusiveMinimum: 0
+
+FxQuote:
+  type: object
+  required:
+    - quoteId
+    - from
+    - to
+    - amount
+    - baseRate
+    - spreadBps
+    - effectiveRate
+    - toAmount
+    - source
+    - asOf
+    - expiresAt
+    - token
+  properties:
+    quoteId:
+      type: string
+    from:
+      $ref: '#/FxCurrency'
+    to:
+      $ref: '#/FxCurrency'
+    amount:
+      type: number
+    baseRate:
+      type: number
+    spreadBps:
+      type: integer
+    effectiveRate:
+      type: number
+    toAmount:
+      type: number
+    source:
+      type: string
+    asOf:
+      type: string
+    expiresAt:
+      type: string
+      format: date-time
+    token:
+      type: string
+
+FxQuoteResponse:
+  type: object
+  required: [quote]
+  properties:
+    quote:
+      $ref: '#/FxQuote'
+
+EscrowStatus:
+  type: string
+  enum: [pending, active, funded, released, cancelled, disputed, refunded]
+
+Escrow:
+  type: object
+  required: [id, quoteId, status, amount, asset, createdAt, updatedAt]
+  properties:
+    id:
+      type: string
+    quoteId:
+      type: string
+    status:
+      $ref: '#/EscrowStatus'
+    amount:
+      type: string
+    asset:
+      type: string
+    refundedAmount:
+      type: string
+    remainingAmount:
+      type: string
+    createdAt:
+      type: string
+    updatedAt:
+      type: string
+
+EscrowResponse:
+  type: object
+  required: [escrow]
+  properties:
+    escrow:
+      $ref: '#/Escrow'
+
+EscrowStatusBody:
+  type: object
+  required: [id, status, updatedAt]
+  properties:
+    id:
+      type: string
+    status:
+      $ref: '#/EscrowStatus'
+    updatedAt:
+      type: string
+
+EscrowStatusResponse:
+  type: object
+  required: [status]
+  properties:
+    status:
+      $ref: '#/EscrowStatusBody'
+
+CreateEscrowRequest:
+  type: object
+  required: [quoteId]
+  properties:
+    quoteId:
+      type: string
+    amount:
+      type: string
+    asset:
+      type: string
+
+FiatPaymentMethod:
+  type: string
+  enum: [SINPE, SPEI]
+
+FiatReportRequest:
+  type: object
+  required: [method, reference]
+  properties:
+    method:
+      $ref: '#/FiatPaymentMethod'
+    reference:
+      type: string
+    receipt:
+      type: string
+      description: Base64-encoded receipt image or document
+
+CancelEscrowRequest:
+  type: object
+  properties:
+    reason:
+      type: string
+
+RefundEscrowRequest:
+  type: object
+  required: [amount, reason]
+  properties:
+    amount:
+      type: string
+    reason:
+      type: string
+
+EscrowRefund:
+  type: object
+  required: [id, escrowId, amount, reason, actor, createdAt]
+  properties:
+    id:
+      type: string
+    escrowId:
+      type: string
+    amount:
+      type: string
+    reason:
+      type: string
+    actor:
+      type: string
+    createdAt:
+      type: string
+      format: date-time
+
+EscrowRefundResponse:
+  type: object
+  required: [escrow, refund]
+  properties:
+    escrow:
+      $ref: '#/Escrow'
+    refund:
+      $ref: '#/EscrowRefund'
+
+OpenDisputeRequest:
+  type: object
+  required: [actor, reason]
+  properties:
+    actor:
+      type: string
+      enum: [buyer, seller]
+    reason:
+      type: string
+    evidenceRefs:
+      type: array
+      items:
+        type: string
+
+EscrowDispute:
+  type: object
+  required:
+    - id
+    - escrowId
+    - status
+    - reason
+    - actor
+    - evidenceRefs
+    - createdAt
+    - updatedAt
+  properties:
+    id:
+      type: string
+    escrowId:
+      type: string
+    status:
+      type: string
+      enum: [open, resolved]
+    reason:
+      type: string
+    actor:
+      type: string
+    evidenceRefs:
+      type: array
+      items:
+        type: string
+    resolution:
+      type: string
+      enum: [release, refund]
+      nullable: true
+    resolvedAt:
+      type: string
+      format: date-time
+      nullable: true
+    resolutionNote:
+      type: string
+      nullable: true
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+
+EscrowDisputeResponse:
+  type: object
+  required: [escrow, dispute]
+  properties:
+    escrow:
+      $ref: '#/Escrow'
+    dispute:
+      $ref: '#/EscrowDispute'
+
+ResolveDisputeRequest:
+  type: object
+  required: [outcome]
+  properties:
+    outcome:
+      type: string
+      enum: [release, refund]
+    note:
+      type: string
+
+SubscriptionStatus:
+  type: string
+  enum: [active, past_due, canceled]
+
+SubscriptionInterval:
+  type: string
+  enum: [day, week, month]
+
+Subscription:
+  type: object
+  required:
+    - id
+    - status
+    - from
+    - to
+    - amount
+    - asset
+    - interval
+    - nextChargeAt
+    - createdAt
+    - updatedAt
+  properties:
+    id:
+      type: string
+    status:
+      $ref: '#/SubscriptionStatus'
+    from:
+      type: string
+    to:
+      type: string
+    amount:
+      type: number
+    asset:
+      type: string
+    interval:
+      $ref: '#/SubscriptionInterval'
+    payerRef:
+      type: string
+      nullable: true
+    nextChargeAt:
+      type: string
+      format: date-time
+    canceledAt:
+      type: string
+      format: date-time
+      nullable: true
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+
+SubscriptionResponse:
+  type: object
+  required: [subscription]
+  properties:
+    subscription:
+      $ref: '#/Subscription'
+
+SubscriptionListResponse:
+  type: object
+  required: [subscriptions]
+  properties:
+    subscriptions:
+      type: array
+      items:
+        $ref: '#/Subscription'
+
+CreateSubscriptionRequest:
+  type: object
+  required: [from, to, amount, interval]
+  properties:
+    from:
+      type: string
+    to:
+      type: string
+    amount:
+      type: number
+    interval:
+      $ref: '#/SubscriptionInterval'
+    asset:
+      type: string
+    payerRef:
+      type: string
+
+ChargeResult:
+  type: object
+  required: [subscriptionId, status, subscriptionStatus]
+  properties:
+    subscriptionId:
+      type: string
+    status:
+      type: string
+      enum: [succeeded, failed]
+    escrowId:
+      type: string
+    subscriptionStatus:
+      $ref: '#/SubscriptionStatus'
+
+ChargeResultResponse:
+  type: object
+  required: [result]
+  properties:
+    result:
+      $ref: '#/ChargeResult'
+
+OkResponse:
+  type: object
+  required: [ok]
+  properties:
+    ok:
+      type: boolean
+
+TestDisputeRequest:
+  type: object
+  properties:
+    reason:
+      type: string
+
+InboundWebhookRequest:
+  type: object
+  required: [id, apiKeyId, type]
+  properties:
+    id:
+      type: string
+    apiKeyId:
+      type: string
+    type:
+      type: string
+      description: Webhook event type
+    data:
+      type: object
+      additionalProperties: true
+    merchantId:
+      type: string
+
+InboundWebhookResponse:
+  type: object
+  required: [received, eventId, deduped]
+  properties:
+    received:
+      type: boolean
+    eventId:
+      type: string
+    deduped:
+      type: boolean
+
+KeyMode:
+  type: string
+  enum: [live, test]
+
+ApiKeyPublic:
+  type: object
+  required:
+    - id
+    - publishableKey
+    - secretLast4
+    - mode
+    - allowedOrigins
+    - status
+    - quoteSpreadBps
+    - createdAt
+    - updatedAt
+  properties:
+    id:
+      type: string
+    publishableKey:
+      type: string
+    secretLast4:
+      type: string
+    mode:
+      $ref: '#/KeyMode'
+    allowedOrigins:
+      type: array
+      items:
+        type: string
+    status:
+      type: string
+    label:
+      type: string
+      nullable: true
+    quoteSpreadBps:
+      type: integer
+    rotatedFromId:
+      type: string
+      nullable: true
+    graceExpiresAt:
+      type: string
+      format: date-time
+      nullable: true
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+
+ApiKeyCreated:
+  allOf:
+    - $ref: '#/ApiKeyPublic'
+    - type: object
+      required: [secretKey]
+      properties:
+        secretKey:
+          type: string
+
+ApiKeyListResponse:
+  type: object
+  required: [keys]
+  properties:
+    keys:
+      type: array
+      items:
+        $ref: '#/ApiKeyPublic'
+
+CreateApiKeyRequest:
+  type: object
+  required: [mode, allowedOrigins]
+  properties:
+    mode:
+      $ref: '#/KeyMode'
+    allowedOrigins:
+      type: array
+      items:
+        type: string
+      minItems: 1
+    label:
+      type: string
+    quoteSpreadBps:
+      type: integer
+      minimum: 0
+      maximum: 10000
+
+ApiKeyCreatedResponse:
+  type: object
+  required: [key]
+  properties:
+    key:
+      $ref: '#/ApiKeyCreated'
+
+ApiKeyResponse:
+  type: object
+  required: [key]
+  properties:
+    key:
+      $ref: '#/ApiKeyPublic'
+
+MerchantPublic:
+  type: object
+  required: [id, apiKeyId, name, status, createdAt, updatedAt]
+  properties:
+    id:
+      type: string
+    apiKeyId:
+      type: string
+    name:
+      type: string
+    status:
+      type: string
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+
+MerchantVolume:
+  type: object
+  required: [asset, total]
+  properties:
+    asset:
+      type: string
+    total:
+      type: number
+
+MerchantWithVolume:
+  allOf:
+    - $ref: '#/MerchantPublic'
+    - type: object
+      required: [volume]
+      properties:
+        volume:
+          type: array
+          items:
+            $ref: '#/MerchantVolume'
+
+MerchantResponse:
+  type: object
+  required: [merchant]
+  properties:
+    merchant:
+      $ref: '#/MerchantPublic'
+
+MerchantListResponse:
+  type: object
+  required: [merchants]
+  properties:
+    merchants:
+      type: array
+      items:
+        $ref: '#/MerchantWithVolume'
+
+CreateMerchantRequest:
+  type: object
+  required: [name]
+  properties:
+    name:
+      type: string
+
+WebhookEndpointPublic:
+  type: object
+  required:
+    - id
+    - apiKeyId
+    - url
+    - enabledEvents
+    - status
+    - verified
+    - createdAt
+    - updatedAt
+  properties:
+    id:
+      type: string
+    apiKeyId:
+      type: string
+    merchantId:
+      type: string
+      nullable: true
+    url:
+      type: string
+    enabledEvents:
+      type: array
+      items:
+        type: string
+    status:
+      type: string
+    verified:
+      type: boolean
+    description:
+      type: string
+      nullable: true
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+
+WebhookEndpointCreated:
+  allOf:
+    - $ref: '#/WebhookEndpointPublic'
+    - type: object
+      required: [secret]
+      properties:
+        secret:
+          type: string
+
+WebhookEndpointListResponse:
+  type: object
+  required: [endpoints]
+  properties:
+    endpoints:
+      type: array
+      items:
+        $ref: '#/WebhookEndpointPublic'
+
+WebhookEndpointResponse:
+  type: object
+  required: [endpoint]
+  properties:
+    endpoint:
+      $ref: '#/WebhookEndpointPublic'
+
+RegisterWebhookEndpointRequest:
+  type: object
+  required: [apiKeyId, url]
+  properties:
+    apiKeyId:
+      type: string
+    merchantId:
+      type: string
+    url:
+      type: string
+    enabledEvents:
+      type: array
+      items:
+        type: string
+    description:
+      type: string
+
+WebhookDelivery:
+  type: object
+  additionalProperties: true
+
+WebhookDeliveryListResponse:
+  type: object
+  required: [deliveries]
+  properties:
+    deliveries:
+      type: array
+      items:
+        $ref: '#/WebhookDelivery'
+
+WebhookDeliveryResponse:
+  type: object
+  required: [delivery]
+  properties:
+    delivery:
+      $ref: '#/WebhookDelivery'
+
+WebhookVerifyResponse:
+  type: object
+  required: [result]
+  properties:
+    result:
+      type: object
+      additionalProperties: true
+
+AdminLegacyError:
+  type: object
+  required: [error]
+  properties:
+    error:
+      type: string
+    code:
+      type: string
+
+SettlementPeriodPublic:
+  type: object
+  required: [id, merchantId, periodKey, startsAt, endsAt, status, createdAt]
+  properties:
+    id:
+      type: string
+    merchantId:
+      type: string
+    periodKey:
+      type: string
+    startsAt:
+      type: string
+      format: date-time
+    endsAt:
+      type: string
+      format: date-time
+    status:
+      type: string
+      enum: [open, closed]
+    closedAt:
+      type: string
+      format: date-time
+      nullable: true
+    createdAt:
+      type: string
+      format: date-time
+
+SettlementPeriodResponse:
+  type: object
+  required: [period]
+  properties:
+    period:
+      $ref: '#/SettlementPeriodPublic'
+
+LedgerEntryPublic:
+  type: object
+  required:
+    - id
+    - merchantId
+    - periodId
+    - periodKey
+    - direction
+    - kind
+    - amount
+    - asset
+    - occurredAt
+    - createdAt
+  properties:
+    id:
+      type: string
+    merchantId:
+      type: string
+    periodId:
+      type: string
+    periodKey:
+      type: string
+    sourceEscrowId:
+      type: string
+      nullable: true
+    direction:
+      type: string
+      enum: [credit, debit]
+    kind:
+      type: string
+      enum: [settlement, correction]
+    amount:
+      type: number
+    asset:
+      type: string
+    correctsEntryId:
+      type: string
+      nullable: true
+    occurredAt:
+      type: string
+      format: date-time
+    createdAt:
+      type: string
+      format: date-time
+    payoutRunId:
+      type: string
+      nullable: true
+
+LedgerEntryResponse:
+  type: object
+  required: [entry]
+  properties:
+    entry:
+      $ref: '#/LedgerEntryPublic'
+
+CreateLedgerCorrectionRequest:
+  type: object
+  required: [correctsEntryId]
+  properties:
+    correctsEntryId:
+      type: string
+    amount:
+      type: number
+      minimum: 0
+      exclusiveMinimum: true
+
+PayoutRunPublic:
+  type: object
+  required:
+    - id
+    - merchantId
+    - periodId
+    - periodKey
+    - asset
+    - status
+    - total
+    - entryCount
+    - createdAt
+  properties:
+    id:
+      type: string
+    merchantId:
+      type: string
+    periodId:
+      type: string
+    periodKey:
+      type: string
+    asset:
+      type: string
+    status:
+      type: string
+      enum: [open, finalized]
+    total:
+      type: number
+    entryCount:
+      type: integer
+    createdAt:
+      type: string
+      format: date-time
+    finalizedAt:
+      type: string
+      format: date-time
+      nullable: true
+
+PayoutRunResponse:
+  type: object
+  required: [run]
+  properties:
+    run:
+      $ref: '#/PayoutRunPublic'
+
+PayoutRunListResponse:
+  type: object
+  required: [runs]
+  properties:
+    runs:
+      type: array
+      items:
+        $ref: '#/PayoutRunPublic'
+
+CreatePayoutRunRequest:
+  type: object
+  required: [asset]
+  properties:
+    asset:
+      type: string

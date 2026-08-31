@@ -1,0 +1,36 @@
+/v1/quote:
+  post:
+    operationId: createFxQuote
+    summary: Create an FX quote
+    tags: [quote]
+    security:
+      - PublishableKey: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/PublishableKeyHeader'
+      - $ref: '../components/parameters.yaml#/OriginHeader'
+      - $ref: '../components/parameters.yaml#/RequestIdHeader'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/CreateFxQuoteRequest'
+    responses:
+      '200':
+        description: Quote created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/FxQuoteResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '403':
+        $ref: '../components/responses.yaml#/Forbidden'
+      '410':
+        $ref: '../components/responses.yaml#/Gone'
+      '429':
+        $ref: '../components/responses.yaml#/TooManyRequests'
+      '500':
+        $ref: '../components/responses.yaml#/InternalError'

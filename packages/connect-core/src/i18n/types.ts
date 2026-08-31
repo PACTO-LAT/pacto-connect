@@ -37,11 +37,14 @@ export interface PactoMessages {
     waiting: string;
     testBanner: string;
     genericError: string;
+    quoteExpired: string;
     /** Placeholders: {amount} {asset} */
     depositInstruction: string;
     /** Placeholder: {escrowId} */
     success: string;
     /** Placeholder: {escrowId} */
     disputed: string;
+    /** Placeholder: {escrowId} */
+    refunded: string;
   };
 }

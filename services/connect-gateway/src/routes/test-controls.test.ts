@@ -61,11 +61,18 @@ vi.mock('../db.js', () => ({
       findFirst: vi.fn(),
       update: vi.fn(),
     },
+    escrow: { upsert: vi.fn(), update: vi.fn() },
+    escrowDispute: { create: vi.fn() },
   },
+}));
+
+vi.mock('../webhooks/events.js', () => ({
+  emitDisputeOpened: vi.fn().mockResolvedValue({ eventId: 'evt', deliveries: 0 }),
 }));
 
 vi.mock('../subscriptions/charge.js', () => ({ chargeSubscription: vi.fn() }));
 
+import type { Escrow, EscrowDispute } from '@prisma/client';
 import { prisma } from '../db.js';
 import * as keys from '../keys.js';
 import { chargeSubscription } from '../subscriptions/charge.js';
@@ -121,8 +128,30 @@ describe('test control routes', () => {
 
     vi.mocked(keys.findActiveApiKeyByPublishableKey).mockReset();
     vi.mocked(prisma.checkoutSession.findUnique).mockReset();
+    vi.mocked(prisma.escrow.upsert).mockReset();
+    vi.mocked(prisma.escrow.update).mockReset();
+    vi.mocked(prisma.escrowDispute.create).mockReset();
     vi.mocked(keys.findActiveApiKeyByPublishableKey).mockResolvedValue(mockApiKey);
     vi.mocked(prisma.checkoutSession.findUnique).mockResolvedValue(mockCheckoutSession);
+    vi.mocked(prisma.escrow.upsert).mockImplementation(
+      (async (args: { create: Escrow }) => args.create) as never,
+    );
+    vi.mocked(prisma.escrow.update).mockImplementation(
+      (async (args: { data: Record<string, unknown> }) => args.data) as never,
+    );
+    vi.mocked(prisma.escrowDispute.create).mockImplementation(
+      (async (args: { data: EscrowDispute }) =>
+        ({
+          ...args.data,
+          status: 'open',
+          resolution: null,
+          resolvedBy: null,
+          resolvedAt: null,
+          resolutionNote: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }) as EscrowDispute) as never,
+    );
   });
 
   it('disputes, times out, and releases escrows with a test key', async () => {
@@ -197,6 +226,8 @@ describe('test control routes', () => {
         type: 'forbidden',
         code: 'live_key_not_allowed',
         message: 'test controls require a test-mode key',
+        pactoCode: 'PACTO_AUTH',
+        requestId: expect.any(String),
       },
     });
   });

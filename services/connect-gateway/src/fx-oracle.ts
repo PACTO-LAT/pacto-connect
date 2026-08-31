@@ -1,10 +1,12 @@
+import {
+  createDefaultPaymentRailRegistry,
+  type PaymentRailRegistry,
+  RailError,
+} from '@pacto-connect/core';
+
 export type FxCurrency = 'CRC' | 'MXN' | 'USD';
 
 export const FX_CURRENCIES: readonly FxCurrency[] = ['CRC', 'MXN', 'USD'];
-
-export function isFxCurrency(value: string): value is FxCurrency {
-  return (FX_CURRENCIES as readonly string[]).includes(value);
-}
 
 export interface FxRate {
   from: FxCurrency;
@@ -29,40 +31,77 @@ export class FxOracleError extends Error {
 }
 
 export interface StaticFxOracleConfig {
-  usdPer: Record<FxCurrency, number>;
-  asOf: string;
+  registry?: PaymentRailRegistry;
+  usdPer?: Partial<Record<FxCurrency, number>>;
+  asOf?: string;
   source?: string;
 }
 
-const DEFAULT_STATIC_FX_ORACLE_CONFIG: StaticFxOracleConfig = {
-  usdPer: { USD: 1, CRC: 510, MXN: 17 },
-  asOf: '2025-06-01T00:00:00.000Z',
-  source: 'static',
-};
+const DEFAULT_AS_OF = '2025-06-01T00:00:00.000Z';
+const DEFAULT_SOURCE = 'static';
+const defaultRegistry = createDefaultPaymentRailRegistry();
 
-export function createStaticFxOracle(config?: Partial<StaticFxOracleConfig>): FxOracle {
-  const merged: StaticFxOracleConfig = {
-    ...DEFAULT_STATIC_FX_ORACLE_CONFIG,
-    ...config,
-    usdPer: {
-      ...DEFAULT_STATIC_FX_ORACLE_CONFIG.usdPer,
-      ...config?.usdPer,
-    },
+function buildUsdPerTable(
+  registry: PaymentRailRegistry,
+  overlay?: Partial<Record<FxCurrency, number>>,
+): Record<FxCurrency, number> {
+  const usdPer: Partial<Record<FxCurrency, number>> = { USD: 1 };
+
+  for (const currency of registry.listCurrencies()) {
+    const rail = registry.resolveByAsset(currency);
+    if (!rail) {
+      continue;
+    }
+
+    const quote = rail.quote({ from: 'USD', to: currency, amount: 1 });
+    const peg = quote.usdPer[currency];
+    if (peg !== undefined) {
+      usdPer[currency as FxCurrency] = peg;
+    }
+  }
+
+  return {
+    USD: 1,
+    CRC: overlay?.CRC ?? usdPer.CRC ?? 510,
+    MXN: overlay?.MXN ?? usdPer.MXN ?? 17,
   };
+}
 
-  const source = merged.source ?? 'static';
+export function isFxCurrency(value: string, registry?: PaymentRailRegistry): value is FxCurrency {
+  if (value === 'USD') {
+    return true;
+  }
+
+  const activeRegistry = registry ?? defaultRegistry;
+  return activeRegistry.listCurrencies().includes(value);
+}
+
+export function createStaticFxOracle(config?: StaticFxOracleConfig): FxOracle {
+  const registry = config?.registry ?? defaultRegistry;
+  const usdPer = buildUsdPerTable(registry, config?.usdPer);
+  const asOf = config?.asOf ?? DEFAULT_AS_OF;
+  const source = config?.source ?? DEFAULT_SOURCE;
 
   return {
     getRate(from: FxCurrency, to: FxCurrency): FxRate {
-      if (!isFxCurrency(from) || !isFxCurrency(to)) {
+      if (!isFxCurrency(from, registry) || !isFxCurrency(to, registry)) {
         throw new FxOracleError(
           'unsupported_currency',
           `Unsupported currency pair: ${from} -> ${to}`,
         );
       }
 
-      const fromPer = merged.usdPer[from];
-      const toPer = merged.usdPer[to];
+      for (const currency of [from, to] as const) {
+        if (currency !== 'USD' && !registry.resolveByAsset(currency)) {
+          throw new FxOracleError(
+            'unsupported_currency',
+            `Unsupported currency pair: ${from} -> ${to}`,
+          );
+        }
+      }
+
+      const fromPer = usdPer[from];
+      const toPer = usdPer[to];
 
       if (fromPer === undefined || toPer === undefined) {
         throw new FxOracleError(
@@ -78,10 +117,27 @@ export function createStaticFxOracle(config?: Partial<StaticFxOracleConfig>): Fx
         to,
         rate,
         source,
-        asOf: merged.asOf,
+        asOf,
       };
     },
   };
 }
 
 export const staticFxOracle: FxOracle = createStaticFxOracle();
+
+export function resolveRailsForPair(
+  registry: PaymentRailRegistry,
+  from: FxCurrency,
+  to: FxCurrency,
+): void {
+  for (const currency of [from, to]) {
+    if (currency === 'USD') {
+      continue;
+    }
+
+    const rail = registry.resolveByAsset(currency);
+    if (!rail) {
+      throw new RailError('unsupported_currency', `No payment rail registered for "${currency}"`);
+    }
+  }
+}

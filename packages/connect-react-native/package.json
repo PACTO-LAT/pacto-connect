@@ -28,7 +28,25 @@
   "peerDependencies": {
     "react": ">=18",
     "react-native": ">=0.73",
-    "react-native-webview": ">=13"
+    "react-native-webview": ">=13",
+    "react-native-keychain": ">=8",
+    "react-native-biometrics": ">=3",
+    "jail-monkey": ">=2",
+    "react-native-ssl-pinning": ">=1"
+  },
+  "peerDependenciesMeta": {
+    "react-native-keychain": {
+      "optional": true
+    },
+    "react-native-biometrics": {
+      "optional": true
+    },
+    "jail-monkey": {
+      "optional": true
+    },
+    "react-native-ssl-pinning": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@pacto-connect/core": "*"

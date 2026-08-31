@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Static Storefront – Pacto Connect Example</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="store">
+      <header class="store-header">
+        <h1>Acme Stablecoins</h1>
+        <p>Plain HTML storefront — no framework, just connect-elements.</p>
+      </header>
+
+      <article class="product-card">
+        <h2>100 USDC</h2>
+        <p class="product-desc">
+          Instant delivery to your Stellar wallet after fiat confirmation.
+        </p>
+        <div class="product-meta">
+          <span class="product-price">₡5,000</span>
+          <button type="button" id="buy-btn" class="btn-buy">Buy now</button>
+        </div>
+      </article>
+
+      <p id="error-banner" class="error-banner" hidden></p>
+      <div id="checkout-root"></div>
+    </main>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

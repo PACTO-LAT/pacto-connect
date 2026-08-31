@@ -5,6 +5,7 @@
   "description": "Developer docs, quickstart, API reference, and interactive playground for Pacto Connect.",
   "scripts": {
     "dev": "next dev --port 3100",
+    "build:examples": "npm run build --workspace=@pacto-connect/example-react-storefront --workspace=@pacto-connect/example-static-storefront --workspace=@pacto-connect/example-marketplace",
     "build": "npm run generate:api-docs && next build",
     "start": "next start --port 3100",
     "lint": "next lint",
@@ -23,6 +24,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "styled-jsx": "5.1.1"
+  },
+  "optionalDependencies": {
+    "@napi-rs/simple-git-linux-x64-gnu": "0.1.22"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

@@ -25,7 +25,33 @@ export {
   type CheckoutFlowOptions,
   type CheckoutFlowState,
   type CheckoutStep,
+  createInitialCheckoutState,
 } from './checkout-flow.js';
+export {
+  applyCheckoutTransition,
+  CheckoutQuoteExpiredError,
+  canTransition,
+  IllegalCheckoutTransitionError,
+  isPersistableStep,
+  isQuoteExpired,
+  isTerminalCheckoutStep,
+} from './checkout-machine.js';
+export {
+  buildCheckoutSnapshotScope,
+  CHECKOUT_SNAPSHOT_VERSION,
+  type CheckoutSessionEnvelope,
+  type CheckoutSnapshot,
+  type CheckoutSnapshotScope,
+  type CheckoutStorageAdapter,
+  checkoutStorageKey,
+  createMemoryCheckoutStorage,
+  createWebCheckoutStorage,
+  isCheckoutSnapshotExpired,
+  parseCheckoutSnapshot,
+  serializeCheckoutSnapshot,
+  snapshotMatchesScope,
+  type WebStorageLike,
+} from './checkout-storage.js';
 export {
   type CheckoutMode,
   type CreateCheckoutSessionParams,
@@ -41,8 +67,10 @@ export {
   PactoApiError,
   PactoAuthError,
   PactoError,
+  type PactoErrorOptions,
   PactoEscrowError,
   PactoRateLimitError,
+  PactoSecurityError,
   PactoSessionError,
 } from './errors.js';
 export {
@@ -53,6 +81,7 @@ export {
   type EscrowMilestone,
   type EscrowSubscribeOptions,
 } from './escrow-events.js';
+export type { FetchLike } from './http.js';
 export {
   assertCatalogueParity,
   en as enMessages,
@@ -75,19 +104,59 @@ export {
   resolveMessages,
 } from './i18n/index.js';
 export { isTestMode, keyMode } from './keys.js';
+export {
+  assertPaymentRailConformance,
+  createDefaultPaymentRailRegistry,
+  createPaymentRailRegistry,
+  createSinpeRail,
+  createSpeiRail,
+  type PaymentInstruction,
+  type PaymentInstructionInput,
+  type PaymentRailAdapter,
+  type PaymentRailRegistry,
+  RAIL_ADAPTER_CONTRACT_VERSION,
+  RailError,
+  type RailErrorCode,
+  type RailQuoteInput,
+  type RailQuoteResult,
+  type SettlementConfirmation,
+  type SettlementConfirmationInput,
+  sinpeRail,
+  speiRail,
+} from './rails/index.js';
 export type {
+  CancelEscrowParams,
   CreateEscrowParams,
   CreateQuoteParams,
   DepositParams,
   Escrow,
+  EscrowDispute,
+  EscrowRefund,
   EscrowStatus,
   EscrowStatusResponse,
   FiatPaymentMethod,
   FiatReceiptParams,
   Listing,
+  OpenDisputeParams,
   PactoApiClient,
   Quote,
+  RefundEscrowParams,
+  ResolveDisputeParams,
 } from './resources.js';
+export {
+  classifyGatewayError,
+  ESCROW_DETAIL_CODES,
+  type EscrowDetailCode,
+  generateRequestId,
+  isEscrowDetailCode,
+  isPactoErrorCode,
+  isSecurityDetailCode,
+  PACTO_ERROR_CODES,
+  type PactoErrorCode,
+  REQUEST_ID_HEADER,
+  SECURITY_DETAIL_CODES,
+  type SecurityDetailCode,
+} from './taxonomy.js';
 export {
   buildCheckoutStylesheet,
   DEFAULT_THEME,

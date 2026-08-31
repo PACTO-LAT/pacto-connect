@@ -1,6 +1,35 @@
+import type {
+  CancelEscrowParams,
+  CreateEscrowParams,
+  CreateSubscriptionParams,
+  DepositParams,
+  Escrow,
+  EscrowDispute,
+  EscrowRefund,
+  EscrowStatusResponse,
+  FiatReceiptParams,
+  OpenDisputeParams,
+  RefundEscrowParams,
+  ResolveDisputeParams,
+  Subscription,
+} from './api-types.js';
 import { type HttpClientOptions, request } from './http.js';
 
-export type EscrowStatus = 'pending' | 'active' | 'funded' | 'released' | 'cancelled' | 'disputed';
+export type {
+  CancelEscrowParams,
+  CreateEscrowParams,
+  DepositParams,
+  Escrow,
+  EscrowDispute,
+  EscrowRefund,
+  EscrowStatus,
+  EscrowStatusResponse,
+  FiatPaymentMethod,
+  FiatReceiptParams,
+  OpenDisputeParams,
+  RefundEscrowParams,
+  ResolveDisputeParams,
+} from './api-types.js';
 
 export interface Listing {
   id: string;
@@ -31,67 +60,6 @@ export interface CreateQuoteParams {
   side: 'buy' | 'sell';
 }
 
-export interface Escrow {
-  id: string;
-  quoteId: string;
-  status: EscrowStatus;
-  amount: string;
-  asset: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface EscrowStatusResponse {
-  id: string;
-  status: EscrowStatus;
-  updatedAt: string;
-}
-
-export interface CreateEscrowParams {
-  quoteId: string;
-}
-
-export interface DepositParams {
-  /** When true, simulates on-chain deposit in Gateway test mode. */
-  testMode?: boolean;
-}
-
-export type FiatPaymentMethod = 'SINPE' | 'SPEI';
-
-export interface FiatReceiptParams {
-  method: FiatPaymentMethod;
-  reference: string;
-  /** Base64-encoded receipt image or document. */
-  receipt?: string;
-}
-
-export type SubscriptionStatus = 'active' | 'past_due' | 'canceled';
-export type SubscriptionInterval = 'day' | 'week' | 'month';
-
-export interface Subscription {
-  id: string;
-  status: SubscriptionStatus;
-  from: string;
-  to: string;
-  amount: number;
-  asset: string;
-  interval: SubscriptionInterval;
-  payerRef: string | null;
-  nextChargeAt: string;
-  canceledAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateSubscriptionParams {
-  from: string;
-  to: string;
-  amount: number;
-  interval: SubscriptionInterval;
-  asset?: string;
-  payerRef?: string;
-}
-
 export interface ListingsResource {
   list(): Promise<{ listings: Listing[] }>;
   retrieve(id: string): Promise<{ listing: Listing }>;
@@ -108,6 +76,17 @@ export interface EscrowsResource {
   getStatus(id: string): Promise<{ status: EscrowStatusResponse }>;
   deposit(id: string, params?: DepositParams): Promise<{ escrow: Escrow }>;
   reportFiatPayment(id: string, params: FiatReceiptParams): Promise<{ escrow: Escrow }>;
+  cancel(id: string, params?: CancelEscrowParams): Promise<{ escrow: Escrow }>;
+  refund(id: string, params: RefundEscrowParams): Promise<{ escrow: Escrow; refund: EscrowRefund }>;
+  openDispute(
+    id: string,
+    params: OpenDisputeParams,
+  ): Promise<{ escrow: Escrow; dispute: EscrowDispute }>;
+  resolveDispute(
+    id: string,
+    disputeId: string,
+    params: ResolveDisputeParams,
+  ): Promise<{ escrow: Escrow; dispute: EscrowDispute }>;
 }
 
 export interface SubscriptionsResource {
@@ -194,6 +173,38 @@ export function createApiClient(options: HttpClientOptions): PactoApiClient {
         request<{ escrow: Escrow }>(options, {
           method: 'POST',
           path: `/v1/escrows/${id}/fiat-receipt`,
+          body: params,
+          idempotent: true,
+          resource: 'escrow',
+        }),
+      cancel: (id, params) =>
+        request<{ escrow: Escrow }>(options, {
+          method: 'POST',
+          path: `/v1/escrows/${id}/cancel`,
+          body: params,
+          idempotent: true,
+          resource: 'escrow',
+        }),
+      refund: (id, params) =>
+        request<{ escrow: Escrow; refund: EscrowRefund }>(options, {
+          method: 'POST',
+          path: `/v1/escrows/${id}/refund`,
+          body: params,
+          idempotent: true,
+          resource: 'escrow',
+        }),
+      openDispute: (id, params) =>
+        request<{ escrow: Escrow; dispute: EscrowDispute }>(options, {
+          method: 'POST',
+          path: `/v1/escrows/${id}/disputes`,
+          body: params,
+          idempotent: true,
+          resource: 'escrow',
+        }),
+      resolveDispute: (id, disputeId, params) =>
+        request<{ escrow: Escrow; dispute: EscrowDispute }>(options, {
+          method: 'POST',
+          path: `/v1/escrows/${id}/disputes/${disputeId}/resolve`,
           body: params,
           idempotent: true,
           resource: 'escrow',

@@ -10,6 +10,7 @@ export const en: PactoMessages = {
     tracking: 'Tracking escrow status',
     success: 'Payment complete',
     disputed: 'Escrow disputed',
+    refunded: 'Escrow refunded',
     error: 'Checkout error',
   },
   milestones: {
@@ -17,6 +18,9 @@ export const en: PactoMessages = {
     'fiat.reported': 'Fiat payment reported',
     released: 'Funds released',
     disputed: 'Escrow disputed',
+    cancelled: 'Escrow cancelled',
+    refunded: 'Escrow refunded',
+    'dispute.resolved': 'Dispute resolved',
   },
   actions: {
     close: 'Close',
@@ -39,8 +43,10 @@ export const en: PactoMessages = {
     waiting: 'Waiting for escrow release…',
     testBanner: 'TEST MODE — no real funds or Stellar transactions',
     genericError: 'Something went wrong',
+    quoteExpired: 'This quote has expired. Please start checkout again.',
     depositInstruction: 'Deposit {amount} {asset} to the escrow contract.',
     success: 'Payment complete. Escrow {escrowId} released.',
     disputed: 'Escrow {escrowId} has been disputed.',
+    refunded: 'Escrow {escrowId} has been refunded.',
   },
 };

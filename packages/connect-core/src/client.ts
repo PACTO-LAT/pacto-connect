@@ -2,6 +2,7 @@
  * Pacto client bootstrap — extracted from index for use by checkout-flow without circular imports.
  */
 
+import type { CheckoutMode, GatewaySessionResponse } from './api-types.js';
 import { errorFromResponse, type GatewayErrorBody, PactoError } from './errors.js';
 import {
   type EscrowEventHandler,
@@ -9,10 +10,10 @@ import {
   EscrowEventSubscriber,
   type EscrowSubscribeOptions,
 } from './escrow-events.js';
-import { PUBLISHABLE_KEY_HEADER } from './http.js';
+import { type FetchLike, PUBLISHABLE_KEY_HEADER } from './http.js';
 import { createApiClient, type PactoApiClient } from './resources.js';
 
-export type CheckoutMode = 'buy' | 'sell';
+export type { CheckoutMode } from './api-types.js';
 
 export interface PactoInitOptions {
   /** Publishable key issued by the Connect Gateway (pk_live_* / pk_test_*). */
@@ -27,6 +28,8 @@ export interface PactoInitOptions {
   baseDelayMs?: number;
   /** Maximum reconnect attempts for escrow event streams. */
   maxReconnectAttempts?: number;
+  /** Custom fetch implementation (e.g. certificate-pinned fetch in React Native). */
+  fetch?: FetchLike;
 }
 
 export type CreateCheckoutSessionParams =
@@ -48,13 +51,6 @@ export interface PactoClient {
   api(session: PactoSession): PactoApiClient;
 }
 
-interface GatewaySessionResponse {
-  sessionId: string;
-  clientSecret: string;
-  expiresAt: string;
-  mode: CheckoutMode;
-}
-
 interface SessionRuntimeConfig {
   gatewayUrl: string;
   publishableKey: string;
@@ -62,6 +58,7 @@ interface SessionRuntimeConfig {
   baseDelayMs?: number;
   maxRetries?: number;
   maxReconnectAttempts?: number;
+  fetch?: FetchLike;
 }
 
 export const DEFAULT_GATEWAY_URL = 'https://connect.pacto.example';
@@ -106,6 +103,7 @@ export class PactoSession {
         origin: this.client.runtime.origin,
         baseDelayMs: this.client.runtime.baseDelayMs,
         maxReconnectAttempts: this.client.runtime.maxReconnectAttempts,
+        fetch: this.client.runtime.fetch,
       });
     }
 
@@ -134,6 +132,7 @@ function createGatewayClient(options: PactoInitOptions): InternalPactoClient {
   const maxRetries = options.maxRetries;
   const baseDelayMs = options.baseDelayMs;
   const maxReconnectAttempts = options.maxReconnectAttempts;
+  const fetchFn = options.fetch;
 
   const runtime: SessionRuntimeConfig = {
     gatewayUrl,
@@ -142,6 +141,7 @@ function createGatewayClient(options: PactoInitOptions): InternalPactoClient {
     baseDelayMs,
     maxRetries,
     maxReconnectAttempts,
+    fetch: fetchFn,
   };
 
   async function requestSession(
@@ -157,7 +157,7 @@ function createGatewayClient(options: PactoInitOptions): InternalPactoClient {
       headers.Origin = origin;
     }
 
-    const response = await fetch(`${gatewayUrl}${path}`, {
+    const response = await (fetchFn ?? fetch)(`${gatewayUrl}${path}`, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
@@ -177,6 +177,7 @@ function createGatewayClient(options: PactoInitOptions): InternalPactoClient {
     ) {
       throw new PactoError(
         'gateway_error',
+        'PACTO_UNKNOWN',
         'invalid_response',
         'Gateway returned an invalid session payload',
       );
@@ -212,6 +213,7 @@ function createGatewayClient(options: PactoInitOptions): InternalPactoClient {
         origin,
         maxRetries,
         baseDelayMs,
+        fetch: fetchFn,
       });
     },
   };
