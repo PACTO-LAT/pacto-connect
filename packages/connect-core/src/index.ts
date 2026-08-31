@@ -11,6 +11,8 @@ export {
   type BridgeHostOptions,
   createBridgeClient,
   createBridgeHost,
+  DEFAULT_BRIDGE_MESSAGE_TIMEOUT_MS,
+  isBridgeMessageOfType,
   isOriginAllowed,
   isPactoBridgeEnvelope,
   PACTO_BRIDGE_SOURCE,
@@ -19,10 +21,13 @@ export {
   type PactoBridgeEventType,
   type PactoBridgeMessage,
   type PactoBridgePayloadMap,
+  type WaitForBridgeMessageOptions,
+  waitForBridgeMessage,
 } from './bridge.js';
 export {
   CheckoutFlowController,
   type CheckoutFlowOptions,
+  type CheckoutFlowResilienceOptions,
   type CheckoutFlowState,
   type CheckoutStep,
   createInitialCheckoutState,
@@ -64,14 +69,18 @@ export {
   type PactoSessionData,
 } from './client.js';
 export {
+  isRetryableError,
   PactoApiError,
   PactoAuthError,
+  PactoCircuitOpenError,
   PactoError,
   type PactoErrorOptions,
   PactoEscrowError,
   PactoRateLimitError,
+  PactoRetryExhaustedError,
   PactoSecurityError,
   PactoSessionError,
+  PactoTimeoutError,
 } from './errors.js';
 export {
   ESCROW_EVENT_NAMES,
@@ -80,6 +89,7 @@ export {
   type EscrowEventName,
   type EscrowMilestone,
   type EscrowSubscribeOptions,
+  type SessionConnectionConfig,
 } from './escrow-events.js';
 export type { FetchLike } from './http.js';
 export {
@@ -111,6 +121,21 @@ export {
   sinpeRail,
   speiRail,
 } from './rails/index.js';
+export {
+  CircuitBreaker,
+  type CircuitBreakerConfig,
+  type CircuitBreakerState,
+  type CircuitBreakerTransition,
+  type CircuitBreakerTransitionReason,
+  computeBackoffDelay,
+  DEFAULT_CIRCUIT_BREAKER_CONFIG,
+  DEFAULT_RESILIENCE_CONFIG,
+  type ExecuteContext,
+  ResiliencePolicy,
+  type ResiliencePolicyConfig,
+  RetryBudget,
+  withTimeout,
+} from './resilience/index.js';
 export type {
   CancelEscrowParams,
   CreateEscrowParams,
@@ -137,10 +162,12 @@ export {
   generateRequestId,
   isEscrowDetailCode,
   isPactoErrorCode,
+  isRetryableErrorCode,
   isSecurityDetailCode,
   PACTO_ERROR_CODES,
   type PactoErrorCode,
   REQUEST_ID_HEADER,
+  RETRYABLE_ERROR_CODES,
   SECURITY_DETAIL_CODES,
   type SecurityDetailCode,
 } from './taxonomy.js';

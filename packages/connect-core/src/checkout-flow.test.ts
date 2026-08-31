@@ -366,3 +366,135 @@ describe('CheckoutFlowController persistence', () => {
     controller.destroy();
   });
 });
+
+describe('CheckoutFlowController resilience', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('forwards the `resilience` option to Pacto.init() so a non-retryable-by-config failure surfaces immediately', async () => {
+    let listingsCalls = 0;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? 'GET';
+
+        if (url.includes('/v1/session') && method === 'POST') {
+          return {
+            ok: true,
+            status: 200,
+            headers: new Headers(),
+            json: async () => ({
+              sessionId: 'sess_1',
+              clientSecret: 'cs_sess_1.sig',
+              expiresAt: '2099-01-01T00:00:00.000Z',
+              mode: 'buy',
+            }),
+          } as Response;
+        }
+
+        if (url.endsWith('/v1/listings')) {
+          listingsCalls += 1;
+          return {
+            ok: false,
+            status: 503,
+            headers: new Headers(),
+            json: async () => ({ error: { code: 'unavailable', message: 'down' } }),
+          } as Response;
+        }
+
+        return {
+          ok: false,
+          status: 404,
+          headers: new Headers(),
+          json: async () => ({ error: { code: 'not_found', message: 'nope' } }),
+        } as Response;
+      }),
+    );
+
+    // No listingId — CheckoutFlowController.initialize() falls through to
+    // `api.listings.list()`, a normally-retryable 503. `maxRetries: 0`
+    // forces it to fail on the first attempt instead.
+    const controller = new CheckoutFlowController({
+      publishableKey,
+      gatewayUrl,
+      resilience: { maxRetries: 0 },
+    });
+
+    await controller.start();
+
+    expect(controller.getState().step).toBe('error');
+    expect(listingsCalls).toBe(1);
+
+    controller.destroy();
+  });
+
+  it('routes escrow event stream failures through PactoSession.onStreamError into onError', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        const method = init?.method ?? 'GET';
+        const jsonResponse = (body: unknown, status = 200): Response =>
+          ({
+            ok: status >= 200 && status < 300,
+            status,
+            headers: new Headers(),
+            json: async () => body,
+          }) as Response;
+
+        if (url.includes('/v1/session') && method === 'POST') {
+          return jsonResponse({
+            sessionId: 'sess_1',
+            clientSecret: 'cs_sess_1.sig',
+            expiresAt: '2099-01-01T00:00:00.000Z',
+            mode: 'buy',
+          });
+        }
+        if (url.includes(`/v1/listings/${listingId}`)) {
+          return jsonResponse({ listing });
+        }
+        if (url.endsWith('/v1/quotes') && method === 'POST') {
+          return jsonResponse({ quote });
+        }
+        if (url.endsWith('/v1/escrows') && method === 'POST') {
+          return jsonResponse({ escrow });
+        }
+        if (url.includes('/deposit')) {
+          return jsonResponse({ escrow });
+        }
+        if (url.includes('/fiat-receipt')) {
+          return jsonResponse({ escrow });
+        }
+        if (url.includes('/v1/escrows/events')) {
+          // No `.body` — connectOnce() treats this as a stream failure, and
+          // a tiny maxReconnectAttempts drives it to give up quickly.
+          return jsonResponse({});
+        }
+
+        return jsonResponse({ error: 'not found' }, 404);
+      }),
+    );
+
+    const onError = vi.fn();
+    const controller = new CheckoutFlowController({
+      publishableKey,
+      gatewayUrl,
+      listingId,
+      onError,
+      resilience: { maxReconnectAttempts: 1, baseDelayMs: 1 },
+    });
+
+    await controller.start();
+    await controller.confirmDeposit();
+    await controller.submitReceipt('SINPE', 'ref-1');
+
+    expect(controller.getState().step).toBe('tracking');
+
+    await vi.waitFor(() => expect(onError).toHaveBeenCalled());
+    expect(controller.getState().step).toBe('error');
+
+    controller.destroy();
+  });
+});

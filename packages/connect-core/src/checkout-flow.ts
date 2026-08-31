@@ -22,6 +22,7 @@ import {
   type CheckoutMode,
   Pacto,
   type PactoClient,
+  type PactoInitOptions,
   type PactoSession,
   type PactoSessionData,
 } from './client.js';
@@ -31,6 +32,20 @@ import { isTestMode } from './keys.js';
 import type { Escrow, Listing, PactoApiClient, Quote } from './resources.js';
 
 export type { CheckoutFlowState, CheckoutStep };
+
+/** Resilience knobs forwarded verbatim to `Pacto.init()` — see `client.ts` for defaults. */
+export type CheckoutFlowResilienceOptions = Pick<
+  PactoInitOptions,
+  | 'maxRetries'
+  | 'baseDelayMs'
+  | 'maxDelayMs'
+  | 'retryBudget'
+  | 'timeoutMs'
+  | 'streamIdleTimeoutMs'
+  | 'breaker'
+  | 'onBreakerStateChange'
+  | 'maxReconnectAttempts'
+>;
 
 export interface CheckoutFlowOptions {
   publishableKey: string;
@@ -42,6 +57,8 @@ export interface CheckoutFlowOptions {
   session?: PactoSessionData;
   storage?: CheckoutStorageAdapter;
   now?: () => number;
+  /** Overrides the SDK's default resilience policy (timeouts, retry budget, backoff, circuit breaker). */
+  resilience?: CheckoutFlowResilienceOptions;
   onChange?: (state: CheckoutFlowState) => void;
   onComplete?: (escrow: Escrow) => void;
   onDispute?: (escrow: Escrow) => void;
@@ -345,6 +362,7 @@ export class CheckoutFlowController {
       const client = Pacto.init({
         publishableKey: this.options.publishableKey,
         gatewayUrl: this.options.gatewayUrl,
+        ...this.options.resilience,
       });
       this.client = client;
 
@@ -401,6 +419,10 @@ export class CheckoutFlowController {
 
     this.eventsBound = true;
     const escrowId = currentEscrow.id;
+
+    // Surfaces breaker-open, retry-exhausted, and other terminal escrow
+    // stream failures instead of leaving milestone tracking silently stuck.
+    session.onStreamError((error) => this.handleError(error));
 
     const trackMilestone = (event: EscrowEvent) => {
       this.patchState({ milestones: [...this.state.milestones, event] });
@@ -497,6 +519,7 @@ export class CheckoutFlowController {
       const client = Pacto.init({
         publishableKey: this.options.publishableKey,
         gatewayUrl: this.options.gatewayUrl,
+        ...this.options.resilience,
       });
       this.client = client;
 
