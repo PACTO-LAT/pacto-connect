@@ -150,6 +150,7 @@ describe('escrow lifecycle routes', () => {
       createdAt: new Date('2024-06-01T12:00:00.000Z'),
       updatedAt: new Date('2024-06-01T12:00:00.000Z'),
       merchantId: null,
+      counterpartyRef: null,
     };
 
     vi.mocked(keys.findActiveApiKeyByPublishableKey).mockReset();

@@ -126,6 +126,7 @@ describe('subscription routes', () => {
       createdAt: now,
       updatedAt: now,
       merchantId: null,
+      counterpartyRef: null,
     };
     vi.mocked(keys.findActiveApiKeyByPublishableKey).mockImplementation(async (pk: string) =>
       pk === liveApiKey.publishableKey ? liveApiKey : mockApiKey,

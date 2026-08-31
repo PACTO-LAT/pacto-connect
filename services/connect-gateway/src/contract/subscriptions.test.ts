@@ -88,6 +88,7 @@ describe('contract: subscription routes', () => {
       createdAt: now,
       updatedAt: now,
       merchantId: null,
+      counterpartyRef: null,
     };
 
     vi.mocked(keys.findActiveApiKeyByPublishableKey).mockReset();

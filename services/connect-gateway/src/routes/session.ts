@@ -31,6 +31,7 @@ session.post('/', idempotency(), async (c) => {
         quote?: Record<string, unknown>;
         mode?: string;
         merchantId?: string;
+        counterpartyRef?: string;
       }>();
 
       const hasListingId = typeof body.listingId === 'string' && body.listingId.length > 0;
@@ -94,6 +95,19 @@ session.post('/', idempotency(), async (c) => {
         merchantId = merchant.id;
       }
 
+      if (body.counterpartyRef !== undefined) {
+        if (typeof body.counterpartyRef !== 'string' || body.counterpartyRef.length === 0) {
+          return c.json(
+            toGatewayErrorBody(
+              'validation_error',
+              'invalid_request',
+              'counterpartyRef must be a non-empty string',
+            ),
+            400,
+          );
+        }
+      }
+
       try {
         const result = await createCheckoutSession({
           apiKeyId: apiKey.id,
@@ -101,6 +115,7 @@ session.post('/', idempotency(), async (c) => {
           listingId: hasListingId ? body.listingId : undefined,
           quote: hasQuote ? (body.quote as Prisma.InputJsonValue) : undefined,
           merchantId,
+          counterpartyRef: body.counterpartyRef,
         });
 
         span.setAttribute('pacto.session_id', result.sessionId);
@@ -111,6 +126,7 @@ session.post('/', idempotency(), async (c) => {
           expiresAt: result.expiresAt.toISOString(),
           mode: result.mode,
           merchantId: result.merchantId,
+          counterpartyRef: result.counterpartyRef,
         });
       } catch (error) {
         if (error instanceof SessionError) {
@@ -153,6 +169,7 @@ session.post('/refresh', async (c) => {
           expiresAt: result.expiresAt.toISOString(),
           mode: result.mode,
           merchantId: result.merchantId,
+          counterpartyRef: result.counterpartyRef,
         });
       } catch (error) {
         if (error instanceof SessionError) {

@@ -57,6 +57,16 @@ vi.mock('../db.js', () => ({
       findUnique: vi.fn(),
       update: vi.fn(),
     },
+    merchantRiskListEntry: {
+      findUnique: vi.fn(),
+    },
+    merchantRiskSettings: {
+      findUnique: vi.fn(),
+    },
+    riskDecision: {
+      create: vi.fn(),
+      aggregate: vi.fn(),
+    },
   },
 }));
 
@@ -94,12 +104,30 @@ describe('escrow routes', () => {
       createdAt: new Date('2024-06-01T12:00:00.000Z'),
       updatedAt: new Date('2024-06-01T12:00:00.000Z'),
       merchantId: null,
+      counterpartyRef: null,
     };
 
     vi.mocked(keys.findActiveApiKeyByPublishableKey).mockReset();
     vi.mocked(prisma.checkoutSession.findUnique).mockReset();
+    vi.mocked(prisma.merchantRiskListEntry.findUnique).mockReset();
+    vi.mocked(prisma.merchantRiskSettings.findUnique).mockReset();
+    vi.mocked(prisma.riskDecision.create).mockReset();
+    vi.mocked(prisma.riskDecision.aggregate).mockReset();
     vi.mocked(keys.findActiveApiKeyByPublishableKey).mockResolvedValue(mockApiKey);
     vi.mocked(prisma.checkoutSession.findUnique).mockResolvedValue(mockCheckoutSession);
+    vi.mocked(prisma.merchantRiskListEntry.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.merchantRiskSettings.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.riskDecision.create).mockImplementation((async (args: {
+      data: Record<string, unknown>;
+    }) => ({
+      id: 'rdc_1',
+      createdAt: new Date(),
+      ...args.data,
+    })) as never);
+    vi.mocked(prisma.riskDecision.aggregate).mockResolvedValue({
+      _sum: { amount: 0 },
+      _count: { _all: 0 },
+    } as never);
   });
 
   it('creates, deposits, and reports fiat in test mode', async () => {
@@ -233,5 +261,98 @@ describe('escrow routes', () => {
     const text = await catchUpRes.text();
     expect(text).toContain('event: escrow.funded');
     expect(text).toContain(`id: ${events[0]?.cursor}`);
+  });
+
+  describe('risk guard on escrow creation', () => {
+    beforeEach(() => {
+      mockCheckoutSession = { ...mockCheckoutSession, merchantId: 'mrc_1' };
+      vi.mocked(prisma.checkoutSession.findUnique).mockResolvedValue(mockCheckoutSession);
+    });
+
+    it('blocks escrow creation when the merchant is over its value threshold, with a typed error', async () => {
+      process.env.RISK_VALUE_THRESHOLD = '100';
+      process.env.RISK_COUNT_THRESHOLD = '1000';
+      const app = createApp();
+
+      const res = await app.request('/v1/escrows', {
+        method: 'POST',
+        headers: escrowHeaders(),
+        body: JSON.stringify({ quoteId: 'quote_1', amount: '150', asset: 'USDC' }),
+      });
+
+      expect(res.status).toBe(409);
+      const body = await res.json();
+      expect(body.error.type).toBe('risk_error');
+      expect(body.error.code).toBe('velocity_value_exceeded');
+      expect(body.error.pactoCode).toBe('PACTO_RISK');
+      // The block decision was recorded and logged; no escrow was created.
+      expect(prisma.riskDecision.create).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ outcome: 'block' }) }),
+      );
+
+      delete process.env.RISK_VALUE_THRESHOLD;
+      delete process.env.RISK_COUNT_THRESHOLD;
+    });
+
+    it('blocks escrow creation for a counterparty on the merchant deny list', async () => {
+      mockCheckoutSession = { ...mockCheckoutSession, counterpartyRef: 'wallet_bad' };
+      vi.mocked(prisma.checkoutSession.findUnique).mockResolvedValue(mockCheckoutSession);
+      vi.mocked(prisma.merchantRiskListEntry.findUnique).mockImplementation((async (args: {
+        where: { merchantId_listType_counterpartyRef: { listType: string } };
+      }) =>
+        args.where.merchantId_listType_counterpartyRef.listType === 'deny'
+          ? {
+              id: 'rle_1',
+              merchantId: 'mrc_1',
+              listType: 'deny',
+              counterpartyRef: 'wallet_bad',
+              note: null,
+              createdAt: new Date(),
+            }
+          : null) as never);
+
+      const app = createApp();
+      const res = await app.request('/v1/escrows', {
+        method: 'POST',
+        headers: escrowHeaders(),
+        body: JSON.stringify({ quoteId: 'quote_1', amount: '10', asset: 'USDC' }),
+      });
+
+      expect(res.status).toBe(409);
+      const body = await res.json();
+      expect(body.error.code).toBe('deny_listed');
+    });
+
+    it('allows escrow creation under threshold and still creates the escrow', async () => {
+      process.env.RISK_VALUE_THRESHOLD = '10000';
+      process.env.RISK_COUNT_THRESHOLD = '1000';
+      const app = createApp();
+
+      const res = await app.request('/v1/escrows', {
+        method: 'POST',
+        headers: escrowHeaders(),
+        body: JSON.stringify({ quoteId: 'quote_1', amount: '150', asset: 'USDC' }),
+      });
+
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.escrow.status).toBe('pending');
+      expect(prisma.riskDecision.create).toHaveBeenCalledTimes(1);
+
+      delete process.env.RISK_VALUE_THRESHOLD;
+      delete process.env.RISK_COUNT_THRESHOLD;
+    });
+
+    it('rejects a non-numeric amount before evaluating risk', async () => {
+      const app = createApp();
+      const res = await app.request('/v1/escrows', {
+        method: 'POST',
+        headers: escrowHeaders(),
+        body: JSON.stringify({ quoteId: 'quote_1', amount: 'not-a-number' }),
+      });
+
+      expect(res.status).toBe(400);
+      expect(prisma.riskDecision.create).not.toHaveBeenCalled();
+    });
   });
 });

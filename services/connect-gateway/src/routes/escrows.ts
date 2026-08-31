@@ -4,6 +4,7 @@ import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
 import { SessionError, sessionErrorStatus, toGatewayErrorBody } from '../errors.js';
 import { idempotency } from '../middleware/idempotency.js';
+import { guardEscrowRisk } from '../middleware/risk-guard.js';
 import { validateClientSecret } from '../sessions.js';
 import {
   getSimulator,
@@ -252,12 +253,39 @@ escrows.post('/', idempotency(), async (c) => {
         );
       }
 
+      const amountRaw = typeof body.amount === 'string' ? body.amount : '100';
+      const amountValue = Number(amountRaw);
+      if (!Number.isFinite(amountValue) || amountValue <= 0) {
+        return c.json(
+          toGatewayErrorBody(
+            'validation_error',
+            'invalid_request',
+            'amount must be a positive numeric string',
+          ),
+          400,
+        );
+      }
+      const asset = typeof body.asset === 'string' ? body.asset : 'USDC';
+
+      const riskCheck = await guardEscrowRisk(c, {
+        session,
+        amount: amountValue,
+        asset,
+      });
+      if ('error' in riskCheck) {
+        return riskCheck.error;
+      }
+      if (riskCheck.result) {
+        setSpanAttr(span, 'pacto.risk_outcome', riskCheck.result.outcome);
+        setSpanAttr(span, 'pacto.risk_reason', riskCheck.result.reason);
+      }
+
       const escrow = getSimulator().createEscrow({
         apiKeyId: apiKey.id,
         sessionId: session.id,
         quoteId: body.quoteId,
-        amount: typeof body.amount === 'string' ? body.amount : '100',
-        asset: typeof body.asset === 'string' ? body.asset : 'USDC',
+        amount: amountRaw,
+        asset,
         merchantId: session.merchantId ?? undefined,
       });
 

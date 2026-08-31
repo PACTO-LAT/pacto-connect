@@ -12,6 +12,7 @@ export interface CreateSessionInput {
   listingId?: string;
   quote?: Prisma.InputJsonValue;
   merchantId?: string;
+  counterpartyRef?: string;
 }
 
 export interface SessionResult {
@@ -20,6 +21,7 @@ export interface SessionResult {
   expiresAt: Date;
   mode: CheckoutMode;
   merchantId: string | null;
+  counterpartyRef: string | null;
 }
 
 function getSessionTtlMs(): number {
@@ -104,6 +106,7 @@ export async function createCheckoutSession(input: CreateSessionInput): Promise<
       expiresAt,
       clientSecretHash: '',
       merchantId: input.merchantId ?? null,
+      counterpartyRef: input.counterpartyRef ?? null,
     },
   });
 
@@ -121,6 +124,7 @@ export async function createCheckoutSession(input: CreateSessionInput): Promise<
     expiresAt: updated.expiresAt,
     mode: updated.mode,
     merchantId: updated.merchantId,
+    counterpartyRef: updated.counterpartyRef,
   };
 }
 
@@ -146,6 +150,7 @@ export async function refreshCheckoutSession(clientSecret: string): Promise<Sess
     expiresAt: updated.expiresAt,
     mode: updated.mode,
     merchantId: updated.merchantId,
+    counterpartyRef: updated.counterpartyRef,
   };
 }
 
