@@ -14,6 +14,7 @@ import {
   type PactoTheme,
   resolveLocale,
   resolveMessages,
+  warnOnThemeContrastIssues,
 } from '@pacto-connect/core';
 import { injectCheckoutStyles } from './styles.js';
 import { CheckoutView } from './ui.js';
@@ -222,6 +223,10 @@ export class PactoCheckoutElement extends HTMLElement {
     if (options.injectStyles !== false) {
       injectCheckoutStyles();
     }
+
+    // Configuration-time check: warn the integrator immediately if their
+    // theme resolves to a color pair that fails WCAG AA, naming the pair.
+    warnOnThemeContrastIssues(options.theme);
 
     const allowedOrigins = defaultAllowedOrigins(options.allowedOrigins);
     const targetOrigin = allowedOrigins[0] ?? window.location.origin;

@@ -7,6 +7,11 @@
 export const VERSION = '0.0.0';
 
 export {
+  type ThemeContrastIssue,
+  validateThemeContrast,
+  warnOnThemeContrastIssues,
+} from '@pacto-connect/core';
+export {
   applyCheckoutOptions,
   ELEMENT_TAG,
   type PactoBridgeMessage,

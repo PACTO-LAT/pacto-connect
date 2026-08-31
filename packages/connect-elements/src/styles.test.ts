@@ -21,6 +21,12 @@ describe('injectCheckoutStyles', () => {
     );
   });
 
+  it('includes the accessibility rules (sr-only live region, visible focus indicator)', () => {
+    const style = injectCheckoutStyles();
+    expect(style?.textContent).toContain('.pacto-checkout-sr-only');
+    expect(style?.textContent).toContain(':focus-visible');
+  });
+
   it('is idempotent and reuses the existing style element', () => {
     const first = injectCheckoutStyles();
     const second = injectCheckoutStyles();
