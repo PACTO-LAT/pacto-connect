@@ -54,13 +54,26 @@ export {
   type EscrowSubscribeOptions,
 } from './escrow-events.js';
 export {
+  assertCatalogueParity,
   en as enMessages,
   es as esMessages,
+  formatAssetAmount,
+  formatCurrency,
+  formatDate,
+  formatGender,
   formatMessage,
+  formatPlural,
+  type Gender,
+  type LocaleResolutionOptions,
   type PactoLocale,
   type PactoMessages,
+  type PluralForms,
+  pt as ptMessages,
+  type RailRegion,
+  resolveKeyedMessage,
+  resolveLocale,
   resolveMessages,
-} from './i18n.js';
+} from './i18n/index.js';
 export { isTestMode, keyMode } from './keys.js';
 export type {
   CreateEscrowParams,

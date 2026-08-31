@@ -1,0 +1,45 @@
+import type { PactoMessages } from '../types.js';
+
+export const es: PactoMessages = {
+  steps: {
+    loading: 'Procesando pago',
+    selectListing: 'Selecciona una oferta',
+    deposit: 'Depositar en garantía',
+    uploadReceipt: 'Sube el comprobante de pago',
+    tracking: 'Siguiendo el estado de la garantía',
+    success: 'Pago completado',
+    disputed: 'Garantía en disputa',
+    error: 'Error en el pago',
+  },
+  milestones: {
+    'escrow.funded': 'Garantía fondeada',
+    'fiat.reported': 'Pago reportado',
+    released: 'Fondos liberados',
+    disputed: 'Garantía en disputa',
+  },
+  actions: {
+    close: 'Cerrar',
+    closeAria: 'Cerrar el pago',
+    retry: 'Reintentar',
+    confirmDeposit: 'Confirmar depósito',
+    submitReceipt: 'Enviar comprobante',
+    forceRelease: 'Forzar liberación',
+    forceDispute: 'Forzar disputa',
+    forceTimeout: 'Forzar expiración',
+  },
+  labels: {
+    paymentMethod: 'Método de pago',
+    reference: 'Referencia',
+    referenceAria: 'Referencia de pago',
+    availableListings: 'Ofertas disponibles',
+    escrowMilestones: 'Hitos de la garantía',
+    simulatorControls: 'Controles del simulador',
+    loading: 'Cargando…',
+    waiting: 'Esperando la liberación de la garantía…',
+    testBanner: 'MODO DE PRUEBA — sin fondos reales ni transacciones en Stellar',
+    genericError: 'Algo salió mal',
+    depositInstruction: 'Deposita {amount} {asset} al contrato de garantía.',
+    success: 'Pago completado. Garantía {escrowId} liberada.',
+    disputed: 'La garantía {escrowId} ha sido disputada.',
+  },
+};
