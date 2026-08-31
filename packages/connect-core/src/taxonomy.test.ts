@@ -5,8 +5,10 @@ import {
   generateRequestId,
   isEscrowDetailCode,
   isPactoErrorCode,
+  isRetryableErrorCode,
   isSecurityDetailCode,
   PACTO_ERROR_CODES,
+  RETRYABLE_ERROR_CODES,
   SECURITY_DETAIL_CODES,
 } from './taxonomy.js';
 
@@ -84,6 +86,24 @@ describe('classifyGatewayError', () => {
 
   it('maps unknown input to PACTO_UNKNOWN', () => {
     expect(classifyGatewayError({})).toBe('PACTO_UNKNOWN');
+  });
+});
+
+describe('isRetryableErrorCode', () => {
+  it('treats network/upstream/rate-limit/internal codes as retryable', () => {
+    for (const code of RETRYABLE_ERROR_CODES) {
+      expect(isRetryableErrorCode(code)).toBe(true);
+    }
+  });
+
+  it('treats every other taxonomy code as non-retryable', () => {
+    const nonRetryable = PACTO_ERROR_CODES.filter(
+      (code) => !(RETRYABLE_ERROR_CODES as readonly string[]).includes(code),
+    );
+    expect(nonRetryable.length).toBeGreaterThan(0);
+    for (const code of nonRetryable) {
+      expect(isRetryableErrorCode(code)).toBe(false);
+    }
   });
 });
 
