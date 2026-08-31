@@ -111,6 +111,34 @@ same styling with no JS config:
 
 Both integrations accept the **exact same `theme` shape** — `{ colors, typography, radius, spacing }`, all optional and all deep-mergeable.
 
+### Contrast validation
+
+Both integrations check every themable text/background color pair against
+WCAG 2.1 AA as soon as the widget is configured. A theme with an unreadable
+pair — say, a `primaryText` too close to `primary` — logs a `console.warn`
+naming the failing pair and both contrast ratios, instead of shipping a
+checkout some buyers can't read:
+
+```
+[pacto-connect] Theme fails WCAG AA contrast for 1 color pair:
+  - colors.primaryText on colors.primary: #ffffff on #f5f5f5 is 1.09:1, WCAG AA requires at least 4.5:1
+```
+
+This is a warning, not a thrown error — the widget still renders with the
+theme you gave it. To check a theme ahead of time (e.g. in a CI lint step
+before it ever reaches a merchant), call `validateThemeContrast` directly:
+
+```ts
+import { validateThemeContrast } from '@pacto-connect/core'
+
+const issues = validateThemeContrast({ colors: { primary: '#f5f5f5' } })
+// issues: [{ pair: 'colors.primaryText on colors.primary', ratio: 1.09, minimumRatio: 4.5, ... }]
+```
+
+Colors the validator can't parse (a named CSS color, `hsl()`, anything but
+`#rgb`/`#rrggbb`/`#rrggbbaa`/`rgb()`/`rgba()`) are skipped rather than guessed
+at — use a hex or `rgb()`/`rgba()` value if you want a pair checked.
+
 ### Restyling without a `theme` prop
 
 Plain-HTML embeds (or hosts that just want a global brand stylesheet) can set

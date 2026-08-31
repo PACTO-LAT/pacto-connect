@@ -1967,7 +1967,7 @@ Defined in: [packages/connect-core/src/checkout-storage.ts:46](https://github.co
 function buildCheckoutStylesheet(): string;
 ```
 
-Defined in: [packages/connect-core/src/theme.ts:116](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L116)
+Defined in: [packages/connect-core/src/theme.ts:303](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L303)
 
 The default checkout stylesheet, tokenized. Every themeable value is written
 as `var(--pacto-*, <default>)` where the default comes from DEFAULT_THEME, so
@@ -2362,7 +2362,7 @@ Select a gender-specific message form.
 function formatMessage(template, params): string;
 ```
 
-Defined in: [packages/connect-core/src/i18n/messages.ts:5](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n/messages.ts#L5)
+Defined in: [packages/connect-core/src/i18n/messages.ts:6](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n/messages.ts#L6)
 
 Replace `{name}` placeholders in `template` with values from `params`.
 
@@ -2403,6 +2403,29 @@ Spanish/Portuguese plural rules or to a `zero` form.
 | `locale` | [`PactoLocale`](#typealias.pactolocale) |
 | `count` | `number` |
 | `forms` | [`PluralForms`](#interface.pluralforms) |
+
+## Returns
+
+`string`
+
+
+---
+
+# Function: formatThemeContrastWarning()
+
+```ts
+function formatThemeContrastWarning(issues): string;
+```
+
+Defined in: [packages/connect-core/src/theme.ts:267](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L267)
+
+Formats `validateThemeContrast` issues into one multi-line, human-readable warning.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `issues` | [`ThemeContrastIssue`](#interface.themecontrastissue)[] |
 
 ## Returns
 
@@ -2722,7 +2745,7 @@ function resolveKeyedMessage(
    locale): string;
 ```
 
-Defined in: [packages/connect-core/src/i18n/messages.ts:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n/messages.ts#L31)
+Defined in: [packages/connect-core/src/i18n/messages.ts:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n/messages.ts#L32)
 
 Resolve a message from a dynamically-keyed catalogue section (e.g.
 `messages.steps[step]`), for keys whose validity can only be known at
@@ -2800,6 +2823,70 @@ Unknown locales fall back to English. Pass a full `PactoMessages` shape via
 
 ---
 
+# Function: resolveStepAnnouncement()
+
+```ts
+function resolveStepAnnouncement(
+   messages, 
+   locale, 
+   step, 
+   escrowId?): string;
+```
+
+Defined in: [packages/connect-core/src/i18n/messages.ts:64](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/i18n/messages.ts#L64)
+
+Resolves the copy a screen-reader live region should announce for the
+current checkout step, shared by every widget surface (React, the web
+component, and the React Native sheet's native chrome) so a step change or
+terminal state is described identically everywhere.
+
+Terminal steps that carry an escrow id announce the same detailed copy
+shown on screen (e.g. "Payment complete. Escrow esc_1 released."); every
+other step announces its `steps` catalogue entry (e.g. "Deposit to
+escrow").
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `messages` | [`PactoMessages`](#interface.pactomessages) |
+| `locale` | [`PactoLocale`](#typealias.pactolocale) |
+| `step` | [`CheckoutStep`](#typealias.checkoutstep) |
+| `escrowId?` | `string` \| `null` |
+
+## Returns
+
+`string`
+
+
+---
+
+# Function: resolveTheme()
+
+```ts
+function resolveTheme(theme?): PactoTheme;
+```
+
+Defined in: [packages/connect-core/src/theme.ts:120](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L120)
+
+Merge a (partial) theme onto `DEFAULT_THEME`, producing the fully resolved
+token set the widget will actually render with. Used by contrast validation,
+which needs concrete colors rather than the sparse overrides `themeToCssVars`
+emits.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `theme?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoTheme`](#interface.pactotheme)\> |
+
+## Returns
+
+[`PactoTheme`](#interface.pactotheme)
+
+
+---
+
 # Function: serializeCheckoutSnapshot()
 
 ```ts
@@ -2849,7 +2936,7 @@ Defined in: [packages/connect-core/src/checkout-storage.ts:182](https://github.c
 function themeToCssVars(theme?): Record<string, string>;
 ```
 
-Defined in: [packages/connect-core/src/theme.ts:79](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L79)
+Defined in: [packages/connect-core/src/theme.ts:82](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L82)
 
 Convert a (partial) theme into a sparse map of CSS custom properties. Only
 tokens that are explicitly provided are emitted; everything else falls
@@ -2864,6 +2951,62 @@ through to the stylesheet's built-in fallbacks.
 ## Returns
 
 `Record`\<`string`, `string`\>
+
+
+---
+
+# Function: validateThemeContrast()
+
+```ts
+function validateThemeContrast(theme?): ThemeContrastIssue[];
+```
+
+Defined in: [packages/connect-core/src/theme.ts:237](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L237)
+
+Checks every themable text/background color pair the checkout dialog
+renders against WCAG 2.1 AA. Call this wherever a theme is configured
+(widget mount, `pacto.mount()`, etc.) so a merchant sees the problem at
+configuration time rather than a user discovering it can't be read.
+
+A pair whose colors can't be parsed (e.g. a named CSS color or `hsl()`) is
+skipped rather than reported, since we can't compute a ratio for it.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `theme?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoTheme`](#interface.pactotheme)\> |
+
+## Returns
+
+[`ThemeContrastIssue`](#interface.themecontrastissue)[]
+
+
+---
+
+# Function: warnOnThemeContrastIssues()
+
+```ts
+function warnOnThemeContrastIssues(theme?, warn?): ThemeContrastIssue[];
+```
+
+Defined in: [packages/connect-core/src/theme.ts:285](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L285)
+
+Validates `theme` and reports any WCAG AA contrast failures via `warn`
+(defaults to `console.warn`). Called by every widget surface as soon as a
+theme is configured. Returns the issues so callers that want to fail loudly
+(e.g. a CI theme-lint script) can inspect them instead of just logging.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `theme?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoTheme`](#interface.pactotheme)\> |
+| `warn?` | (`message`) => `void` |
+
+## Returns
+
+[`ThemeContrastIssue`](#interface.themecontrastissue)[]
 
 
 ---
@@ -3849,6 +3992,24 @@ Defined in: [packages/connect-core/src/rails/types.ts:51](https://github.com/PAC
 
 ---
 
+# Interface: ThemeContrastIssue
+
+Defined in: [packages/connect-core/src/theme.ts:169](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L169)
+
+## Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="background"></a> `background` | `string` | - | [packages/connect-core/src/theme.ts:173](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L173) |
+| <a id="foreground"></a> `foreground` | `string` | - | [packages/connect-core/src/theme.ts:172](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L172) |
+| <a id="level"></a> `level` | `"AA"` | - | [packages/connect-core/src/theme.ts:178](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L178) |
+| <a id="minimumratio"></a> `minimumRatio` | `number` | WCAG AA minimum ratio required for this pair. | [packages/connect-core/src/theme.ts:177](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L177) |
+| <a id="pair"></a> `pair` | `string` | Human-readable name of the failing pair, e.g. "colors.text on colors.surface". | [packages/connect-core/src/theme.ts:171](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L171) |
+| <a id="ratio"></a> `ratio` | `number` | Measured contrast ratio, rounded to 2 decimal places. | [packages/connect-core/src/theme.ts:175](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L175) |
+
+
+---
+
 # Interface: WebStorageLike
 
 Defined in: [packages/connect-core/src/checkout-storage.ts:221](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/checkout-storage.ts#L221)
@@ -4322,6 +4483,19 @@ Defined in: [packages/connect-core/src/checkout-storage.ts:6](https://github.com
 
 ---
 
+# Variable: CONTRAST\_LEVEL
+
+```ts
+const CONTRAST_LEVEL: "AA";
+```
+
+Defined in: [packages/connect-core/src/theme.ts:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L38)
+
+WCAG level this SDK validates theme colors against. Large-text pairs are not distinguished.
+
+
+---
+
 # Variable: DEFAULT\_GATEWAY\_URL
 
 ```ts
@@ -4339,7 +4513,7 @@ Defined in: [packages/connect-core/src/client.ts:64](https://github.com/PACTO-LA
 const DEFAULT_THEME: PactoTheme;
 ```
 
-Defined in: [packages/connect-core/src/theme.ts:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L37)
+Defined in: [packages/connect-core/src/theme.ts:40](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/theme.ts#L40)
 
 
 ---
@@ -4480,7 +4654,7 @@ Defined in: [packages/connect-core/src/theme.ts:35](https://github.com/PACTO-LAT
 const VERSION: "0.0.0" = '0.0.0';
 ```
 
-Defined in: [packages/connect-core/src/index.ts:169](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/index.ts#L169)
+Defined in: [packages/connect-core/src/index.ts:176](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-core/src/index.ts#L176)
 
 
 ---
