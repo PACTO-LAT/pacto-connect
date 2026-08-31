@@ -4,8 +4,11 @@ import {
   type CheckoutMode,
   createBridgeClient,
   createBridgeHost,
+  DEFAULT_BRIDGE_MESSAGE_TIMEOUT_MS,
   type Escrow,
+  isBridgeMessageOfType,
   type PactoBridgeMessage,
+  waitForBridgeMessage,
 } from '@pacto-connect/core';
 import { resolveTarget } from './mount.js';
 
@@ -43,6 +46,13 @@ export interface FrameMountOptions {
   params?: Record<string, string>;
   title?: string;
   className?: string;
+  /**
+   * Milliseconds to wait for the embedded checkout's initial `checkout:ready`
+   * handshake before giving up and calling `onError`. Without this, a frame
+   * that never loads or never posts back (a hung frame message) leaves the
+   * host waiting forever. Default 15000.
+   */
+  readyTimeoutMs?: number;
   onReady?: (sessionId: string) => void;
   onStep?: (step: PactoBridgeMessage<'checkout:step'>['payload']['step']) => void;
   onComplete?: (escrow: Escrow) => void;
@@ -126,6 +136,7 @@ export function mountFrame(
   let bridge: BridgeClient | null = null;
   let host: BridgeHost | null = null;
   let destroyed = false;
+  let readyReceived = false;
 
   function handleMessage(message: PactoBridgeMessage, event: MessageEvent): void {
     // Only trust messages coming from this iframe's own window.
@@ -135,6 +146,7 @@ export function mountFrame(
 
     switch (message.type) {
       case 'checkout:ready':
+        readyReceived = true;
         options.onReady?.(message.payload.sessionId);
         break;
       case 'checkout:step':
@@ -159,6 +171,19 @@ export function mountFrame(
   }
 
   host = createBridgeHost({ allowedOrigins, onMessage: handleMessage });
+
+  // Bounds the initial handshake wait — without this, a checkout page that
+  // never loads or never posts `checkout:ready` back (a hung frame message)
+  // leaves the host waiting forever with no way to notice.
+  waitForBridgeMessage(allowedOrigins, isBridgeMessageOfType('checkout:ready'), {
+    timeoutMs: options.readyTimeoutMs ?? DEFAULT_BRIDGE_MESSAGE_TIMEOUT_MS,
+    expectedSource: iframe.contentWindow ?? undefined,
+  }).catch((error) => {
+    if (destroyed || readyReceived) {
+      return;
+    }
+    options.onError?.(error);
+  });
 
   return {
     iframe,
