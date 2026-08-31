@@ -2,18 +2,33 @@ import type {
   CheckoutMode,
   CheckoutStep,
   CheckoutStorageAdapter,
+  DeepPartial,
   Escrow,
   FetchLike,
   PactoError,
+  PactoLocale,
+  PactoMessages,
 } from '@pacto-connect/core';
 import {
   type CheckoutSnapshot,
   parseCheckoutSnapshot,
+  resolveLocale,
+  resolveMessages,
+  resolveStepAnnouncement,
   serializeCheckoutSnapshot,
   snapshotMatchesScope,
 } from '@pacto-connect/core';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Linking, Modal, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import {
+  AccessibilityInfo,
+  Linking,
+  Modal,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import WebView, { type WebViewMessageEvent, type WebViewNavigation } from 'react-native-webview';
 import {
   buildCheckoutSnapshotScope,
@@ -85,6 +100,17 @@ export interface PactoCheckoutSheetProps {
    */
   returnUrl?: string;
   title?: string;
+  /**
+   * Locale for the native chrome (title/close button) and step announcements.
+   * Falls back to `railRegion`, then `en` — the same resolution chain the web
+   * surfaces use. The hosted page inside the WebView resolves its own copy
+   * independently; this only affects what this component renders/announces
+   * natively.
+   */
+  locale?: PactoLocale;
+  railRegion?: string;
+  /** Per-string copy overrides for the native chrome, same shape as the web surfaces. */
+  messages?: DeepPartial<PactoMessages>;
   onRequestClose: () => void;
   onReady?: (sessionId: string) => void;
   onStep?: (step: CheckoutStep) => void;
@@ -116,6 +142,11 @@ const styles = StyleSheet.create({
  */
 export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
   const webViewRef = useRef<WebView<object>>(null);
+  const locale = useMemo(
+    () => resolveLocale({ locale: props.locale, railRegion: props.railRegion }),
+    [props.locale, props.railRegion],
+  );
+  const messages = useMemo(() => resolveMessages(locale, props.messages), [locale, props.messages]);
   const storage = useMemo(
     () => props.storage ?? createDefaultReactNativeCheckoutStorage(),
     [props.storage],
@@ -374,6 +405,14 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
         },
         onStep: (step) => {
           props.onStep?.(step);
+          // The hosted page's own accessibility tree lives inside the
+          // WebView; a step transition there doesn't reliably move VoiceOver/
+          // TalkBack focus the way it does on the web surfaces, so announce
+          // it natively too, through the same i18n mechanism the web
+          // surfaces use.
+          AccessibilityInfo.announceForAccessibility(
+            resolveStepAnnouncement(messages, locale, step),
+          );
           syncHostedStorage();
         },
         onComplete: (escrow) => {
@@ -400,6 +439,8 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
       expectedOrigin,
       persistSyncedSnapshot,
       handleUserPresenceRequest,
+      locale,
+      messages,
       props.onReady,
       props.onStep,
       props.onComplete,
@@ -443,15 +484,17 @@ export function PactoCheckoutSheet(props: PactoCheckoutSheetProps) {
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
     >
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} accessibilityViewIsModal>
         <View style={styles.header}>
-          <Text style={styles.title}>{props.title ?? 'Checkout'}</Text>
+          <Text style={styles.title} accessibilityRole="header">
+            {props.title ?? 'Checkout'}
+          </Text>
           <Pressable
             onPress={handleClose}
             accessibilityRole="button"
-            accessibilityLabel="Close checkout"
+            accessibilityLabel={messages.actions.closeAria}
           >
-            <Text style={styles.closeLabel}>Close</Text>
+            <Text style={styles.closeLabel}>{messages.actions.close}</Text>
           </Pressable>
         </View>
         <WebView<object>
