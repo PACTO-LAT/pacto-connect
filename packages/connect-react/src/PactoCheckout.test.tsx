@@ -517,6 +517,103 @@ describe('PactoCheckout', () => {
       expect(logo).toHaveClass('pacto-checkout-logo');
     });
 
+    it('renders Portuguese copy when locale="pt"', async () => {
+      render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          listingId={listingId}
+          open
+          onClose={() => {}}
+          locale="pt"
+          testMode
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('deposit-step')).toBeInTheDocument();
+      });
+      expect(screen.getByRole('button', { name: 'Confirmar depósito' })).toBeInTheDocument();
+      expect(screen.getByTestId('checkout-test-banner')).toHaveTextContent(
+        'MODO DE TESTE — sem fundos reais ou transações Stellar',
+      );
+    });
+
+    it('derives the locale from the rail region when no explicit locale is given', async () => {
+      render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          listingId={listingId}
+          open
+          onClose={() => {}}
+          railRegion="BR"
+          testMode
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('deposit-step')).toBeInTheDocument();
+      });
+      expect(screen.getByRole('button', { name: 'Confirmar depósito' })).toBeInTheDocument();
+    });
+
+    it('prefers the explicit locale over the rail region', async () => {
+      render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          listingId={listingId}
+          open
+          onClose={() => {}}
+          locale="en"
+          railRegion="BR"
+          testMode
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('deposit-step')).toBeInTheDocument();
+      });
+      expect(screen.getByRole('button', { name: 'Confirm deposit' })).toBeInTheDocument();
+    });
+
+    it('formats listing amounts per locale instead of printing the raw number', async () => {
+      const enRender = render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          open
+          onClose={() => {}}
+          locale="en"
+          testMode
+        />,
+      );
+
+      await waitFor(() => {
+        expect(enRender.getByTestId('listing-list')).toBeInTheDocument();
+      });
+      expect(enRender.getByRole('button', { name: /USDC/ })).toHaveTextContent('100.00');
+      enRender.unmount();
+
+      const ptRender = render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          open
+          onClose={() => {}}
+          locale="pt"
+          testMode
+        />,
+      );
+
+      await waitFor(() => {
+        expect(ptRender.getByTestId('listing-list')).toBeInTheDocument();
+      });
+      expect(ptRender.getByRole('button', { name: /USDC/ })).toHaveTextContent('100,00');
+      ptRender.unmount();
+    });
+
     it('allows per-string message overrides', async () => {
       render(
         <PactoCheckout
