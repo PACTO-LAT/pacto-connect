@@ -501,6 +501,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/merchants/{id}/risk/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a merchant's velocity threshold settings */
+        get: operations["getMerchantRiskSettings"];
+        /** Update a merchant's velocity threshold settings */
+        put: operations["updateMerchantRiskSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/merchants/{id}/risk/lists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List a merchant's counterparty allow/deny list entries */
+        get: operations["listMerchantRiskListEntries"];
+        put?: never;
+        /** Add a counterparty to a merchant's allow or deny list */
+        post: operations["addMerchantRiskListEntry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/merchants/{id}/risk/lists/{entryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a counterparty from a merchant's allow or deny list */
+        delete: operations["removeMerchantRiskListEntry"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/merchants/{id}/risk/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List a merchant's recorded risk decisions */
+        get: operations["listMerchantRiskDecisions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/merchants/{id}/periods/{periodKey}/close": {
         parameters: {
             query?: never;
@@ -774,6 +844,8 @@ export interface components {
             };
             mode: components["schemas"]["CheckoutMode"];
             merchantId?: string;
+            /** @description Counterparty identifier evaluated against the merchant's risk allow/deny lists. */
+            counterpartyRef?: string;
         };
         SessionResponse: {
             sessionId: string;
@@ -782,6 +854,7 @@ export interface components {
             expiresAt: string;
             mode: components["schemas"]["CheckoutMode"];
             merchantId?: string | null;
+            counterpartyRef?: string | null;
         };
         RefreshSessionRequest: {
             clientSecret: string;
@@ -1136,6 +1209,71 @@ export interface components {
         AdminLegacyError: {
             error: string;
             code?: string;
+        };
+        /**
+         * @description Per-merchant velocity threshold overrides. Any field that is null falls
+         *     back to the platform default (merchant-first, then platform-default
+         *     resolution order).
+         */
+        MerchantRiskSettings: {
+            merchantId: string;
+            windowMs: number | null;
+            valueThreshold: number | null;
+            countThreshold: number | null;
+            reviewValueThreshold: number | null;
+            reviewCountThreshold: number | null;
+            /** Format: date-time */
+            updatedAt: string | null;
+        };
+        MerchantRiskSettingsResponse: {
+            settings: components["schemas"]["MerchantRiskSettings"];
+        };
+        UpdateMerchantRiskSettingsRequest: {
+            windowMs?: number | null;
+            valueThreshold?: number | null;
+            countThreshold?: number | null;
+            reviewValueThreshold?: number | null;
+            reviewCountThreshold?: number | null;
+        };
+        /** @enum {string} */
+        RiskListType: "allow" | "deny";
+        RiskListEntry: {
+            id: string;
+            merchantId: string;
+            listType: components["schemas"]["RiskListType"];
+            counterpartyRef: string;
+            note: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        RiskListEntryResponse: {
+            entry: components["schemas"]["RiskListEntry"];
+        };
+        RiskListEntryListResponse: {
+            entries: components["schemas"]["RiskListEntry"][];
+        };
+        CreateRiskListEntryRequest: {
+            listType: components["schemas"]["RiskListType"];
+            counterpartyRef: string;
+            note?: string;
+        };
+        /** @enum {string} */
+        RiskDecisionOutcome: "allow" | "review" | "block";
+        RiskDecision: {
+            id: string;
+            merchantId: string;
+            sessionId: string;
+            counterpartyRef: string | null;
+            amount: number;
+            asset: string;
+            outcome: components["schemas"]["RiskDecisionOutcome"];
+            reason: string;
+            requestId: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        RiskDecisionListResponse: {
+            decisions: components["schemas"]["RiskDecision"][];
         };
     };
     responses: never;
@@ -2250,6 +2388,173 @@ export interface operations {
                     "application/json": components["schemas"]["MerchantResponse"];
                 };
             };
+            401: paths["/v1/quote"]["post"]["responses"]["401"];
+            404: paths["/v1/escrows/{id}"]["get"]["responses"]["404"];
+            503: paths["/admin/keys"]["get"]["responses"]["503"];
+        };
+    };
+    getMerchantRiskSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: paths["/admin/merchants/{id}/disable"]["post"]["parameters"]["path"]["id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Merchant risk settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MerchantRiskSettingsResponse"];
+                };
+            };
+            401: paths["/v1/quote"]["post"]["responses"]["401"];
+            404: paths["/v1/escrows/{id}"]["get"]["responses"]["404"];
+            503: paths["/admin/keys"]["get"]["responses"]["503"];
+        };
+    };
+    updateMerchantRiskSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: paths["/admin/merchants/{id}/disable"]["post"]["parameters"]["path"]["id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMerchantRiskSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description Merchant risk settings updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MerchantRiskSettingsResponse"];
+                };
+            };
+            400: paths["/v1/quote"]["post"]["responses"]["400"];
+            401: paths["/v1/quote"]["post"]["responses"]["401"];
+            404: paths["/v1/escrows/{id}"]["get"]["responses"]["404"];
+            503: paths["/admin/keys"]["get"]["responses"]["503"];
+        };
+    };
+    listMerchantRiskListEntries: {
+        parameters: {
+            query?: {
+                type?: "allow" | "deny";
+            };
+            header?: never;
+            path: {
+                id: paths["/admin/merchants/{id}/disable"]["post"]["parameters"]["path"]["id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Risk list entries */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RiskListEntryListResponse"];
+                };
+            };
+            400: paths["/v1/quote"]["post"]["responses"]["400"];
+            401: paths["/v1/quote"]["post"]["responses"]["401"];
+            404: paths["/v1/escrows/{id}"]["get"]["responses"]["404"];
+            503: paths["/admin/keys"]["get"]["responses"]["503"];
+        };
+    };
+    addMerchantRiskListEntry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: paths["/admin/merchants/{id}/disable"]["post"]["parameters"]["path"]["id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRiskListEntryRequest"];
+            };
+        };
+        responses: {
+            /** @description List entry created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RiskListEntryResponse"];
+                };
+            };
+            400: paths["/v1/quote"]["post"]["responses"]["400"];
+            401: paths["/v1/quote"]["post"]["responses"]["401"];
+            404: paths["/v1/escrows/{id}"]["get"]["responses"]["404"];
+            409: paths["/v1/session"]["post"]["responses"]["409"];
+            503: paths["/admin/keys"]["get"]["responses"]["503"];
+        };
+    };
+    removeMerchantRiskListEntry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: paths["/admin/merchants/{id}/disable"]["post"]["parameters"]["path"]["id"];
+                entryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List entry removed */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: paths["/v1/quote"]["post"]["responses"]["401"];
+            404: paths["/v1/escrows/{id}"]["get"]["responses"]["404"];
+            503: paths["/admin/keys"]["get"]["responses"]["503"];
+        };
+    };
+    listMerchantRiskDecisions: {
+        parameters: {
+            query?: {
+                outcome?: "allow" | "review" | "block";
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: paths["/admin/merchants/{id}/disable"]["post"]["parameters"]["path"]["id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Risk decisions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RiskDecisionListResponse"];
+                };
+            };
+            400: paths["/v1/quote"]["post"]["responses"]["400"];
             401: paths["/v1/quote"]["post"]["responses"]["401"];
             404: paths["/v1/escrows/{id}"]["get"]["responses"]["404"];
             503: paths["/admin/keys"]["get"]["responses"]["503"];

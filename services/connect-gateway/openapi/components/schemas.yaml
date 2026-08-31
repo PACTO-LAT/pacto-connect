@@ -52,6 +52,9 @@ CreateSessionRequest:
       $ref: '#/CheckoutMode'
     merchantId:
       type: string
+    counterpartyRef:
+      type: string
+      description: Counterparty identifier evaluated against the merchant's risk allow/deny lists.
 
 SessionResponse:
   type: object
@@ -67,6 +70,9 @@ SessionResponse:
     mode:
       $ref: '#/CheckoutMode'
     merchantId:
+      type: string
+      nullable: true
+    counterpartyRef:
       type: string
       nullable: true
 
@@ -929,3 +935,150 @@ CreatePayoutRunRequest:
   properties:
     asset:
       type: string
+
+MerchantRiskSettings:
+  type: object
+  required: [merchantId, windowMs, valueThreshold, countThreshold, reviewValueThreshold, reviewCountThreshold, updatedAt]
+  description: |
+    Per-merchant velocity threshold overrides. Any field that is null falls
+    back to the platform default (merchant-first, then platform-default
+    resolution order).
+  properties:
+    merchantId:
+      type: string
+    windowMs:
+      type: integer
+      nullable: true
+    valueThreshold:
+      type: number
+      nullable: true
+    countThreshold:
+      type: integer
+      nullable: true
+    reviewValueThreshold:
+      type: number
+      nullable: true
+    reviewCountThreshold:
+      type: integer
+      nullable: true
+    updatedAt:
+      type: string
+      format: date-time
+      nullable: true
+
+MerchantRiskSettingsResponse:
+  type: object
+  required: [settings]
+  properties:
+    settings:
+      $ref: '#/MerchantRiskSettings'
+
+UpdateMerchantRiskSettingsRequest:
+  type: object
+  properties:
+    windowMs:
+      type: integer
+      nullable: true
+    valueThreshold:
+      type: number
+      nullable: true
+    countThreshold:
+      type: integer
+      nullable: true
+    reviewValueThreshold:
+      type: number
+      nullable: true
+    reviewCountThreshold:
+      type: integer
+      nullable: true
+
+RiskListType:
+  type: string
+  enum: [allow, deny]
+
+RiskListEntry:
+  type: object
+  required: [id, merchantId, listType, counterpartyRef, note, createdAt]
+  properties:
+    id:
+      type: string
+    merchantId:
+      type: string
+    listType:
+      $ref: '#/RiskListType'
+    counterpartyRef:
+      type: string
+    note:
+      type: string
+      nullable: true
+    createdAt:
+      type: string
+      format: date-time
+
+RiskListEntryResponse:
+  type: object
+  required: [entry]
+  properties:
+    entry:
+      $ref: '#/RiskListEntry'
+
+RiskListEntryListResponse:
+  type: object
+  required: [entries]
+  properties:
+    entries:
+      type: array
+      items:
+        $ref: '#/RiskListEntry'
+
+CreateRiskListEntryRequest:
+  type: object
+  required: [listType, counterpartyRef]
+  properties:
+    listType:
+      $ref: '#/RiskListType'
+    counterpartyRef:
+      type: string
+    note:
+      type: string
+
+RiskDecisionOutcome:
+  type: string
+  enum: [allow, review, block]
+
+RiskDecision:
+  type: object
+  required: [id, merchantId, sessionId, counterpartyRef, amount, asset, outcome, reason, requestId, createdAt]
+  properties:
+    id:
+      type: string
+    merchantId:
+      type: string
+    sessionId:
+      type: string
+    counterpartyRef:
+      type: string
+      nullable: true
+    amount:
+      type: number
+    asset:
+      type: string
+    outcome:
+      $ref: '#/RiskDecisionOutcome'
+    reason:
+      type: string
+    requestId:
+      type: string
+      nullable: true
+    createdAt:
+      type: string
+      format: date-time
+
+RiskDecisionListResponse:
+  type: object
+  required: [decisions]
+  properties:
+    decisions:
+      type: array
+      items:
+        $ref: '#/RiskDecision'
