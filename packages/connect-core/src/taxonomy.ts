@@ -5,6 +5,7 @@ export const PACTO_ERROR_CODES = [
   'PACTO_VALIDATION',
   'PACTO_SESSION',
   'PACTO_ESCROW',
+  'PACTO_RISK',
   'PACTO_NETWORK',
   'PACTO_SECURITY',
   'PACTO_INTERNAL',
@@ -79,6 +80,10 @@ export function classifyGatewayError(input: ClassifyInput): PactoErrorCode {
 
   if (type === 'escrow_error') {
     return 'PACTO_ESCROW';
+  }
+
+  if (type === 'risk_error') {
+    return 'PACTO_RISK';
   }
 
   if (
