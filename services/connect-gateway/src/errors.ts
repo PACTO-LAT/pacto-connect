@@ -58,6 +58,22 @@ export function subscriptionErrorStatus(code: SubscriptionErrorCode): Contentful
   return code === 'subscription_not_found' ? 404 : 400;
 }
 
+export type RiskErrorCode = 'deny_listed' | 'velocity_value_exceeded' | 'velocity_count_exceeded';
+
+export class RiskError extends Error {
+  constructor(
+    public readonly code: RiskErrorCode,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'RiskError';
+  }
+}
+
+export function riskErrorStatus(_code: RiskErrorCode): ContentfulStatusCode {
+  return 409;
+}
+
 export function toGatewayErrorBody(
   type: string,
   code: string,

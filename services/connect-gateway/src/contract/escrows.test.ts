@@ -30,6 +30,16 @@ vi.mock('../db.js', () => ({
       findUnique: vi.fn(),
       update: vi.fn(),
     },
+    merchantRiskListEntry: {
+      findUnique: vi.fn(),
+    },
+    merchantRiskSettings: {
+      findUnique: vi.fn(),
+    },
+    riskDecision: {
+      create: vi.fn(),
+      aggregate: vi.fn(),
+    },
   },
 }));
 
@@ -62,12 +72,30 @@ describe('contract: escrow routes', () => {
       createdAt: new Date('2024-06-01T12:00:00.000Z'),
       updatedAt: new Date('2024-06-01T12:00:00.000Z'),
       merchantId: null,
+      counterpartyRef: null,
     };
 
     vi.mocked(keys.findActiveApiKeyByPublishableKey).mockReset();
     vi.mocked(prisma.checkoutSession.findUnique).mockReset();
+    vi.mocked(prisma.merchantRiskListEntry.findUnique).mockReset();
+    vi.mocked(prisma.merchantRiskSettings.findUnique).mockReset();
+    vi.mocked(prisma.riskDecision.create).mockReset();
+    vi.mocked(prisma.riskDecision.aggregate).mockReset();
     vi.mocked(keys.findActiveApiKeyByPublishableKey).mockResolvedValue(mockApiKey);
     vi.mocked(prisma.checkoutSession.findUnique).mockResolvedValue(mockCheckoutSession);
+    vi.mocked(prisma.merchantRiskListEntry.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.merchantRiskSettings.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.riskDecision.create).mockImplementation((async (args: {
+      data: Record<string, unknown>;
+    }) => ({
+      id: 'rdc_1',
+      createdAt: new Date(),
+      ...args.data,
+    })) as never);
+    vi.mocked(prisma.riskDecision.aggregate).mockResolvedValue({
+      _sum: { amount: 0 },
+      _count: { _all: 0 },
+    } as never);
   });
 
   it('POST /v1/escrows lifecycle responses match OpenAPI schemas', async () => {
@@ -157,5 +185,26 @@ describe('contract: escrow routes', () => {
       path: '/v1/escrows',
       expectedStatus: 401,
     });
+  });
+
+  it('POST /v1/escrows blocked by velocity matches ErrorEnvelope schema', async () => {
+    process.env.RISK_VALUE_THRESHOLD = '100';
+    mockCheckoutSession = { ...mockCheckoutSession, merchantId: 'mrc_1' };
+    vi.mocked(prisma.checkoutSession.findUnique).mockResolvedValue(mockCheckoutSession);
+
+    const app = createApp();
+    const res = await app.request('/v1/escrows', {
+      method: 'POST',
+      headers: clientSecretHeaders(clientSecret),
+      body: JSON.stringify({ quoteId: 'quote_1', amount: '150', asset: 'USDC' }),
+    });
+
+    await expectResponseMatchesSpec(res, {
+      method: 'POST',
+      path: '/v1/escrows',
+      expectedStatus: 409,
+    });
+
+    delete process.env.RISK_VALUE_THRESHOLD;
   });
 });

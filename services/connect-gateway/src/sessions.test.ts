@@ -12,6 +12,8 @@ const mockCheckoutSession = {
   refreshCount: 0,
   createdAt: new Date('2024-06-01T12:00:00.000Z'),
   updatedAt: new Date('2024-06-01T12:00:00.000Z'),
+  merchantId: null,
+  counterpartyRef: null,
 };
 
 vi.mock('./db.js', () => ({
@@ -82,6 +84,8 @@ describe('sessions service', () => {
       refreshCount: 0,
       createdAt: new Date('2024-06-01T12:00:00.000Z'),
       updatedAt: new Date('2024-06-01T12:00:00.000Z'),
+      merchantId: null,
+      counterpartyRef: null,
     };
 
     vi.mocked(prisma.checkoutSession.findUnique).mockResolvedValue(
@@ -145,6 +149,7 @@ describe('sessions service', () => {
       id: 'sess_m',
       apiKeyId: 'key_1',
       merchantId: 'mrc_1',
+      counterpartyRef: null,
       mode: 'buy' as const,
       listingId: null,
       quote: null,
@@ -172,5 +177,40 @@ describe('sessions service', () => {
       'mrc_1',
     );
     expect(result.merchantId).toBe('mrc_1');
+  });
+
+  it('createCheckoutSession persists counterpartyRef when provided', async () => {
+    const created = {
+      id: 'sess_c',
+      apiKeyId: 'key_1',
+      merchantId: null,
+      counterpartyRef: 'wallet_abc123',
+      mode: 'buy' as const,
+      listingId: null,
+      quote: null,
+      clientSecretHash: '',
+      status: 'active' as const,
+      expiresAt: new Date('2026-01-01T00:15:00.000Z'),
+      refreshCount: 0,
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    };
+    vi.mocked(prisma.checkoutSession.create).mockResolvedValue(created);
+    vi.mocked(prisma.checkoutSession.update).mockResolvedValue({
+      ...created,
+      clientSecretHash: 'h',
+    });
+
+    const result = await createCheckoutSession({
+      apiKeyId: 'key_1',
+      mode: 'buy',
+      listingId: 'lst_1',
+      counterpartyRef: 'wallet_abc123',
+    });
+
+    expect(vi.mocked(prisma.checkoutSession.create).mock.calls[0]![0].data.counterpartyRef).toBe(
+      'wallet_abc123',
+    );
+    expect(result.counterpartyRef).toBe('wallet_abc123');
   });
 });

@@ -50,6 +50,10 @@ describe('classifyGatewayError', () => {
     expect(classifyGatewayError({ type: 'escrow_error' })).toBe('PACTO_ESCROW');
   });
 
+  it('maps risk_error to PACTO_RISK', () => {
+    expect(classifyGatewayError({ type: 'risk_error' })).toBe('PACTO_RISK');
+  });
+
   it('exports escrow detail codes for SDK consumers', () => {
     expect(ESCROW_DETAIL_CODES).toContain('invalid_transition');
     expect(ESCROW_DETAIL_CODES).toContain('refund_exceeds_balance');

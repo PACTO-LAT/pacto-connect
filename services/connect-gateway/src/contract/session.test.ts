@@ -50,6 +50,7 @@ describe('contract: session routes', () => {
       expiresAt: new Date('2024-01-01T00:15:00.000Z'),
       mode: 'buy',
       merchantId: null,
+      counterpartyRef: null,
     });
 
     const app = createApp();
@@ -84,6 +85,7 @@ describe('contract: session routes', () => {
       expiresAt: new Date('2024-01-01T00:30:00.000Z'),
       mode: 'sell',
       merchantId: null,
+      counterpartyRef: null,
     });
 
     const app = createApp();

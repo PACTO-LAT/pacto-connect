@@ -186,6 +186,162 @@
       '503':
         $ref: '../components/responses.yaml#/ServiceUnavailable'
 
+/admin/merchants/{id}/risk/settings:
+  get:
+    operationId: getMerchantRiskSettings
+    summary: Get a merchant's velocity threshold settings
+    tags: [admin, risk]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/MerchantIdPath'
+    responses:
+      '200':
+        description: Merchant risk settings
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/MerchantRiskSettingsResponse'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+  put:
+    operationId: updateMerchantRiskSettings
+    summary: Update a merchant's velocity threshold settings
+    tags: [admin, risk]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/MerchantIdPath'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/UpdateMerchantRiskSettingsRequest'
+    responses:
+      '200':
+        description: Merchant risk settings updated
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/MerchantRiskSettingsResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/merchants/{id}/risk/lists:
+  get:
+    operationId: listMerchantRiskListEntries
+    summary: List a merchant's counterparty allow/deny list entries
+    tags: [admin, risk]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/MerchantIdPath'
+      - $ref: '../components/parameters.yaml#/RiskListTypeQuery'
+    responses:
+      '200':
+        description: Risk list entries
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/RiskListEntryListResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+  post:
+    operationId: addMerchantRiskListEntry
+    summary: Add a counterparty to a merchant's allow or deny list
+    tags: [admin, risk]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/MerchantIdPath'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas.yaml#/CreateRiskListEntryRequest'
+    responses:
+      '201':
+        description: List entry created
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/RiskListEntryResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '409':
+        $ref: '../components/responses.yaml#/Conflict'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/merchants/{id}/risk/lists/{entryId}:
+  delete:
+    operationId: removeMerchantRiskListEntry
+    summary: Remove a counterparty from a merchant's allow or deny list
+    tags: [admin, risk]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/MerchantIdPath'
+      - $ref: '../components/parameters.yaml#/RiskListEntryIdPath'
+    responses:
+      '204':
+        description: List entry removed
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
+/admin/merchants/{id}/risk/decisions:
+  get:
+    operationId: listMerchantRiskDecisions
+    summary: List a merchant's recorded risk decisions
+    tags: [admin, risk]
+    security:
+      - AdminToken: []
+    parameters:
+      - $ref: '../components/parameters.yaml#/MerchantIdPath'
+      - $ref: '../components/parameters.yaml#/RiskDecisionOutcomeQuery'
+      - $ref: '../components/parameters.yaml#/RiskDecisionLimitQuery'
+    responses:
+      '200':
+        description: Risk decisions
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/RiskDecisionListResponse'
+      '400':
+        $ref: '../components/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses.yaml#/NotFound'
+      '503':
+        $ref: '../components/responses.yaml#/ServiceUnavailable'
+
 /admin/merchants/{id}/periods/{periodKey}/close:
   post:
     operationId: closeSettlementPeriod

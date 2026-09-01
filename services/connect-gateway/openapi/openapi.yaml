@@ -30,6 +30,8 @@ tags:
     description: Webhook ingress and admin
   - name: admin
     description: Key and merchant administration
+  - name: risk
+    description: Per-merchant velocity thresholds, counterparty lists, and risk decisions
 
 components:
   securitySchemes:
@@ -192,6 +194,28 @@ components:
       $ref: './components/schemas.yaml#/PayoutRunListResponse'
     AdminLegacyError:
       $ref: './components/schemas.yaml#/AdminLegacyError'
+    MerchantRiskSettings:
+      $ref: './components/schemas.yaml#/MerchantRiskSettings'
+    MerchantRiskSettingsResponse:
+      $ref: './components/schemas.yaml#/MerchantRiskSettingsResponse'
+    UpdateMerchantRiskSettingsRequest:
+      $ref: './components/schemas.yaml#/UpdateMerchantRiskSettingsRequest'
+    RiskListType:
+      $ref: './components/schemas.yaml#/RiskListType'
+    RiskListEntry:
+      $ref: './components/schemas.yaml#/RiskListEntry'
+    RiskListEntryResponse:
+      $ref: './components/schemas.yaml#/RiskListEntryResponse'
+    RiskListEntryListResponse:
+      $ref: './components/schemas.yaml#/RiskListEntryListResponse'
+    CreateRiskListEntryRequest:
+      $ref: './components/schemas.yaml#/CreateRiskListEntryRequest'
+    RiskDecisionOutcome:
+      $ref: './components/schemas.yaml#/RiskDecisionOutcome'
+    RiskDecision:
+      $ref: './components/schemas.yaml#/RiskDecision'
+    RiskDecisionListResponse:
+      $ref: './components/schemas.yaml#/RiskDecisionListResponse'
 
 paths:
   /health:
@@ -252,6 +276,14 @@ paths:
     $ref: './paths/admin.yaml#/~1admin~1keys~1{keyId}~1merchants'
   /admin/merchants/{id}/disable:
     $ref: './paths/admin.yaml#/~1admin~1merchants~1{id}~1disable'
+  /admin/merchants/{id}/risk/settings:
+    $ref: './paths/admin.yaml#/~1admin~1merchants~1{id}~1risk~1settings'
+  /admin/merchants/{id}/risk/lists:
+    $ref: './paths/admin.yaml#/~1admin~1merchants~1{id}~1risk~1lists'
+  /admin/merchants/{id}/risk/lists/{entryId}:
+    $ref: './paths/admin.yaml#/~1admin~1merchants~1{id}~1risk~1lists~1{entryId}'
+  /admin/merchants/{id}/risk/decisions:
+    $ref: './paths/admin.yaml#/~1admin~1merchants~1{id}~1risk~1decisions'
   /admin/merchants/{id}/periods/{periodKey}/close:
     $ref: './paths/admin.yaml#/~1admin~1merchants~1{id}~1periods~1{periodKey}~1close'
   /admin/merchants/{id}/ledger/corrections:
