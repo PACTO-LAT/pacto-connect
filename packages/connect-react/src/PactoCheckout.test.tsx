@@ -1,6 +1,7 @@
 import { createMemoryCheckoutStorage } from '@pacto-connect/core';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PactoCheckout } from './PactoCheckout';
 
@@ -411,6 +412,11 @@ describe('PactoCheckout', () => {
       const closeButton = screen.getByRole('button', { name: 'Close checkout' });
       const confirmButton = await screen.findByRole('button', { name: 'Confirm deposit' });
 
+      // Reaching "deposit" is itself a step change (from the initial "loading"
+      // step), so focus already moved to its heading — not the close button.
+      expect(screen.getByRole('heading', { name: 'Deposit to escrow' })).toHaveFocus();
+
+      await userEvent.tab();
       expect(closeButton).toHaveFocus();
 
       await userEvent.tab();
@@ -419,6 +425,256 @@ describe('PactoCheckout', () => {
       await userEvent.tab();
       expect(closeButton).toHaveFocus();
       expect(dialog.contains(document.activeElement)).toBe(true);
+    });
+
+    it('moves focus to the new step heading and announces it via the live region on step change', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          listingId={listingId}
+          open
+          onClose={() => {}}
+          testMode
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Deposit to escrow' })).toHaveFocus();
+      });
+      expect(screen.getByTestId('checkout-step-announcer')).toHaveTextContent('Deposit to escrow');
+
+      await user.click(screen.getByRole('button', { name: 'Confirm deposit' }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Upload payment receipt' })).toHaveFocus();
+      });
+      expect(screen.getByTestId('checkout-step-announcer')).toHaveTextContent(
+        'Upload payment receipt',
+      );
+    });
+
+    it('announces the detailed terminal message, including the escrow id, on success', async () => {
+      const user = userEvent.setup();
+      const sse = createDeferredSseResponse();
+      vi.stubGlobal('fetch', createFetchMock(sse));
+
+      render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          listingId={listingId}
+          open
+          onClose={() => {}}
+          testMode
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('deposit-step')).toBeInTheDocument();
+      });
+      await user.click(screen.getByRole('button', { name: 'Confirm deposit' }));
+      await waitFor(() => {
+        expect(screen.getByTestId('receipt-form')).toBeInTheDocument();
+      });
+      await user.type(screen.getByLabelText('Payment reference'), 'REF-123');
+      await user.click(screen.getByRole('button', { name: 'Submit receipt' }));
+      await waitFor(() => {
+        expect(screen.getByTestId('tracking-step')).toBeInTheDocument();
+      });
+
+      sse.push(
+        'id: cursor-1\nevent: released\ndata: {"escrowId":"esc_1","occurredAt":"2024-01-01T00:10:00.000Z"}\n\n',
+      );
+      sse.close();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('checkout-step-announcer')).toHaveTextContent(
+          'Payment complete. Escrow esc_1 released.',
+        );
+      });
+    });
+
+    it('gives every interactive control an accessible name', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          open
+          onClose={() => {}}
+          testMode
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('listing-list')).toBeInTheDocument();
+      });
+      expect(screen.getByRole('button', { name: 'Close checkout' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /USDC/ })).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: /USDC/ }));
+      await waitFor(() => {
+        expect(screen.getByTestId('deposit-step')).toBeInTheDocument();
+      });
+      await user.click(screen.getByRole('button', { name: 'Confirm deposit' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('receipt-form')).toBeInTheDocument();
+      });
+      expect(screen.getByLabelText('Payment method')).toBeInTheDocument();
+      expect(screen.getByLabelText('Payment reference')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Submit receipt' })).toBeInTheDocument();
+    });
+
+    it('warns at configuration time with a message naming the failing pair when the theme fails WCAG AA', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          listingId={listingId}
+          open
+          onClose={() => {}}
+          theme={{ colors: { text: '#ffffff', surface: '#ffffff' } }}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+      });
+      expect(warnSpy.mock.calls[0]![0]).toContain('colors.text on colors.surface');
+
+      warnSpy.mockRestore();
+    });
+
+    it('does not warn when the theme passes WCAG AA', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          listingId={listingId}
+          open
+          onClose={() => {}}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('deposit-step')).toBeInTheDocument();
+      });
+      expect(warnSpy).not.toHaveBeenCalled();
+
+      warnSpy.mockRestore();
+    });
+
+    it('completes an entire checkout using only the keyboard', async () => {
+      const onComplete = vi.fn();
+      const user = userEvent.setup();
+      const sse = createDeferredSseResponse();
+      vi.stubGlobal('fetch', createFetchMock(sse));
+
+      render(
+        <PactoCheckout
+          publishableKey={publishableKey}
+          gatewayUrl={gatewayUrl}
+          open
+          onClose={() => {}}
+          onComplete={onComplete}
+          testMode
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('listing-list')).toBeInTheDocument();
+      });
+
+      // Tab from the top of the dialog to the listing button, then activate it
+      // with the keyboard (Enter) instead of a pointer click.
+      await user.tab();
+      await user.tab();
+      expect(screen.getByRole('button', { name: /USDC/ })).toHaveFocus();
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('deposit-step')).toBeInTheDocument();
+      });
+      // Selecting the listing is a step change, so focus lands on the new
+      // step's heading first — from there, Tab reaches "Confirm deposit".
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Deposit to escrow' })).toHaveFocus();
+      });
+      await user.tab();
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'Confirm deposit' })).toHaveFocus();
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('receipt-form')).toBeInTheDocument();
+      });
+      // uploadReceipt is another step change, so focus starts on its heading.
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Upload payment receipt' })).toHaveFocus();
+      });
+      await user.tab(); // close button
+      await user.tab(); // payment method select
+      await user.tab();
+      expect(screen.getByLabelText('Payment reference')).toHaveFocus();
+      await user.keyboard('REF-789');
+      await user.keyboard('{Tab}');
+      expect(screen.getByRole('button', { name: 'Submit receipt' })).toHaveFocus();
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('tracking-step')).toBeInTheDocument();
+      });
+
+      sse.push(
+        'id: cursor-1\nevent: released\ndata: {"escrowId":"esc_1","occurredAt":"2024-01-01T00:10:00.000Z"}\n\n',
+      );
+      sse.close();
+
+      await waitFor(() => {
+        expect(onComplete).toHaveBeenCalledWith(expect.objectContaining({ id: 'esc_1' }));
+      });
+      expect(screen.getByTestId('checkout-success')).toBeInTheDocument();
+    });
+
+    it('dismisses the widget with the keyboard alone (Escape) and returns focus to the trigger', async () => {
+      const user = userEvent.setup();
+
+      function Harness() {
+        const [open, setOpen] = useState(false);
+        return (
+          <>
+            <button type="button" onClick={() => setOpen(true)}>
+              Open checkout
+            </button>
+            <PactoCheckout
+              publishableKey={publishableKey}
+              gatewayUrl={gatewayUrl}
+              listingId={listingId}
+              open={open}
+              onClose={() => setOpen(false)}
+            />
+          </>
+        );
+      }
+
+      render(<Harness />);
+      const trigger = screen.getByRole('button', { name: 'Open checkout' });
+      await user.click(trigger);
+
+      await screen.findByTestId('pacto-checkout-dialog');
+      await user.keyboard('{Escape}');
+
+      expect(screen.queryByTestId('pacto-checkout-dialog')).not.toBeInTheDocument();
+      expect(trigger).toHaveFocus();
     });
   });
 

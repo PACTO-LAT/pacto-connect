@@ -6,6 +6,7 @@ import {
 } from '@pacto-connect/core';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type React from 'react';
+import { AccessibilityInfo } from 'react-native';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { PactoCheckoutSheet } from './PactoCheckoutSheet.js';
 import { createMockIntegrityProbe } from './security/device-integrity.js';
@@ -13,6 +14,7 @@ import type { TestHandlers } from './test/react-native-webview-mock.js';
 
 afterEach(() => {
   cleanup();
+  (AccessibilityInfo as unknown as { __reset: () => void }).__reset();
 });
 
 const CHECKOUT_URL = 'https://checkout.pacto.example/embed';
@@ -316,6 +318,109 @@ describe('PactoCheckoutSheet', () => {
 
     await waitFor(() => {
       expect(getWebViewNode().getAttribute('data-injected-before-load')).toContain(key);
+    });
+  });
+
+  describe('accessibility', () => {
+    function accessibilityAnnouncements(): string[] {
+      return (AccessibilityInfo as unknown as { __announcements: string[] }).__announcements;
+    }
+
+    it('gives the close control an accessible role and name', () => {
+      renderCheckoutSheet({
+        visible: true,
+        checkoutUrl: CHECKOUT_URL,
+        publishableKey: 'pk_test_123',
+        onRequestClose: () => {},
+      });
+
+      const closeButton = screen.getByLabelText('Close checkout');
+      expect(closeButton).toHaveAttribute('role', 'button');
+    });
+
+    it('marks the title as a header for assistive technology', () => {
+      renderCheckoutSheet({
+        visible: true,
+        checkoutUrl: CHECKOUT_URL,
+        publishableKey: 'pk_test_123',
+        title: 'Buy USDC',
+        onRequestClose: () => {},
+      });
+
+      expect(screen.getByText('Buy USDC')).toHaveAttribute('role', 'header');
+    });
+
+    it('marks the sheet content as a modal for screen readers', () => {
+      renderCheckoutSheet({
+        visible: true,
+        checkoutUrl: CHECKOUT_URL,
+        publishableKey: 'pk_test_123',
+        onRequestClose: () => {},
+      });
+
+      const safeArea = document.querySelector('[data-rn-component="SafeAreaView"]');
+      expect(safeArea).toHaveAttribute('data-accessibility-view-is-modal', 'true');
+    });
+
+    it('announces a checkout:step message from the WebView through AccessibilityInfo', () => {
+      renderCheckoutSheet({
+        visible: true,
+        checkoutUrl: CHECKOUT_URL,
+        publishableKey: 'pk_test_123',
+        onRequestClose: () => {},
+      });
+
+      getWebViewHandlers().onMessage?.({
+        nativeEvent: {
+          data: envelope({ type: 'checkout:step', payload: { step: 'deposit' } }),
+          url: CHECKOUT_URL,
+        },
+      });
+
+      expect(accessibilityAnnouncements()).toContain('Deposit to escrow');
+    });
+
+    it('announces the step in the resolved locale', () => {
+      renderCheckoutSheet({
+        visible: true,
+        checkoutUrl: CHECKOUT_URL,
+        publishableKey: 'pk_test_123',
+        locale: 'es',
+        onRequestClose: () => {},
+      });
+
+      getWebViewHandlers().onMessage?.({
+        nativeEvent: {
+          data: envelope({ type: 'checkout:step', payload: { step: 'deposit' } }),
+          url: CHECKOUT_URL,
+        },
+      });
+
+      expect(accessibilityAnnouncements()).toContain('Depositar en garantía');
+    });
+
+    it('localizes the close button label from railRegion when no explicit locale is given', () => {
+      renderCheckoutSheet({
+        visible: true,
+        checkoutUrl: CHECKOUT_URL,
+        publishableKey: 'pk_test_123',
+        railRegion: 'BR',
+        onRequestClose: () => {},
+      });
+
+      expect(screen.getByLabelText('Fechar pagamento')).toBeInTheDocument();
+    });
+
+    it('applies per-string message overrides to the native chrome', () => {
+      renderCheckoutSheet({
+        visible: true,
+        checkoutUrl: CHECKOUT_URL,
+        publishableKey: 'pk_test_123',
+        messages: { actions: { close: 'Dismiss' } },
+        onRequestClose: () => {},
+      });
+
+      expect(screen.getByText('Dismiss')).toBeInTheDocument();
     });
   });
 });

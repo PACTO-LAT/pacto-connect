@@ -1272,7 +1272,7 @@ https://v8.dev/docs/stack-trace-api#customizing-stack-traces
 function PactoCheckout(props): Element | null;
 ```
 
-Defined in: [packages/connect-react/src/PactoCheckout.tsx:58](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L58)
+Defined in: [packages/connect-react/src/PactoCheckout.tsx:60](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L60)
 
 ## Parameters
 
@@ -1293,7 +1293,7 @@ Defined in: [packages/connect-react/src/PactoCheckout.tsx:58](https://github.com
 function buildCheckoutStylesheet(): string;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:1013
+Defined in: packages/connect-core/dist/index.d.ts:1064
 
 The default checkout stylesheet, tokenized. Every themeable value is written
 as `var(--pacto-*, <default>)` where the default comes from DEFAULT_THEME, so
@@ -1415,7 +1415,7 @@ value is "PACTO\_AUTH" \| "PACTO\_RATE\_LIMIT" \| "PACTO\_UPSTREAM" \| "PACTO\_V
 function resolveMessages(locale?, overrides?): PactoMessages;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:1026
+Defined in: packages/connect-core/dist/index.d.ts:1077
 
 Resolve a locale to its message set, deep-merged with optional overrides.
 Unknown locales fall back to English. Pass a full `PactoMessages` shape via
@@ -1441,7 +1441,7 @@ Unknown locales fall back to English. Pass a full `PactoMessages` shape via
 function themeToCssVars(theme?): Record<string, string>;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:1007
+Defined in: packages/connect-core/dist/index.d.ts:1021
 
 Convert a (partial) theme into a sparse map of CSS custom properties. Only
 tokens that are explicitly provided are emitted; everything else falls
@@ -1477,6 +1477,62 @@ Defined in: [packages/connect-react/src/hooks/useCheckoutFlow.ts:59](https://git
 ## Returns
 
 [`UseCheckoutFlowResult`](#interface.usecheckoutflowresult)
+
+
+---
+
+# Function: validateThemeContrast()
+
+```ts
+function validateThemeContrast(theme?): ThemeContrastIssue[];
+```
+
+Defined in: packages/connect-core/dist/index.d.ts:1049
+
+Checks every themable text/background color pair the checkout dialog
+renders against WCAG 2.1 AA. Call this wherever a theme is configured
+(widget mount, `pacto.mount()`, etc.) so a merchant sees the problem at
+configuration time rather than a user discovering it can't be read.
+
+A pair whose colors can't be parsed (e.g. a named CSS color or `hsl()`) is
+skipped rather than reported, since we can't compute a ratio for it.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `theme?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoTheme`](#interface.pactotheme)\> |
+
+## Returns
+
+[`ThemeContrastIssue`](#interface.themecontrastissue)[]
+
+
+---
+
+# Function: warnOnThemeContrastIssues()
+
+```ts
+function warnOnThemeContrastIssues(theme?, warn?): ThemeContrastIssue[];
+```
+
+Defined in: packages/connect-core/dist/index.d.ts:1058
+
+Validates `theme` and reports any WCAG AA contrast failures via `warn`
+(defaults to `console.warn`). Called by every widget surface as soon as a
+theme is configured. Returns the issues so callers that want to fail loudly
+(e.g. a CI theme-lint script) can inspect them instead of just logging.
+
+## Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `theme?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoTheme`](#interface.pactotheme)\> |
+| `warn?` | (`message`) => `void` |
+
+## Returns
+
+[`ThemeContrastIssue`](#interface.themecontrastissue)[]
 
 
 ---
@@ -1696,31 +1752,31 @@ Defined in: packages/connect-core/dist/index.d.ts:604
 
 # Interface: PactoCheckoutProps
 
-Defined in: [packages/connect-react/src/PactoCheckout.tsx:30](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L30)
+Defined in: [packages/connect-react/src/PactoCheckout.tsx:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L32)
 
 ## Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="gatewayurl"></a> `gatewayUrl?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:32](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L32) |
-| <a id="injectstyles"></a> `injectStyles?` | `boolean` | Inject the default stylesheet (default `true`). Set `false` to self-style. | [packages/connect-react/src/PactoCheckout.tsx:55](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L55) |
-| <a id="listingid"></a> `listingId?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:33](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L33) |
-| <a id="locale"></a> `locale?` | [`PactoLocale`](#typealias.pactolocale) | Widget copy locale (default `en`). | [packages/connect-react/src/PactoCheckout.tsx:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L44) |
-| <a id="logoalt"></a> `logoAlt?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:53](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L53) |
-| <a id="logourl"></a> `logoUrl?` | `string` | Brand logo shown in the checkout header. | [packages/connect-react/src/PactoCheckout.tsx:52](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L52) |
-| <a id="messages"></a> `messages?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoMessages`](#interface.pactomessages)\> | Per-string copy overrides / additional locale. | [packages/connect-react/src/PactoCheckout.tsx:48](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L48) |
-| <a id="mode"></a> `mode?` | `"buy"` \| `"sell"` | - | [packages/connect-react/src/PactoCheckout.tsx:34](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L34) |
-| <a id="onclose"></a> `onClose` | () => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L38) |
-| <a id="oncomplete"></a> `onComplete?` | (`escrow`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:39](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L39) |
-| <a id="ondispute"></a> `onDispute?` | (`escrow`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:40](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L40) |
-| <a id="onerror"></a> `onError?` | (`error`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:42](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L42) |
-| <a id="onrefund"></a> `onRefund?` | (`escrow`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:41](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L41) |
-| <a id="open"></a> `open` | `boolean` | - | [packages/connect-react/src/PactoCheckout.tsx:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L37) |
-| <a id="publishablekey"></a> `publishableKey` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:31](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L31) |
-| <a id="railregion"></a> `railRegion?` | `string` | Rail region used when the host does not provide a locale. | [packages/connect-react/src/PactoCheckout.tsx:46](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L46) |
-| <a id="storage"></a> `storage?` | [`CheckoutStorageAdapter`](#interface.checkoutstorageadapter) | - | [packages/connect-react/src/PactoCheckout.tsx:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L36) |
-| <a id="testmode"></a> `testMode?` | `boolean` | - | [packages/connect-react/src/PactoCheckout.tsx:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L35) |
-| <a id="theme"></a> `theme?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoTheme`](#interface.pactotheme)\> | Design tokens applied as `--pacto-*` CSS variables. | [packages/connect-react/src/PactoCheckout.tsx:50](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L50) |
+| <a id="gatewayurl"></a> `gatewayUrl?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:34](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L34) |
+| <a id="injectstyles"></a> `injectStyles?` | `boolean` | Inject the default stylesheet (default `true`). Set `false` to self-style. | [packages/connect-react/src/PactoCheckout.tsx:57](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L57) |
+| <a id="listingid"></a> `listingId?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:35](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L35) |
+| <a id="locale"></a> `locale?` | [`PactoLocale`](#typealias.pactolocale) | Widget copy locale (default `en`). | [packages/connect-react/src/PactoCheckout.tsx:46](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L46) |
+| <a id="logoalt"></a> `logoAlt?` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:55](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L55) |
+| <a id="logourl"></a> `logoUrl?` | `string` | Brand logo shown in the checkout header. | [packages/connect-react/src/PactoCheckout.tsx:54](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L54) |
+| <a id="messages"></a> `messages?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoMessages`](#interface.pactomessages)\> | Per-string copy overrides / additional locale. | [packages/connect-react/src/PactoCheckout.tsx:50](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L50) |
+| <a id="mode"></a> `mode?` | `"buy"` \| `"sell"` | - | [packages/connect-react/src/PactoCheckout.tsx:36](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L36) |
+| <a id="onclose"></a> `onClose` | () => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:40](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L40) |
+| <a id="oncomplete"></a> `onComplete?` | (`escrow`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:41](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L41) |
+| <a id="ondispute"></a> `onDispute?` | (`escrow`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:42](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L42) |
+| <a id="onerror"></a> `onError?` | (`error`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:44](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L44) |
+| <a id="onrefund"></a> `onRefund?` | (`escrow`) => `void` | - | [packages/connect-react/src/PactoCheckout.tsx:43](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L43) |
+| <a id="open"></a> `open` | `boolean` | - | [packages/connect-react/src/PactoCheckout.tsx:39](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L39) |
+| <a id="publishablekey"></a> `publishableKey` | `string` | - | [packages/connect-react/src/PactoCheckout.tsx:33](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L33) |
+| <a id="railregion"></a> `railRegion?` | `string` | Rail region used when the host does not provide a locale. | [packages/connect-react/src/PactoCheckout.tsx:48](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L48) |
+| <a id="storage"></a> `storage?` | [`CheckoutStorageAdapter`](#interface.checkoutstorageadapter) | - | [packages/connect-react/src/PactoCheckout.tsx:38](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L38) |
+| <a id="testmode"></a> `testMode?` | `boolean` | - | [packages/connect-react/src/PactoCheckout.tsx:37](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L37) |
+| <a id="theme"></a> `theme?` | [`DeepPartial`](#typealias.deeppartial)\<[`PactoTheme`](#interface.pactotheme)\> | Design tokens applied as `--pacto-*` CSS variables. | [packages/connect-react/src/PactoCheckout.tsx:52](https://github.com/PACTO-LAT/pacto-connect/blob/main/packages/connect-react/src/PactoCheckout.tsx#L52) |
 
 
 ---
@@ -1890,7 +1946,7 @@ Defined in: packages/connect-core/dist/index.d.ts:666
 
 # Interface: PactoTheme
 
-Defined in: packages/connect-core/dist/index.d.ts:978
+Defined in: packages/connect-core/dist/index.d.ts:990
 
 White-label theming for the checkout widget.
 
@@ -1904,21 +1960,21 @@ vars) or by setting the CSS variables directly in their own stylesheet.
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="colors"></a> `colors` | \&#123; `border`: `string`; `danger`: `string`; `mutedText`: `string`; `overlay`: `string`; `primary`: `string`; `primaryText`: `string`; `surface`: `string`; `text`: `string`; \&#125; | packages/connect-core/dist/index.d.ts:979 |
-| `colors.border` | `string` | packages/connect-core/dist/index.d.ts:985 |
-| `colors.danger` | `string` | packages/connect-core/dist/index.d.ts:987 |
-| `colors.mutedText` | `string` | packages/connect-core/dist/index.d.ts:984 |
-| `colors.overlay` | `string` | packages/connect-core/dist/index.d.ts:986 |
-| `colors.primary` | `string` | packages/connect-core/dist/index.d.ts:980 |
-| `colors.primaryText` | `string` | packages/connect-core/dist/index.d.ts:981 |
-| `colors.surface` | `string` | packages/connect-core/dist/index.d.ts:982 |
-| `colors.text` | `string` | packages/connect-core/dist/index.d.ts:983 |
-| <a id="radius"></a> `radius` | `string` | packages/connect-core/dist/index.d.ts:994 |
-| <a id="spacing"></a> `spacing` | `string` | packages/connect-core/dist/index.d.ts:995 |
-| <a id="typography"></a> `typography` | \&#123; `fontFamily`: `string`; `fontSize`: `string`; `headingSize`: `string`; \&#125; | packages/connect-core/dist/index.d.ts:989 |
-| `typography.fontFamily` | `string` | packages/connect-core/dist/index.d.ts:990 |
-| `typography.fontSize` | `string` | packages/connect-core/dist/index.d.ts:991 |
-| `typography.headingSize` | `string` | packages/connect-core/dist/index.d.ts:992 |
+| <a id="colors"></a> `colors` | \&#123; `border`: `string`; `danger`: `string`; `mutedText`: `string`; `overlay`: `string`; `primary`: `string`; `primaryText`: `string`; `surface`: `string`; `text`: `string`; \&#125; | packages/connect-core/dist/index.d.ts:991 |
+| `colors.border` | `string` | packages/connect-core/dist/index.d.ts:997 |
+| `colors.danger` | `string` | packages/connect-core/dist/index.d.ts:999 |
+| `colors.mutedText` | `string` | packages/connect-core/dist/index.d.ts:996 |
+| `colors.overlay` | `string` | packages/connect-core/dist/index.d.ts:998 |
+| `colors.primary` | `string` | packages/connect-core/dist/index.d.ts:992 |
+| `colors.primaryText` | `string` | packages/connect-core/dist/index.d.ts:993 |
+| `colors.surface` | `string` | packages/connect-core/dist/index.d.ts:994 |
+| `colors.text` | `string` | packages/connect-core/dist/index.d.ts:995 |
+| <a id="radius"></a> `radius` | `string` | packages/connect-core/dist/index.d.ts:1006 |
+| <a id="spacing"></a> `spacing` | `string` | packages/connect-core/dist/index.d.ts:1007 |
+| <a id="typography"></a> `typography` | \&#123; `fontFamily`: `string`; `fontSize`: `string`; `headingSize`: `string`; \&#125; | packages/connect-core/dist/index.d.ts:1001 |
+| `typography.fontFamily` | `string` | packages/connect-core/dist/index.d.ts:1002 |
+| `typography.fontSize` | `string` | packages/connect-core/dist/index.d.ts:1003 |
+| `typography.headingSize` | `string` | packages/connect-core/dist/index.d.ts:1004 |
 
 
 ---
@@ -1939,6 +1995,24 @@ Defined in: packages/connect-core/dist/index.d.ts:506
 | <a id="listingid"></a> `listingId?` | `string` | packages/connect-core/dist/index.d.ts:508 |
 | <a id="price"></a> `price` | `string` | packages/connect-core/dist/index.d.ts:511 |
 | <a id="side"></a> `side` | `"buy"` \| `"sell"` | packages/connect-core/dist/index.d.ts:512 |
+
+
+---
+
+# Interface: ThemeContrastIssue
+
+Defined in: packages/connect-core/dist/index.d.ts:1029
+
+## Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="background"></a> `background` | `string` | - | packages/connect-core/dist/index.d.ts:1033 |
+| <a id="foreground"></a> `foreground` | `string` | - | packages/connect-core/dist/index.d.ts:1032 |
+| <a id="level"></a> `level` | `"AA"` | - | packages/connect-core/dist/index.d.ts:1038 |
+| <a id="minimumratio"></a> `minimumRatio` | `number` | WCAG AA minimum ratio required for this pair. | packages/connect-core/dist/index.d.ts:1037 |
+| <a id="pair"></a> `pair` | `string` | Human-readable name of the failing pair, e.g. "colors.text on colors.surface". | packages/connect-core/dist/index.d.ts:1031 |
+| <a id="ratio"></a> `ratio` | `number` | Measured contrast ratio, rounded to 2 decimal places. | packages/connect-core/dist/index.d.ts:1035 |
 
 
 ---
@@ -2060,7 +2134,7 @@ Defined in: packages/connect-core/dist/index.d.ts:409
 type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] };
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:997
+Defined in: packages/connect-core/dist/index.d.ts:1009
 
 ## Type Parameters
 
@@ -2206,7 +2280,7 @@ Defined in: packages/connect-core/dist/index.d.ts:869
 const DEFAULT_THEME: PactoTheme;
 ```
 
-Defined in: packages/connect-core/dist/index.d.ts:1001
+Defined in: packages/connect-core/dist/index.d.ts:1015
 
 
 ---

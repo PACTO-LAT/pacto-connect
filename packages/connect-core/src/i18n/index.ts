@@ -18,7 +18,7 @@ export {
   formatGender,
   formatPlural,
 } from './format.js';
-export { formatMessage, resolveKeyedMessage } from './messages.js';
+export { formatMessage, resolveKeyedMessage, resolveStepAnnouncement } from './messages.js';
 export { assertCatalogueParity, catalogueKeySignature } from './parity.js';
 export { resolveLocale, resolveMessages } from './resolve.js';
 export type { LocaleResolutionOptions, PactoLocale, PactoMessages, RailRegion } from './types.js';

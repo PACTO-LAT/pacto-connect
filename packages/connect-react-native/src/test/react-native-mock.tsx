@@ -66,15 +66,44 @@ export const Platform = { OS: 'ios' as const };
 
 export const StyleSheet = { create: <T,>(styles: T): T => styles };
 
+/**
+ * Test-only stand-in for `AccessibilityInfo.announceForAccessibility`, which
+ * has no DOM equivalent to assert against. Tests read `__announcements`
+ * instead of mocking the real native module.
+ */
+export const AccessibilityInfo = {
+  announceForAccessibility(announcement: string): void {
+    AccessibilityInfo.__announcements.push(announcement);
+  },
+  __announcements: [] as string[],
+  __reset(): void {
+    AccessibilityInfo.__announcements = [];
+  },
+};
+
 function passthrough(tag: string) {
   return forwardRef<unknown, Record<string, unknown>>((props, ref) => {
-    const { children, accessibilityLabel, accessibilityRole, onPress, ...rest } = props;
+    const {
+      children,
+      accessibilityLabel,
+      accessibilityRole,
+      accessibilityHint,
+      accessibilityViewIsModal,
+      accessibilityLiveRegion,
+      accessible,
+      onPress,
+      ...rest
+    } = props;
     return (
       <div
         ref={ref as never}
         data-rn-component={tag}
         aria-label={accessibilityLabel as string | undefined}
+        aria-hidden={accessible === false ? true : undefined}
+        aria-live={accessibilityLiveRegion as 'off' | 'assertive' | 'polite' | undefined}
         role={accessibilityRole as string | undefined}
+        title={accessibilityHint as string | undefined}
+        data-accessibility-view-is-modal={accessibilityViewIsModal ? 'true' : undefined}
         onClick={onPress as never}
         {...rest}
       >

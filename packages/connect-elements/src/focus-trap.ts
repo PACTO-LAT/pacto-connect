@@ -17,8 +17,14 @@ function getFocusableElements(container: HTMLElement): HTMLElement[] {
 }
 
 export interface FocusTrap {
-  /** Move focus into the container, e.g. after a re-render replaced its children. */
-  refocus(): void;
+  /**
+   * Move focus back inside the container, e.g. after a re-render replaced its
+   * children. Pass `target` to focus a specific element predictably (e.g. the
+   * new step's heading) regardless of where focus currently sits; omit it to
+   * fall back to the original behaviour of only refocusing the first
+   * focusable element when focus has fallen outside the container entirely.
+   */
+  refocus(target?: HTMLElement | null): void;
   /** Remove listeners and restore focus to the previously focused element. */
   release(): void;
 }
@@ -76,7 +82,11 @@ export function createFocusTrap(container: HTMLElement, onEscape?: () => void): 
   focusFirst();
 
   return {
-    refocus(): void {
+    refocus(target?: HTMLElement | null): void {
+      if (target) {
+        target.focus();
+        return;
+      }
       if (!container.contains(document.activeElement)) {
         focusFirst();
       }

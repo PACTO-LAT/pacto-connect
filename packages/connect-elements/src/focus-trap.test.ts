@@ -79,4 +79,49 @@ describe('createFocusTrap', () => {
 
     expect(onEscape).not.toHaveBeenCalled();
   });
+
+  describe('refocus(target)', () => {
+    it('moves focus to the given target regardless of where focus currently sits', () => {
+      const trap = createFocusTrap(container);
+      byId('middle').focus();
+
+      trap.refocus(byId('first'));
+
+      expect(document.activeElement).toBe(byId('first'));
+      trap.release();
+    });
+
+    it('moves focus to the target even when focus is already inside the container', () => {
+      const trap = createFocusTrap(container);
+      byId('last').focus();
+
+      // Without a target, refocus() would be a no-op here since focus never
+      // left the container — but a step change should still move focus
+      // predictably to the new heading/target.
+      trap.refocus(byId('middle'));
+
+      expect(document.activeElement).toBe(byId('middle'));
+      trap.release();
+    });
+
+    it('falls back to focusing the first focusable element when no target is given and focus left the container', () => {
+      const trap = createFocusTrap(container);
+      byId('outside').focus();
+
+      trap.refocus();
+
+      expect(document.activeElement).toBe(byId('first'));
+      trap.release();
+    });
+
+    it('does nothing when no target is given and focus is still inside the container', () => {
+      const trap = createFocusTrap(container);
+      byId('last').focus();
+
+      trap.refocus();
+
+      expect(document.activeElement).toBe(byId('last'));
+      trap.release();
+    });
+  });
 });

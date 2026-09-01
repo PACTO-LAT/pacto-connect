@@ -20,6 +20,7 @@ describe('@pacto-connect/core', () => {
     expect(exportNames).toMatchInlineSnapshot(`
       [
         "CHECKOUT_SNAPSHOT_VERSION",
+        "CONTRAST_LEVEL",
         "CheckoutFlowController",
         "CheckoutQuoteExpiredError",
         "DEFAULT_GATEWAY_URL",
@@ -70,6 +71,7 @@ describe('@pacto-connect/core', () => {
         "formatGender",
         "formatMessage",
         "formatPlural",
+        "formatThemeContrastWarning",
         "generateRequestId",
         "init",
         "isCheckoutSnapshotExpired",
@@ -88,11 +90,15 @@ describe('@pacto-connect/core', () => {
         "resolveKeyedMessage",
         "resolveLocale",
         "resolveMessages",
+        "resolveStepAnnouncement",
+        "resolveTheme",
         "serializeCheckoutSnapshot",
         "sinpeRail",
         "snapshotMatchesScope",
         "speiRail",
         "themeToCssVars",
+        "validateThemeContrast",
+        "warnOnThemeContrastIssues",
       ]
     `);
   });

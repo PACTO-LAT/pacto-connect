@@ -14,4 +14,10 @@ describe('injectPactoCheckoutStyles', () => {
     expect(second).toBe(first);
     expect(first?.textContent).toContain('--pacto-color-primary');
   });
+
+  it('includes the accessibility rules (sr-only live region, visible focus indicator)', () => {
+    const style = injectPactoCheckoutStyles();
+    expect(style?.textContent).toContain('.pacto-checkout-sr-only');
+    expect(style?.textContent).toContain(':focus-visible');
+  });
 });
